@@ -5,19 +5,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React from "react";
 
 export default function Sect() {
   return (
-    <div className="w-full grid grid-cols-4 gap-6">
+    <div className="w-full grid lg:grid-cols-4 gap-6">
       <Card>
         <CardHeader>
           <CardTitle>Total Users</CardTitle>
         </CardHeader>
         <CardContent>
-          <h2>12,847</h2>
+          <h2 className="text-3xl">12,847</h2>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="text-xs lg:text-base">
           <span className="text-emerald-600 pr-2">+12% </span> from last month
         </CardFooter>
       </Card>

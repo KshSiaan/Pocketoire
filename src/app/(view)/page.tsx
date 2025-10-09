@@ -1,19 +1,50 @@
 import { Button } from "@/components/ui/button";
 import Header from "./_home/header";
 import { ArrowRightIcon } from "lucide-react";
+import SubColumn from "./_home/sub-column";
+import Brands from "./_home/brands";
 
 export default function Home() {
   return (
     <>
       <Header />
-      <main>
-        <div className=" p-12 flex justify-between items-center">
-          <h2 className="text-3xl font-semibold">Featured Products</h2>
+      <main className="p-12">
+        <section className="">
+          <h2 className="text-center text-2xl font-semibold">
+            Your taste inspires others-now <br />
+            let it reward you.
+          </h2>
+        </section>
+        <section className="w-full grid lg:grid-cols-3 gap-6 mt-12">
+          <SubColumn />
+        </section>
+        <section className="flex justify-between items-center mt-12">
+          <h2 className="text-lg lg:text-3xl font-semibold">
+            Featured Products
+          </h2>
           <Button variant={"outline"}>
             View All <ArrowRightIcon />
           </Button>
-        </div>
+        </section>
+        <section>
+          <h3 className="font-semibold text-center text-2xl">Shop by Brands</h3>
+          <div className="w-10/11 mx-auto">
+            <Brands />
+          </div>
+        </section>
       </main>
+      <div className="w-full bg-primary p-12 px-0!">
+        <h3 className="text-center text-sm lg:text-3xl text-background font-semibold">
+          Have products to share? Open your Pocketoire storefront <br /> and
+          start earning today.
+        </h3>
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <Button variant={"outline"}>
+            Start your store <ArrowRightIcon />
+          </Button>
+          <Button className="border-2 border-background">Browse Stores</Button>
+        </div>
+      </div>
     </>
   );
 }

@@ -2,16 +2,24 @@
 
 import * as React from "react";
 import {
+  BarChartBigIcon,
   BookOpen,
   Bot,
+  CreditCardIcon,
+  FileBadgeIcon,
   Frame,
+  LayoutDashboardIcon,
+  LayoutList,
   LifeBuoy,
   // biome-ignore lint/suspicious/noShadowRestrictedNames: <explanation>
   Map,
+  NetworkIcon,
   PieChart,
   Send,
   Settings2,
+  SettingsIcon,
   SquareTerminal,
+  UserCogIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -28,127 +36,110 @@ import {
 import Image from "next/image";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+  // user: {
+  //   name: "shadcn",
+  //   email: "m@example.com",
+  //   avatar: "/avatars/shadcn.jpg",
+  // },
   navMain: [
     {
-      title: "Playground",
+      title: "Dashboard",
       url: "#",
-      icon: SquareTerminal,
-      isActive: true,
+      icon: LayoutDashboardIcon,
+    },
+    {
+      title: "User Management",
+      url: "#",
+      icon: UserCogIcon,
       items: [
         {
-          title: "History",
+          title: "Creator",
           url: "#",
         },
         {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
+          title: "Buyer",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Affiliate Feeds",
       url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
+      icon: FileBadgeIcon,
     },
     {
-      title: "Documentation",
+      title: "Reports & Analytics",
       url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
+      icon: BarChartBigIcon,
+    },
+    {
+      title: "Payouts",
+      url: "#",
+      icon: CreditCardIcon,
+    },
+    {
+      title: "Affiliate Network",
+      url: "#",
+      icon: NetworkIcon,
+    },
+    {
+      title: "Content Management",
+      url: "#",
+      icon: LayoutList,
     },
     {
       title: "Settings",
       url: "#",
-      icon: Settings2,
+      icon: SettingsIcon,
       items: [
         {
-          title: "General",
+          title: "Terms & Conditons",
           url: "#",
         },
         {
-          title: "Team",
+          title: "FAQ",
           url: "#",
         },
         {
-          title: "Billing",
+          title: "Privacy Poilicy",
           url: "#",
         },
         {
-          title: "Limits",
+          title: "Contact Us",
           url: "#",
         },
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+  // navSecondary: [
+  //   {
+  //     title: "Support",
+  //     url: "#",
+  //     icon: LifeBuoy,
+  //   },
+  //   {
+  //     title: "Feedback",
+  //     url: "#",
+  //     icon: Send,
+  //   },
+  // ],
+  // projects: [
+  //   {
+  //     name: "Design Engineering",
+  //     url: "#",
+  //     icon: Frame,
+  //   },
+  //   {
+  //     name: "Sales & Marketing",
+  //     url: "#",
+  //     icon: PieChart,
+  //   },
+  //   {
+  //     name: "Travel",
+  //     url: "#",
+  //     icon: Map,
+  //   },
+  // ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -169,12 +160,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {/* <NavProjects projects={data.projects} /> */}
+        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
+      <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
     </Sidebar>
   );
 }
