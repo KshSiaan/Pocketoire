@@ -30,7 +30,7 @@ export default function SubColumn() {
   return (
     <>
       {sections.map((item, i) => (
-        <div key={i} className="flex flex-col gap-4">
+        <div key={i} className="flex flex-col gap-4 italic">
           <h3 className="text-4xl">{item.title}</h3>
           <p>{item.description}</p>
           <Button className="w-fit text-destructive" variant={"link"}>

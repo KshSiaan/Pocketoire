@@ -3,6 +3,7 @@ import Header from "./_home/header";
 import { ArrowRightIcon } from "lucide-react";
 import SubColumn from "./_home/sub-column";
 import Brands from "./_home/brands";
+import Prods from "./_home/prods";
 
 export default function Home() {
   return (
@@ -10,7 +11,7 @@ export default function Home() {
       <Header />
       <main className="p-12">
         <section className="">
-          <h2 className="text-center text-2xl font-semibold">
+          <h2 className="text-center text-4xl italic">
             Your taste inspires others-now <br />
             let it reward you.
           </h2>
@@ -18,13 +19,18 @@ export default function Home() {
         <section className="w-full grid lg:grid-cols-3 gap-6 mt-12">
           <SubColumn />
         </section>
-        <section className="flex justify-between items-center mt-12">
-          <h2 className="text-lg lg:text-3xl font-semibold">
-            Featured Products
-          </h2>
-          <Button variant={"outline"}>
-            View All <ArrowRightIcon />
-          </Button>
+        <section className="mb-12">
+          <div className="flex justify-between items-center mt-12">
+            <h2 className="text-lg lg:text-3xl font-semibold italic">
+              Featured Products
+            </h2>
+            <Button variant={"outline"}>
+              View All <ArrowRightIcon />
+            </Button>
+          </div>
+          <div className="w-full py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Prods />
+          </div>
         </section>
         <section>
           <h3 className="font-semibold text-center text-2xl">Shop by Brands</h3>
