@@ -1,21 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Instagram, Music2, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { FaInstagram, FaTiktok } from "react-icons/fa";
 
 const footerLinks = {
   topCategories: [
-    "Computer & Laptop",
-    "SmartPhone",
-    "Headphone",
-    "Camera & Photo",
-    "TV & Homes",
+    { name: "Computer & Laptop", href: "/explore" },
+    { name: "SmartPhone", href: "/explore" },
+    { name: "Headphone", href: "/explore" },
+    { name: "Camera & Photo", href: "/explore" },
+    { name: "TV & Homes", href: "/explore" },
   ],
-  support: ["Help Center", "FAQs", "Contact Us", "Privacy Policy"],
+  support: [
+    { name: "Terms & Condition", href: "/tnc" },
+    { name: "FAQs", href: "/faq" },
+    { name: "Contact Us", href: "/contact" },
+    { name: "Privacy Policy", href: "/privacy" },
+  ],
 };
 
 const socialLinks = [
-  { icon: Instagram, label: "Instagram", href: "#" },
-  { icon: Music2, label: "TikTok", href: "#" },
+  { icon: FaInstagram, label: "Instagram", href: "#" },
+  { icon: FaTiktok, label: "TikTok", href: "#" },
 ];
 
 export default function Footer() {
@@ -62,7 +68,7 @@ export default function Footer() {
                 aria-label={label}
                 className="size-10 rounded-full bg-background flex items-center justify-center hover:bg-background/90 transition-colors"
               >
-                <Icon className="size-5 text-primary" />
+                <Icon className="size-5 text-secondary!" />
               </Link>
             ))}
           </div>
@@ -83,20 +89,20 @@ function FooterSection({
   browseAll = false,
 }: {
   title: string;
-  items: string[];
+  items: { name: string; href: string }[];
   browseAll?: boolean;
 }) {
   return (
     <div>
       <h3 className="text-base font-semibold mb-4">{title}</h3>
       <ul className="space-y-2">
-        {items.map((item) => (
-          <li key={item}>
+        {items.map(({ name, href }) => (
+          <li key={name}>
             <Link
-              href="#"
+              href={href}
               className="text-sm hover:text-background/80 transition-colors block"
             >
-              {item}
+              {name}
             </Link>
           </li>
         ))}
@@ -104,7 +110,7 @@ function FooterSection({
         {browseAll && (
           <li className="pt-2">
             <Link
-              href="#"
+              href="/explore"
               className="text-sm text-destructive font-bold inline-flex items-center gap-1 transition-colors"
             >
               Browse All Product
