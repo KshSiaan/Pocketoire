@@ -19,7 +19,7 @@ import { SearchIcon, SlidersHorizontalIcon } from "lucide-react";
 
 export default function Header() {
   return (
-    <header className="h-[60dvh] lg:h-[calc(100dvh-72px)] w-full p-4 sm:p-8 lg:p-12">
+    <header className="h-[50dvh] lg:h-[calc(100dvh-72px)] w-full p-4 sm:p-8 lg:p-12">
       <div
         className="h-full w-full bg-primary rounded-xl bg-cover bg-no-repeat bg-center"
         style={{ backgroundImage: `url('/image/header.jpg')` }}

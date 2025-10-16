@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="p-12">
+      <main className="p-4 lg:p-12">
         <section className="">
           <h2 className="text-center text-4xl italic">
             Your taste inspires others-now <br />
@@ -32,7 +32,7 @@ export default function Home() {
             <Prods />
           </div>
         </section>
-        <section>
+        <section className="px-8 lg:px-0">
           <h3 className="font-semibold text-center text-2xl">Shop by Brands</h3>
           <div className="w-10/11 mx-auto">
             <Brands />

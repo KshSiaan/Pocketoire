@@ -18,62 +18,60 @@ export default function LoginForm() {
 
   return (
     <>
-      <div className="w-2/3 space-y-6 mt-6">
-        <Label className="text-destructive">Email</Label>
-        <InputGroup className="bg-white">
-          <InputGroupInput placeholder="ivan231@gmail.com" />
-          <InputGroupAddon>
-            <MailIcon />
-          </InputGroupAddon>
-        </InputGroup>
+      <div className="w-full sm:w-4/5 md:w-2/3 lg:w-3/4 space-y-6 mt-6">
+        <div>
+          <Label className="text-destructive">Email</Label>
+          <InputGroup className="bg-white mt-1">
+            <InputGroupInput placeholder="ivan231@gmail.com" />
+            <InputGroupAddon>
+              <MailIcon />
+            </InputGroupAddon>
+          </InputGroup>
+        </div>
 
-        <Label className="text-destructive">Password</Label>
-        <InputGroup className="bg-white">
-          <InputGroupInput
-            type={showPassword ? "text" : "password"}
-            placeholder="********"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <InputGroupAddon>
-            <KeyRoundIcon />
-          </InputGroupAddon>
-          <InputGroupAddon
-            align={"inline-end"}
-            onClick={() => setShowPassword(!showPassword)}
-            className="cursor-pointer"
-          >
-            {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-          </InputGroupAddon>
-        </InputGroup>
+        <div>
+          <Label className="text-destructive">Password</Label>
+          <InputGroup className="bg-white mt-1">
+            <InputGroupInput
+              type={showPassword ? "text" : "password"}
+              placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <InputGroupAddon>
+              <KeyRoundIcon />
+            </InputGroupAddon>
+            <InputGroupAddon
+              align="inline-end"
+              onClick={() => setShowPassword(!showPassword)}
+              className="cursor-pointer"
+            >
+              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+            </InputGroupAddon>
+          </InputGroup>
+        </div>
 
-        <div className="w-full flex justify-between items-center">
+        <div className="flex justify-between items-center text-xs">
           <div className="flex items-center gap-2">
             <Checkbox
               id="remember"
               name="remember"
-              className="
-                border-destructive
-                data-[state=checked]:bg-destructive
-                data-[state=checked]:border-destructive
-              "
+              className="border-destructive data-[state=checked]:bg-destructive data-[state=checked]:border-destructive"
             />
-            <Label className="text-xs" htmlFor="remember">
-              Remember me
-            </Label>
+            <Label htmlFor="remember">Remember me</Label>
           </div>
           <Link
-            href={"/forgot"}
-            className="text-xs font-semibold text-destructive hover:underline"
+            href="/forgot"
+            className="font-semibold text-destructive hover:underline"
           >
             Forgot Password?
           </Link>
         </div>
 
-        <Button className="w-full" variant={"destructive"}>
+        <Button className="w-full" variant="destructive">
           Log in
         </Button>
-        <Button className="w-full" variant={"outline"}>
+        <Button className="w-full" variant="outline">
           <FcGoogle /> Continue with Google
         </Button>
       </div>
@@ -82,10 +80,10 @@ export default function LoginForm() {
         Don’t have an account?{" "}
         <Button
           className="px-0 text-destructive font-semibold cursor-pointer"
-          variant={"link"}
+          variant="link"
           asChild
         >
-          <Link href={"/signup"}>Sign up</Link>
+          <Link href="/signup">Sign up</Link>
         </Button>
       </div>
     </>

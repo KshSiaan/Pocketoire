@@ -7,8 +7,8 @@ export default function Page() {
         title="Terms & Condition"
         desc="Last updated: September 07, 2025. Please read these terms carefully before using the Pocketoire platform."
       />
-      <main className="my-[100px]">
-        <Card className="w-3/4 mx-auto">
+      <main className="my-[100px] px-4">
+        <Card className="lg:w-3/4 mx-auto">
           <CardContent>
             Welcome to CoverageGrader. By accessing or using our website and
             services (the "Platform"), you agree to be bound by these Terms of

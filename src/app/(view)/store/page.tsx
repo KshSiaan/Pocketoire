@@ -30,11 +30,14 @@ import {
   PaginationItem,
   PaginationLink,
 } from "@/components/ui/pagination";
+
 export default function Page() {
   const [values, setValues] = useState([0, 100]);
+
   return (
     <>
-      <header className="h-[50dvh] p-6 mb-[120px]">
+      {/* Header */}
+      <header className="h-[50dvh] p-4 sm:p-6 mb-[120px] relative">
         <div className="w-full h-full bg-primary rounded-lg relative">
           <Image
             src={"/image/cover.jpg"}
@@ -42,55 +45,68 @@ export default function Page() {
             alt="cover_photo"
             className="object-cover rounded-lg"
           />
-          <Avatar className="absolute size-[220px] -bottom-[110px] left-[110px] border-4 border-destructive outline-4 outline-background z-50">
+          <Avatar className="absolute size-[150px] sm:size-[180px] md:size-[220px] -bottom-[75px] sm:-bottom-[90px] md:-bottom-[110px] left-1/2 md:left-[110px] -translate-x-1/2 md:translate-x-0 border-4 border-destructive outline-4 outline-background z-50">
             <AvatarImage src={"https://avatar.iran.liara.run/public"} />
             <AvatarFallback>UI</AvatarFallback>
           </Avatar>
         </div>
       </header>
-      <main className="px-12">
-        <section className="px-20 space-y-4 mb-12">
-          <span className="flex items-start gap-2">
-            <h1 className="text-4xl font-bold mr-6">
+
+      <main className="px-4 sm:px-8 lg:px-12">
+        {/* Store Info */}
+        <section className="px-0 sm:px-10 lg:px-20 space-y-4 mb-12 text-center md:text-left">
+          <span className="flex flex-col md:flex-row md:items-start gap-4 md:gap-2 justify-center md:justify-start">
+            <h1 className="text-3xl sm:text-4xl font-bold mr-0 md:mr-6">
               Tech & Lifestyle Essentials
             </h1>
-            <Button
-              variant={"ghost"}
-              className="bg-secondary/20 text-secondary rounded-full"
-              size={"icon"}
-            >
-              <FaInstagram />
-            </Button>
-            <Button
-              variant={"ghost"}
-              className="bg-secondary/20 text-secondary rounded-full"
-              size={"icon"}
-            >
-              <FaTiktok />
-            </Button>
+            <div className="flex justify-center md:justify-start gap-3">
+              <Button
+                variant={"ghost"}
+                className="bg-secondary/20 text-secondary rounded-full"
+                size={"icon"}
+              >
+                <FaInstagram />
+              </Button>
+              <Button
+                variant={"ghost"}
+                className="bg-secondary/20 text-secondary rounded-full"
+                size={"icon"}
+              >
+                <FaTiktok />
+              </Button>
+            </div>
           </span>
-          <span className="flex items-center gap-4">
-            <p className="text-xl">by John doe</p>
-            <BoxesIcon className="text-secondary" />{" "}
-            <p className="text-secondary font-semibold text-lg">122 Products</p>
+
+          <span className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-4">
+            <p className="text-lg sm:text-xl">by John Doe</p>
+            <span className="flex items-center gap-2">
+              <BoxesIcon className="text-secondary w-5 h-5" />
+              <p className="text-secondary font-semibold text-base sm:text-lg">
+                122 Products
+              </p>
+            </span>
           </span>
-          <h4 className="text-2xl font-bold">About This Store</h4>
-          <p className="text-lg">
+
+          <h4 className="text-xl sm:text-2xl font-bold">About This Store</h4>
+          <p className="text-base sm:text-lg max-w-2xl mx-auto md:mx-0">
             Curated collection of the best tech gadgets and lifestyle products I
             personally use and recommend.
           </p>
         </section>
-        <section className="grid grid-cols-4 gap-6 pb-12">
-          <div className="col-span-1 border-t pt-6 flex flex-col gap-6">
-            <Label className="text-xl uppercase">Price Range</Label>
+
+        {/* Filters + Products */}
+        <section className="grid grid-cols-1 lg:grid-cols-4 gap-8 pb-12">
+          {/* Sidebar Filters */}
+          <div className="border-t pt-6 flex flex-col gap-6">
+            <Label className="text-lg sm:text-xl uppercase">Price Range</Label>
             <DualRangeSlider
-              // label={(value) => <span>{value}℃</span>}
               value={values}
               onValueChange={setValues}
               min={0}
               max={100}
               step={1}
             />
+
             <div className="w-full grid grid-cols-2 gap-2">
               <Input
                 placeholder="Min price"
@@ -103,6 +119,7 @@ export default function Page() {
                 type="number"
               />
             </div>
+
             <div>
               <RadioGroup defaultValue="comfortable">
                 <div className="flex items-center gap-3">
@@ -127,9 +144,13 @@ export default function Page() {
                 </div>
               </RadioGroup>
             </div>
+
             <Separator />
-            <Label className="text-xl uppercase">Popular Brands</Label>
-            <div className="w-full grid grid-cols-2 gap-6">
+
+            <Label className="text-lg sm:text-xl uppercase">
+              Popular Brands
+            </Label>
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
               {[
                 "Apple",
                 "Google",
@@ -145,7 +166,7 @@ export default function Page() {
                 "Intel",
                 "One Plus",
               ].map((brand) => (
-                <div key={brand} className="flex items-center gap-3">
+                <div key={brand} className="flex items-center gap-2 sm:gap-3">
                   <Checkbox
                     value={brand.toLowerCase()}
                     id={brand.toLowerCase()}
@@ -155,18 +176,23 @@ export default function Page() {
               ))}
             </div>
           </div>
-          <div className="col-span-3">
-            <div className="w-full flex justify-between items-center">
-              <InputGroup className="border-destructive rounded-none bg-white w-[400px]">
+
+          {/* Products */}
+          <div className="col-span-1 lg:col-span-3">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <InputGroup className="border-destructive rounded-none bg-white w-full md:w-[400px]">
                 <InputGroupInput placeholder="Search by product name, tags" />
                 <InputGroupAddon align={"inline-end"}>
                   <SearchIcon />
                 </InputGroupAddon>
               </InputGroup>
-              <div className="flex items-center gap-4">
-                <Label htmlFor="sorter">Sort by:</Label>
+
+              <div className="flex items-center gap-3 md:gap-4">
+                <Label htmlFor="sorter" className="whitespace-nowrap">
+                  Sort by:
+                </Label>
                 <Select>
-                  <SelectTrigger className="border-destructive rounded-none bg-white">
+                  <SelectTrigger className="border-destructive rounded-none bg-white w-[180px]">
                     <SelectValue placeholder="Select Sort" />
                   </SelectTrigger>
                   <SelectContent>
@@ -175,19 +201,21 @@ export default function Page() {
                 </Select>
               </div>
             </div>
-            <div className="mt-6 grid grid-cols-3 gap-6">
+
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <Prods />
             </div>
-            <div className="mt-24">
+
+            <div className="my-16 sm:my-24 flex justify-center">
               <Pagination>
                 <PaginationContent>
-                  <PaginationItem className="text-secondary border-secondary rounded-full! border">
-                    <PaginationLink href="#" className="rounded-full!">
+                  <PaginationItem className="text-secondary border-secondary border rounded-full">
+                    <PaginationLink href="#" className="rounded-full">
                       <ChevronLeft />
                     </PaginationLink>
                   </PaginationItem>
 
-                  <PaginationItem className="bg-destructive rounded-full border text-background">
+                  <PaginationItem className="bg-destructive text-background rounded-full border">
                     <PaginationLink href="#">1</PaginationLink>
                   </PaginationItem>
 
@@ -199,8 +227,8 @@ export default function Page() {
                     <PaginationLink href="#">3</PaginationLink>
                   </PaginationItem>
 
-                  <PaginationItem className="text-secondary border-secondary rounded-full! border">
-                    <PaginationLink href="#" className="rounded-full!">
+                  <PaginationItem className="text-secondary border-secondary border rounded-full">
+                    <PaginationLink href="#" className="rounded-full">
                       <ChevronRight />
                     </PaginationLink>
                   </PaginationItem>

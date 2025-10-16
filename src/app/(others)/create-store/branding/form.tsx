@@ -1,15 +1,12 @@
 "use client";
-import { Checkbox } from "@/components/ui/checkbox";
-
 import { Label } from "@/components/ui/label";
-
-import Link from "next/link";
-import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ImageIcon, UserCircle2Icon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Form() {
+  const navig = useRouter();
   return (
     <div className="w-2/3 space-y-6! mt-6">
       <Label className="text-destructive">Profile Picture</Label>
@@ -38,10 +35,18 @@ export default function Form() {
       </label>
       <div className="h-2"></div>
       <div className="flex justify-between items-center">
-        <Button variant="outline" className="border-primary">
+        <Button
+          variant="outline"
+          className="border-primary"
+          onClick={() => {
+            navig.back();
+          }}
+        >
           Back
         </Button>
-        <Button variant={"secondary"}>Continue</Button>
+        <Button variant={"secondary"} asChild>
+          <Link href={"/create-store/about"}>Continue</Link>
+        </Button>
       </div>
     </div>
   );

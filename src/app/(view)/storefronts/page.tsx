@@ -29,9 +29,9 @@ export default function Page() {
         desc="Explore unique shops from creators worldwide and uncover hidden gems
           tailored for you."
       />
-      <main className="mt-12 p-12">
-        <div className="w-full flex justify-between items-center">
-          <InputGroup className="w-[400px] bg-white rounded-none!">
+      <main className="mt-12 p-4 lg:p-12">
+        <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-6">
+          <InputGroup className="lg:w-[400px] bg-white rounded-none!">
             <InputGroupInput placeholder="Search by Store Name" />
             <InputGroupAddon align={"inline-end"}>
               <SearchIcon />
@@ -50,10 +50,10 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="w-full grid grid-cols-4 gap-6 mt-12">
+        <div className="w-full grid lg:grid-cols-4 gap-6 mt-12">
           <Stores />
         </div>
-        <div className="mt-24">
+        <div className="my-24">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

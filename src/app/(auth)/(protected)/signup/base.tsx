@@ -27,7 +27,7 @@ export default function Base({
         <Form />
       </section>
       <section
-        className="w-full h-full rounded-xl bg-primary bg-cover bg-center shadow-xl"
+        className="hidden lg:block w-full h-full rounded-xl bg-primary bg-cover bg-center shadow-xl"
         style={{ backgroundImage: `url('${image}')` }}
       />
     </>

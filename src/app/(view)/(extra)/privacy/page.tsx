@@ -8,8 +8,8 @@ export default function Page() {
         desc="Privacy Policy
 Last updated: September 07, 2025. Your privacy matters to us. Here’s how we handle your data to keep it safe and secure."
       />
-      <main className="my-[100px]">
-        <Card className="w-3/4 mx-auto">
+      <main className="my-[100px] p-4">
+        <Card className="lg:w-3/4 mx-auto">
           <CardContent>
             Welcome to CoverageGrader. By accessing or using our website and
             services (the "Platform"), you agree to be bound by these Terms of

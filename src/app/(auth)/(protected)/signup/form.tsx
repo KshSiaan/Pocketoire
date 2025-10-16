@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 export default function Form() {
   return (
     <>
-      <div className="w-2/3 space-y-6 mt-6">
+      <div className="lg:w-2/3 space-y-6 mt-6">
         <Label className="text-destructive">Email</Label>
         <InputGroup className="bg-white">
           <InputGroupInput placeholder="ivan231@gmail.com" />

@@ -16,8 +16,8 @@ export default function Page() {
         title="Frequently Asked Questions"
         desc="Find answers to common questions about Pocketoire and how our community works."
       />
-      <main className="my-[100px]">
-        <Card className="w-3/4 mx-auto">
+      <main className="my-[100px] p-4">
+        <Card className="lg:w-3/4 mx-auto">
           <CardContent>
             <Accordion
               type="single"
@@ -73,7 +73,7 @@ export default function Page() {
             </Accordion>
           </CardContent>
         </Card>
-        <Card className="w-3/4 mx-auto mt-12">
+        <Card className="lg:w-3/4 mx-auto mt-12">
           <CardContent className="space-y-6 text-center">
             <h3 className="text-4xl text-center">
               Can't find what you're looking for?

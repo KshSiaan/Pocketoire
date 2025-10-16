@@ -43,14 +43,16 @@ export default function Navbar() {
     <nav className="relative h-18 w-full bg-primary flex items-center px-6">
       {/* Logo */}
       <div className="flex-shrink-0">
-        <Image
-          alt="logo"
-          draggable={false}
-          height={48}
-          width={48}
-          src="/logo.png"
-          className="size-12"
-        />
+        <Link href={"/"}>
+          <Image
+            alt="logo"
+            draggable={false}
+            height={48}
+            width={48}
+            src="/logo.png"
+            className="size-12"
+          />
+        </Link>
       </div>
 
       {/* Center Nav (Desktop) */}

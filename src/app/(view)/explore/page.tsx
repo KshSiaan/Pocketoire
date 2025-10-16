@@ -1,18 +1,21 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { DualRangeSlider } from "@/components/ui/dual-slider";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRightIcon,
-  BoxesIcon,
   ChevronLeft,
   ChevronRight,
   SearchIcon,
 } from "lucide-react";
-import { useState } from "react";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
+
+import Header from "@/components/core/header";
+import { Button } from "@/components/ui/button";
+import { DualRangeSlider } from "@/components/ui/dual-slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,54 +31,70 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Prods from "../_home/prods";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
 } from "@/components/ui/pagination";
-import Header from "@/components/core/header";
+
+import Prods from "../_home/prods";
 import Stores from "../storefronts/stores";
-import Link from "next/link";
 
 export default function Page() {
   const [values, setValues] = useState([0, 100]);
+
+  const brands = [
+    "Apple",
+    "Google",
+    "Microsoft",
+    "Samsung",
+    "Dell",
+    "HP",
+    "Symphony",
+    "Xiaomi",
+    "Sony",
+    "Panasonic",
+    "LG",
+    "Intel",
+    "One Plus",
+  ];
+
   return (
     <>
       <Header
         title="Explore Amazing Products"
-        desc="Discover curated products from top creators and find your next favorite item"
+        desc="Discover curated products from top creators and find your next favorite item."
       />
-      <main className="p-12 mt-12">
-        <section className="grid grid-cols-4 gap-6 pb-12">
-          <div className="col-span-1 border-t pt-6 flex flex-col gap-6">
-            <Label className="text-xl uppercase">Price Range</Label>
-            <DualRangeSlider
-              // label={(value) => <span>{value}℃</span>}
-              value={values}
-              onValueChange={setValues}
-              min={0}
-              max={100}
-              step={1}
-            />
-            <div className="w-full grid grid-cols-2 gap-2">
-              <Input
-                placeholder="Min price"
-                className="bg-white rounded-none"
-                type="number"
-              />
-              <Input
-                placeholder="Max price"
-                className="bg-white rounded-none"
-                type="number"
-              />
-            </div>
+
+      <main className="px-8 lg:px-16 py-12 mt-12 space-y-16">
+        {/* Filter + Product Section */}
+        <section className="grid grid-cols-1 lg:grid-cols-4 gap-10 pb-12">
+          {/* Sidebar Filters */}
+          <aside className="border-t pt-6 flex flex-col gap-8">
+            {/* Price Range */}
             <div>
-              <RadioGroup defaultValue="comfortable">
+              <Label className="text-xl uppercase font-semibold">
+                Price Range
+              </Label>
+              <div className="mt-4">
+                <DualRangeSlider
+                  value={values}
+                  onValueChange={setValues}
+                  min={0}
+                  max={100}
+                  step={1}
+                />
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Input placeholder="Min" type="number" className="bg-white" />
+                  <Input placeholder="Max" type="number" className="bg-white" />
+                </div>
+              </div>
+
+              <RadioGroup defaultValue="comfortable" className="mt-4 space-y-3">
                 <div className="flex items-center gap-3">
                   <RadioGroupItem value="default" id="r1" />
-                  <Label htmlFor="r1">All Price</Label>
+                  <Label htmlFor="r1">All Prices</Label>
                 </div>
                 <div className="flex items-center gap-3">
                   <RadioGroupItem value="comfortable" id="r2" />
@@ -95,108 +114,111 @@ export default function Page() {
                 </div>
               </RadioGroup>
             </div>
+
             <Separator />
-            <Label className="text-xl uppercase">Popular Brands</Label>
-            <div className="w-full grid grid-cols-2 gap-6">
-              {[
-                "Apple",
-                "Google",
-                "Microsoft",
-                "Samsung",
-                "Dell",
-                "HP",
-                "Symphony",
-                "Xiaomi",
-                "Sony",
-                "Panasonic",
-                "LG",
-                "Intel",
-                "One Plus",
-              ].map((brand) => (
-                <div key={brand} className="flex items-center gap-3">
-                  <Checkbox
-                    value={brand.toLowerCase()}
-                    id={brand.toLowerCase()}
-                  />
-                  <Label htmlFor={brand.toLowerCase()}>{brand}</Label>
-                </div>
-              ))}
+
+            {/* Brands */}
+            <div>
+              <Label className="text-xl uppercase font-semibold">
+                Popular Brands
+              </Label>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                {brands.map((brand) => (
+                  <div key={brand} className="flex items-center gap-3">
+                    <Checkbox id={brand.toLowerCase()} />
+                    <Label htmlFor={brand.toLowerCase()}>{brand}</Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="col-span-3">
-            <div className="w-full flex justify-between items-center">
-              <InputGroup className="border-destructive rounded-none bg-white w-[400px]">
-                <InputGroupInput placeholder="Search by product name, tags" />
-                <InputGroupAddon align={"inline-end"}>
+          </aside>
+
+          {/* Product Grid */}
+          <div className="lg:col-span-3 space-y-8">
+            {/* Search + Sort */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              <InputGroup className="bg-white w-full lg:w-[400px] border">
+                <InputGroupInput placeholder="Search by product name, tags..." />
+                <InputGroupAddon align="inline-end">
                   <SearchIcon />
                 </InputGroupAddon>
               </InputGroup>
-              <div className="flex items-center gap-4">
+
+              <div className="flex items-center gap-3">
                 <Label htmlFor="sorter">Sort by:</Label>
                 <Select>
-                  <SelectTrigger className="border-destructive rounded-none bg-white">
+                  <SelectTrigger className="bg-white border">
                     <SelectValue placeholder="Select Sort" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">Most Popular</SelectItem>
+                    <SelectItem value="2">Newest</SelectItem>
+                    <SelectItem value="3">Price: Low to High</SelectItem>
+                    <SelectItem value="4">Price: High to Low</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="mt-6 grid grid-cols-3 gap-6">
+
+            {/* Products */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <Prods />
             </div>
           </div>
         </section>
-        <div className="mt-24">
+
+        {/* Pagination */}
+        <div className="flex justify-center mt-8">
           <Pagination>
-            <PaginationContent>
-              <PaginationItem className="text-secondary border-secondary rounded-full! border">
-                <PaginationLink href="#" className="rounded-full!">
+            <PaginationContent className="gap-2">
+              <PaginationItem>
+                <PaginationLink href="#">
                   <ChevronLeft />
                 </PaginationLink>
               </PaginationItem>
-
-              <PaginationItem className="bg-destructive rounded-full border text-background">
-                <PaginationLink href="#">1</PaginationLink>
-              </PaginationItem>
-
-              <PaginationItem className="bg-white rounded-full border">
-                <PaginationLink href="#">2</PaginationLink>
-              </PaginationItem>
-
-              <PaginationItem className="bg-white rounded-full border">
-                <PaginationLink href="#">3</PaginationLink>
-              </PaginationItem>
-
-              <PaginationItem className="text-secondary border-secondary rounded-full! border">
-                <PaginationLink href="#" className="rounded-full!">
+              {[1, 2, 3].map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href="#"
+                    className={`rounded-full ${
+                      page === 1
+                        ? "bg-destructive text-background"
+                        : "bg-white border"
+                    }`}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationLink href="#">
                   <ChevronRight />
                 </PaginationLink>
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         </div>
-        <section className="mt-12">
-          <h1 className="text-center font-bold text-4xl italic">
-            Featured Storefronts
-          </h1>
-          <div className="w-full grid grid-cols-4 gap-6 mt-12">
+
+        {/* Storefronts */}
+        <section className="mt-16 text-center">
+          <h1 className="text-4xl font-bold italic">Featured Storefronts</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
             <Stores amm={4} />
           </div>
+
+          <div className="mt-12 flex justify-center">
+            <Button
+              className="px-12 py-6 border-2 text-base"
+              variant="outline"
+              size="lg"
+              asChild
+            >
+              <Link href="/storefronts">
+                Browse Stores <ArrowRightIcon className="ml-2" />
+              </Link>
+            </Button>
+          </div>
         </section>
-        <div className="mt-12 flex justify-center">
-          <Button
-            className="px-12! py-6 border-secondary border-2 text-base text-secondary"
-            variant={"outline"}
-            size={"lg"}
-            asChild
-          >
-            <Link href={"/storefronts"}>
-              Browse Stores <ArrowRightIcon />
-            </Link>
-          </Button>
-        </div>
       </main>
     </>
   );

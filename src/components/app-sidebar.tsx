@@ -23,9 +23,9 @@ import {
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
-import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
+// import { NavProjects } from "@/components/nav-projects";
+// import { NavSecondary } from "@/components/nav-secondary";
+// import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -34,17 +34,13 @@ import {
   SidebarMenu,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import Link from "next/link";
 
 const data = {
-  // user: {
-  //   name: "shadcn",
-  //   email: "m@example.com",
-  //   avatar: "/avatars/shadcn.jpg",
-  // },
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: LayoutDashboardIcon,
     },
     {
@@ -54,37 +50,37 @@ const data = {
       items: [
         {
           title: "Creator",
-          url: "#",
+          url: "/user/creator",
         },
         {
           title: "Buyer",
-          url: "#",
+          url: "/user/buyer",
         },
       ],
     },
     {
       title: "Affiliate Feeds",
-      url: "#",
+      url: "/affiliate-feeds",
       icon: FileBadgeIcon,
     },
     {
       title: "Reports & Analytics",
-      url: "#",
+      url: "/report",
       icon: BarChartBigIcon,
     },
     {
       title: "Payouts",
-      url: "#",
+      url: "/payouts",
       icon: CreditCardIcon,
     },
     {
       title: "Affiliate Network",
-      url: "#",
+      url: "/network",
       icon: NetworkIcon,
     },
     {
       title: "Content Management",
-      url: "#",
+      url: "/content",
       icon: LayoutList,
     },
     {
@@ -94,52 +90,23 @@ const data = {
       items: [
         {
           title: "Terms & Conditons",
-          url: "#",
+          url: "/settings/tnc",
         },
         {
           title: "FAQ",
-          url: "#",
+          url: "/settings/faq",
         },
         {
           title: "Privacy Poilicy",
-          url: "#",
+          url: "/settings/privacy",
         },
         {
           title: "Contact Us",
-          url: "#",
+          url: "/settings/contact",
         },
       ],
     },
   ],
-  // navSecondary: [
-  //   {
-  //     title: "Support",
-  //     url: "#",
-  //     icon: LifeBuoy,
-  //   },
-  //   {
-  //     title: "Feedback",
-  //     url: "#",
-  //     icon: Send,
-  //   },
-  // ],
-  // projects: [
-  //   {
-  //     name: "Design Engineering",
-  //     url: "#",
-  //     icon: Frame,
-  //   },
-  //   {
-  //     name: "Sales & Marketing",
-  //     url: "#",
-  //     icon: PieChart,
-  //   },
-  //   {
-  //     name: "Travel",
-  //     url: "#",
-  //     icon: Map,
-  //   },
-  // ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -148,13 +115,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="pt-12">
         <SidebarMenu>
           <div className="w-full flex justify-center items-center">
-            <Image
-              src={"/logo.png"}
-              height={240}
-              width={260}
-              alt="icon"
-              className="size-[64px]"
-            />
+            <Link href={"/"}>
+              <Image
+                src={"/logo.png"}
+                height={240}
+                width={260}
+                alt="icon"
+                className="size-[64px]"
+              />
+            </Link>
           </div>
         </SidebarMenu>
       </SidebarHeader>

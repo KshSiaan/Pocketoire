@@ -1,12 +1,8 @@
 "use client";
-import { Checkbox } from "@/components/ui/checkbox";
-
 import { Label } from "@/components/ui/label";
-
-import Link from "next/link";
-import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 export default function Form() {
   return (
@@ -20,8 +16,8 @@ export default function Form() {
         pocketoire.com/<span className="text-destructive">username</span>
       </div>
       <p className="text-xs">This will be your unique storefront URL</p>
-      <Button variant={"secondary"} className="w-full">
-        Continue
+      <Button variant={"secondary"} className="w-full" asChild>
+        <Link href={"/create-store/branding"}>Continue</Link>
       </Button>
     </div>
   );
