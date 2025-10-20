@@ -1,4 +1,3 @@
-// page.tsx
 import Base from "./base";
 
 export default function Page() {
