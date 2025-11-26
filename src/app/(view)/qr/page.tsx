@@ -11,7 +11,15 @@ const Scanner = dynamic(
 export default function Page() {
   return (
     <Scanner
-      onScan={(result) => toast.success(result.toString())}
+      onScan={(result) =>
+        toast.success(
+          <pre className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
+            <code className="whitespace-pre-wrap">
+              {JSON.stringify(result, null, 2)}
+            </code>
+          </pre>
+        )
+      }
       onError={(err: any) => console.log(err?.message)}
     />
   );
