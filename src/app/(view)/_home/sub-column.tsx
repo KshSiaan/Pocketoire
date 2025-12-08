@@ -6,22 +6,46 @@ export default function SubColumn() {
   const sections = [
     {
       title: "Join",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu.",
+      description: (
+        <>
+          Discover a new way to share your travel expertise. <br />
+          <br /> Become a Pocketoire creator and transform your favorite hotels,
+          stays, and experiences into beautifully curated collections. Whether
+          you’re a seasoned traveler or an emerging voice, joining gives you
+          access to a platform designed to showcase your taste and grow your
+          influence.
+        </>
+      ),
       image: "/image/a1.jpeg",
       buttonText: "View Profile",
     },
     {
       title: "Curate",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu.",
+      description: (
+        <>
+          Build personalized travel guides that inspire your audience. <br />
+          <br />
+          Save your favorite stays, hidden gems, and must-do activities into
+          collections that reflect your unique travel style. With intuitive
+          tools and elegant layouts, Pocketoire makes it effortless to curate
+          trips your followers will love—and trust.
+        </>
+      ),
       image: "/image/create.jpg",
       buttonText: "View Profile",
     },
     {
       title: "Earn",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu.",
+      description: (
+        <>
+          Turn your travel recommendations into meaningful income. <br />
+          <br />
+          Every time someone books through your Pocketoire links, you earn
+          commission—no extra work required. Track clicks, bookings, and
+          earnings directly from your creator dashboard, and get rewarded for
+          the destinations and experiences you already adore.
+        </>
+      ),
       image: "/image/login.jpg",
       buttonText: "View Profile",
     },
@@ -30,14 +54,14 @@ export default function SubColumn() {
   return (
     <>
       {sections.map((item, i) => (
-        <div key={i} className="flex flex-col gap-4 italic">
-          <h3 className="text-4xl">{item.title}</h3>
-          <p>{item.description}</p>
-          <Button className="w-fit text-destructive" variant={"link"}>
-            {item.buttonText} <ArrowRightIcon />
-          </Button>
+        <div key={i} className="flex flex-col justify-between italic">
+          <div className="flex flex-col gap-4">
+            <h3 className="text-4xl">{item.title}</h3>
+            <p>{item.description}</p>
+          </div>
+
           <Image
-            className="aspect-square object-center object-cover lg:aspect-[4/5] rounded-lg"
+            className="aspect-square object-center object-cover lg:aspect-[4/5] rounded-lg mt-4"
             src={item.image}
             height={1400}
             width={600}

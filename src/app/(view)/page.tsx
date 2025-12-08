@@ -4,6 +4,7 @@ import { ArrowRightIcon } from "lucide-react";
 import SubColumn from "./_home/sub-column";
 import Brands from "./_home/brands";
 import Prods from "./_home/prods";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -33,7 +34,9 @@ export default function Home() {
           </div>
         </section>
         <section className="px-8 lg:px-0">
-          <h3 className="font-semibold text-center text-2xl">Shop by Brands</h3>
+          <h3 className="font-semibold text-center text-2xl">
+            Shop by Location
+          </h3>
           <div className="w-10/11 mx-auto">
             <Brands />
           </div>
@@ -45,10 +48,14 @@ export default function Home() {
           start earning today.
         </h3>
         <div className="flex items-center justify-center gap-2 mt-6">
-          <Button variant={"outline"}>
-            Start your store <ArrowRightIcon />
+          <Button variant={"outline"} asChild>
+            <Link href={"/create-store/info"}>
+              Start your store <ArrowRightIcon />
+            </Link>
           </Button>
-          <Button className="border-2 border-background">Browse Stores</Button>
+          <Button className="border-2 border-background" asChild>
+            <Link href={"/storefronts"}>Browse Stores</Link>
+          </Button>
         </div>
       </div>
     </>

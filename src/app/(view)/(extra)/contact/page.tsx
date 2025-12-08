@@ -67,12 +67,12 @@ export default function Page() {
             <CardContent className="space-y-3 text-base leading-relaxed">
               <p>For direct inquiries, reach our support team at:</p>
               <p className="text-secondary font-semibold">
-                support@coveragegrader.com
+                pocketoiretravel@gmail.com
               </p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm">
+          {/* <Card className="shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <MapPinIcon className="text-secondary" />
@@ -85,7 +85,7 @@ export default function Page() {
                 San Francisco, CA 94105
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </main>
     </>

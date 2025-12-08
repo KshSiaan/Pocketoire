@@ -5,11 +5,10 @@ import { FaInstagram, FaTiktok } from "react-icons/fa";
 
 const footerLinks = {
   topCategories: [
-    { name: "Computer & Laptop", href: "/explore" },
-    { name: "SmartPhone", href: "/explore" },
-    { name: "Headphone", href: "/explore" },
-    { name: "Camera & Photo", href: "/explore" },
-    { name: "TV & Homes", href: "/explore" },
+    { name: "Hotels", href: "/explore" },
+    { name: "Activities", href: "/explore" },
+    { name: "Restaurants", href: "/explore" },
+    { name: "Vacation Rentals", href: "/explore" },
   ],
   support: [
     { name: "Terms & Condition", href: "/tnc" },
@@ -42,6 +41,16 @@ export default function Footer() {
             <p className="text-lg font-bold">Pocketoire</p>
           </div>
           <p className="text-sm mt-3">pocketoiretravel@gmail.com</p>
+          <div className="mt-4 text-sm text-start  text-background/70">
+            <span className="text-background font-semibold">
+              Affiliate Disclosure:
+            </span>{" "}
+            Some of the links on this website are affiliate links. <br /> This
+            means that Pocketoire may earn a commission if you click through and
+            make a purchase, at no additional cost to you. We only feature
+            travel products, hotels, and experiences that our creators genuinely
+            recommend.
+          </div>
         </div>
 
         {/* Top Category */}
