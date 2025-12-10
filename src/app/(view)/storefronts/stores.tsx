@@ -38,7 +38,8 @@ export default function Stores({ amm }: { amm?: number }) {
           <p className="font-semibold text-secondary">124 Products</p>
           <div className="flex items-center gap-6 text-lg">
             <p className="font-light italic">
-              The latest tech gadgets you need your daily basis.
+              A curated collection inspired by my favourite journeys, place and
+              adventures.
             </p>
           </div>
         </CardHeader>

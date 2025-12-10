@@ -22,7 +22,7 @@ export default function Page() {
 
         <div className="space-y-4">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold italic">
-            Wireless Noise-Cancelling Headphones
+            Hotel in Chicago
           </h1>
 
           <span className="flex flex-wrap items-center gap-4 sm:gap-6 mt-4">
@@ -33,9 +33,7 @@ export default function Page() {
           </span>
 
           <p className="mt-4 text-base sm:text-lg leading-relaxed">
-            Premium over-ear headphones with active noise cancellation and
-            30-hour battery life. Premium over-ear headphones with active noise
-            cancellation and 30-hour battery life.
+            Luxury hotel in downtown chicago
           </p>
 
           <div className="bg-[#F0ECE2] flex justify-start items-center p-3 sm:p-4 mt-6 gap-2 italic rounded-md">
@@ -46,7 +44,7 @@ export default function Page() {
               alt="amazon_icon"
               className="size-5 sm:size-6 mr-2"
             />
-            Sold By <span className="font-bold not-italic ml-1">Amazon</span>
+            Sold By <span className="font-bold not-italic ml-1">Expedia</span>
           </div>
 
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mt-6">
@@ -55,7 +53,7 @@ export default function Page() {
               // size={"lg"}
               className="flex-1 flex items-center justify-center gap-2 text-base sm:text-lg"
             >
-              <FaShoppingCart /> Shop now at Amazon
+              <FaShoppingCart /> Shop now at Expedia
             </Button>
             <div className="flex justify-center sm:justify-start gap-3">
               <Button

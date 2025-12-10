@@ -57,7 +57,7 @@ export default function Page() {
         <section className="px-0 sm:px-10 lg:px-20 space-y-4 mb-12 text-center md:text-left">
           <span className="flex flex-col md:flex-row md:items-start gap-4 md:gap-2 justify-center md:justify-start">
             <h1 className="text-3xl sm:text-4xl font-bold mr-0 md:mr-6">
-              Tech & Lifestyle Essentials
+              My Favourite Travel Finds
             </h1>
             <div className="flex justify-center md:justify-start gap-3">
               <Button
@@ -89,8 +89,8 @@ export default function Page() {
 
           <h4 className="text-xl sm:text-2xl font-bold">About This Store</h4>
           <p className="text-base sm:text-lg max-w-2xl mx-auto md:mx-0">
-            Curated collection of the best tech gadgets and lifestyle products I
-            personally use and recommend.
+            Curated collection of the best travel experiences i personally use
+            and recommend
           </p>
         </section>
 
@@ -152,19 +152,19 @@ export default function Page() {
             </Label>
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
               {[
-                "Apple",
-                "Google",
-                "Microsoft",
-                "Samsung",
-                "Dell",
-                "HP",
-                "Symphony",
-                "Xiaomi",
-                "Sony",
-                "Panasonic",
-                "LG",
-                "Intel",
-                "One Plus",
+                "Hotels",
+                "Restaurants",
+                "Activities",
+                "Vacation rentals",
+                // "Dell",
+                // "HP",
+                // "Symphony",
+                // "Xiaomi",
+                // "Sony",
+                // "Panasonic",
+                // "LG",
+                // "Intel",
+                // "One Plus",
               ].map((brand) => (
                 <div key={brand} className="flex items-center gap-2 sm:gap-3">
                   <Checkbox
