@@ -13,7 +13,9 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import { cn } from "@/lib/utils";
-
+import { useCookies } from "react-cookie";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useMeStore } from "@/lib/moon/user-store";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Browse Storefronts", href: "/storefronts" },
@@ -23,7 +25,8 @@ const navLinks = [
 
 export default function Navbar() {
   const path = usePathname();
-
+  const [{ token }] = useCookies(["token"]);
+  const me = useMeStore((state) => state.me);
   const renderLinks = (isMobile = false) =>
     navLinks.map(({ label, href }) => (
       <Button
@@ -32,7 +35,7 @@ export default function Navbar() {
         variant="ghost"
         className={cn(
           "font-medium rounded-none text-background",
-          path === href && "border border-background"
+          path === href && "border border-background",
         )}
       >
         <Link href={href}>{label}</Link>
@@ -62,9 +65,20 @@ export default function Navbar() {
 
       {/* Auth Button (Desktop) */}
       <div className="ml-auto hidden lg:block">
-        <Button variant="outline" className="font-semibold" asChild>
-          <Link href="/login">Login / Sign Up</Link>
-        </Button>
+        {token ? (
+          <Link href={"/profile"}>
+            <Avatar suppressHydrationWarning>
+              <AvatarImage src={me?.profile_photo} />
+              <AvatarFallback className="uppercase">
+                {me?.name.slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
+        ) : (
+          <Button variant="outline" className="font-semibold" asChild>
+            <Link href="/login">Login / Sign Up</Link>
+          </Button>
+        )}
       </div>
 
       {/* Mobile Menu */}

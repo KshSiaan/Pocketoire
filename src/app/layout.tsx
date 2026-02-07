@@ -3,6 +3,7 @@ import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import GodProvider from "@/provider/god-provider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -30,7 +31,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <GodProvider>{children}</GodProvider>
           <Toaster
             position="top-center"
             richColors
