@@ -67,7 +67,7 @@ export default function Navbar() {
       <div className="ml-auto hidden lg:block">
         {token ? (
           <Link href={"/profile"}>
-            <Avatar suppressHydrationWarning>
+            <Avatar>
               <AvatarImage src={me?.profile_photo} />
               <AvatarFallback className="uppercase">
                 {me?.name.slice(0, 2)}

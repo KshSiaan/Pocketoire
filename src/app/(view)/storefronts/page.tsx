@@ -21,7 +21,28 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Header from "@/components/core/header";
-export default function Page() {
+import { cookies } from "next/headers";
+import { howl } from "@/lib/utils";
+import { ApiResponse, Paginator } from "@/types/base";
+export default async function Page() {
+  const data: ApiResponse<
+    Paginator<
+      {
+        id: number;
+        user_id: number;
+        name: string;
+        bio: string;
+        total_sold: number;
+        total_products: number;
+        user: {
+          id: number;
+          name: string;
+          profile_photo: string;
+          cover_photo: string;
+        };
+      }[]
+    >
+  > = await howl("/storefronts");
   return (
     <>
       <Header
@@ -29,6 +50,7 @@ export default function Page() {
         desc="Explore unique shops from creators worldwide and uncover hidden gems
           tailored for you."
       />
+
       <main className="mt-12 p-4 lg:p-12">
         <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-6">
           <InputGroup className="lg:w-[400px] bg-white rounded-none!">
@@ -49,9 +71,8 @@ export default function Page() {
             </Select>
           </div>
         </div>
-
         <div className="w-full grid lg:grid-cols-4 gap-6 mt-12">
-          <Stores />
+          <Stores data={data?.data?.data} />
         </div>
         <div className="my-24">
           <Pagination>

@@ -40,5 +40,25 @@ export async function howl<T>(
 
   return res.json() as Promise<T>;
 }
+export const blankImg = (
+  x?: number | string,
+  y?: number | string
+) => {
+  if (x && y) {
+    return `https://placehold.co/${x}x${y}/png`;
+  }
+  if (x) {
+    return `https://placehold.co/${x}x${x}/png`;
+  }
+  return `https://placehold.co/500x500/png`;
+};
 
 export type idk = any;
+
+
+export function makeImg(x:string):string{
+    if (x?.includes("http")) {
+        return x
+    }    
+    return `${base_url}/${x}`
+}

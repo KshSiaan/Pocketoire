@@ -7,12 +7,28 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React from "react";
-import Prods from "../_home/prods";
+import Prods from "@/app/(view)/_home/prods";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { cookies } from "next/headers";
+import { howl } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import Link from "next/link";
 
-export default function Page() {
+export default async function Page() {
+  const token = (await cookies()).get("token")?.value;
+  // const data = await howl("");
   return (
     <main className="p-12">
       <h1 className="text-4xl text-center">Account & Support</h1>
@@ -55,13 +71,33 @@ export default function Page() {
               <CardDescription>Find Answe to common questions</CardDescription>
             </CardHeader>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl text-destructive">
-                Log out
-              </CardTitle>
-            </CardHeader>
-          </Card>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Card className="flex justify-center items-center cursor-pointer hover:border-2 hover:border-destructive hover:bg-destructive/10">
+                <CardContent className="flex justify-center items-center">
+                  <CardTitle className="text-2xl text-destructive">
+                    Log out
+                  </CardTitle>
+                </CardContent>
+              </Card>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Are you sure you want to log out?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  You will need to log in again to access your account.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Link href="/logout">Log out</Link>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
       <div className="mt-12">

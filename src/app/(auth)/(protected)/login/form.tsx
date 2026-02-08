@@ -66,7 +66,7 @@ export default function LoginForm() {
           path: "/",
           maxAge: remember ? 60 * 60 * 24 * 30 : undefined,
         });
-        useMeStore.getState().setEmail(res.data.user);
+        useMeStore.getState().setMe(res.data.user);
         navig.push("/");
       } catch (error) {
         console.error(error);

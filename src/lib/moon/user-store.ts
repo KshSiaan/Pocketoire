@@ -6,16 +6,16 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 
 type MailStore = {
   me: UserType|null
-  setEmail: (me: UserType) => void
-  removeEmail: () => void
+  setMe: (me: UserType) => void
+  removeMe: () => void
 }
 
 export const useMeStore = create<MailStore>()(
   persist(
     (set, get) => ({
         me: null,
-        setEmail: (me: UserType|null) => set({me}),
-        removeEmail: () => set({me:null})
+        setMe: (me: UserType) => set({me}),
+        removeMe: () => set({me:null})
     }),
     {
       name: 'user-me', // name of the item in the storage (must be unique)

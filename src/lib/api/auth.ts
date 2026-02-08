@@ -40,3 +40,10 @@ export async function verifyOtpApi(body: {email: string; otp: string;}):Promise<
         body
     })
 }
+
+export async function forgotApi(body: {email: string;}):Promise<ApiResponse<any>> {
+    return howl("/auth/forgot-password",{
+        method:"POST",
+        body
+    })
+}

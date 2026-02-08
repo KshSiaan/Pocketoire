@@ -44,7 +44,7 @@ export default function DBNavs() {
                 className={cn(
                   "text-lg w-full justify-start items-center gap-3 italic transition-all duration-150 rounded-none",
                   "hover:bg-secondary hover:text-background text-muted-foreground",
-                  isActive && "border-b border-secondary text-foreground"
+                  isActive && "border-b border-secondary text-foreground",
                 )}
               >
                 <x.icon className="size-6" />

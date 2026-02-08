@@ -20,3 +20,22 @@ export interface UserType {
   created_at: string
   updated_at: string
 }
+
+export interface ProductType {
+        id: number
+        user_id: number
+        storefront_id: number
+        album_id: number
+        title: string
+        description: string
+        price: string
+        currency: string
+        product_link: string
+        viator_product_code: string
+        status: string
+        created_at: string
+        updated_at: string
+        clicks_count: number
+        sales_count: number
+        sales_sum_creator_commission?: string
+}
