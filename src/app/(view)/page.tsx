@@ -5,6 +5,7 @@ import SubColumn from "./_home/sub-column";
 import Brands from "./_home/brands";
 import Prods from "./_home/prods";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Home() {
   return (
@@ -38,7 +39,9 @@ export default function Home() {
             Shop by Location
           </h3>
           <div className="w-10/11 mx-auto">
-            <Brands />
+            <Suspense>
+              <Brands />
+            </Suspense>
           </div>
         </section>
       </main>

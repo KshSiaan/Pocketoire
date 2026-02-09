@@ -6,8 +6,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import Image from "next/image";
-export default function Brands() {
+
+export default async function Brands() {
   return (
     <Carousel
       opts={{

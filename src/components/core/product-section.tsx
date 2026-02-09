@@ -4,7 +4,7 @@ import { ApiResponse } from "@/types/base";
 import { ProductType } from "@/types/global";
 import Image from "next/image";
 import Link from "next/link";
-interface expandedProductType extends ProductType {
+export interface expandedProductType extends ProductType {
   product_image: {
     id: number;
     product_id: number;
@@ -14,10 +14,12 @@ interface expandedProductType extends ProductType {
     updated_at: string;
   };
 }
-export default async function Prods({ amm }: { amm?: number }) {
-  const data: ApiResponse<expandedProductType[]> =
-    await howl("/products/featured");
-  return data?.data.map((prod, i) => (
+export default async function ProductSection({
+  datas,
+}: {
+  datas?: expandedProductType[];
+}) {
+  return datas?.map((prod, i) => (
     <Link href={`/store/${prod?.storefront_id}/product/${prod?.id}`} key={i}>
       <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
         <CardHeader className="px-0!">
