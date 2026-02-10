@@ -142,6 +142,9 @@ export default async function Page({
             <Butts
               storeId={data?.data?.product?.storefront_id}
               id={data?.data?.product?.id}
+              title={data?.data?.product?.title}
+              desc={data?.data?.product?.description}
+              
             />
           </div>
         </div>

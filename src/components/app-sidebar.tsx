@@ -58,11 +58,11 @@ const data = {
         },
       ],
     },
-    {
-      title: "Affiliate Feeds",
-      url: "/affiliate-feeds",
-      icon: FileBadgeIcon,
-    },
+    // {
+    //   title: "Affiliate Feeds",
+    //   url: "/affiliate-feeds",
+    //   icon: FileBadgeIcon,
+    // },
     {
       title: "Reports & Analytics",
       url: "/report",
@@ -73,11 +73,11 @@ const data = {
       url: "/payouts",
       icon: CreditCardIcon,
     },
-    {
-      title: "Affiliate Network",
-      url: "/network",
-      icon: NetworkIcon,
-    },
+    // {
+    //   title: "Affiliate Network",
+    //   url: "/network",
+    //   icon: NetworkIcon,
+    // },
     {
       title: "Content Management",
       url: "/content",
