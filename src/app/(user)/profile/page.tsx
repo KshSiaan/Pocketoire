@@ -12,7 +12,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { cookies } from "next/headers";
-import { howl } from "@/lib/utils";
+import { howl, makeImg } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,11 +42,11 @@ export default async function Page() {
   });
   return (
     <main className="p-12">
-      <pre className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
+      {/* <pre className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
         <code className="whitespace-pre-wrap">
           {JSON.stringify(data, null, 2)}
         </code>
-      </pre>
+      </pre> */}
       <h1 className="text-4xl text-center">Account & Support</h1>
       <div className="grid grid-cols-2 mt-6 gap-6">
         <Card>
@@ -58,12 +58,14 @@ export default async function Page() {
               <Avatar className="size-[120px]">
                 <AvatarImage
                   src={
-                    data.data?.user?.profile_photo ||
-                    "https://avatar.iran.liara.run/public"
+                    data.data?.user?.profile_photo
+                      ? makeImg(`storage/${data.data.user.profile_photo}`)
+                      : "https://avatar.iran.liara.run/public"
                   }
                 />
                 <AvatarFallback>UI</AvatarFallback>
               </Avatar>
+              {/* {makeImg(`storage/${data.data.user.profile_photo}`)} */}
             </div>
             <div>
               <h4 className="text-2xl font-semibold">
