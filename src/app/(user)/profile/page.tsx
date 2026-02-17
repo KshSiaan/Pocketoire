@@ -25,12 +25,28 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
+import { ApiResponse } from "@/types/base";
 
 export default async function Page() {
   const token = (await cookies()).get("token")?.value;
-  // const data = await howl("");
+  const data: ApiResponse<{
+    user: {
+      id: number;
+      name: string;
+      email: string;
+      profile_photo: any;
+      saved_products: Array<any>;
+    };
+  }> = await howl("/profile", {
+    token,
+  });
   return (
     <main className="p-12">
+      <pre className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
+        <code className="whitespace-pre-wrap">
+          {JSON.stringify(data, null, 2)}
+        </code>
+      </pre>
       <h1 className="text-4xl text-center">Account & Support</h1>
       <div className="grid grid-cols-2 mt-6 gap-6">
         <Card>
@@ -40,37 +56,52 @@ export default async function Page() {
           <CardContent className="flex justify-start items-start gap-6!">
             <div className="">
               <Avatar className="size-[120px]">
-                <AvatarImage src={"https://avatar.iran.liara.run/public"} />
+                <AvatarImage
+                  src={
+                    data.data?.user?.profile_photo ||
+                    "https://avatar.iran.liara.run/public"
+                  }
+                />
                 <AvatarFallback>UI</AvatarFallback>
               </Avatar>
             </div>
             <div>
-              <h4 className="text-2xl font-semibold">Sarah Wilson</h4>
-              <p>sarah.wilson@email.com</p>
+              <h4 className="text-2xl font-semibold">
+                {data.data?.user?.name}
+              </h4>
+              <p>{data.data?.user?.email}</p>
             </div>
           </CardContent>
         </Card>
         <div className="grid grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Edit Profile</CardTitle>
-              <CardDescription>
-                Update your name and profile picture
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Change Password</CardTitle>
-              <CardDescription>Update your Account security</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Help Center</CardTitle>
-              <CardDescription>Find Answe to common questions</CardDescription>
-            </CardHeader>
-          </Card>
+          <Link href={"/profile/edit"}>
+            <Card className="hover:border-blue-600 hover:border-2 hover:bg-blue-600/10">
+              <CardHeader>
+                <CardTitle>Edit Profile</CardTitle>
+                <CardDescription>
+                  Update your name and profile picture
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+          <Link href={"/profile/change-password"}>
+            <Card className="hover:border-blue-600 hover:border-2 hover:bg-blue-600/10">
+              <CardHeader>
+                <CardTitle>Change Password</CardTitle>
+                <CardDescription>Update your Account security</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+          <Link href={"/contact"}>
+            <Card className="hover:border-blue-600 hover:border-2 hover:bg-blue-600/10">
+              <CardHeader>
+                <CardTitle>Help Center</CardTitle>
+                <CardDescription>
+                  Find Answe to common questions
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Card className="flex justify-center items-center cursor-pointer hover:border-2 hover:border-destructive hover:bg-destructive/10">
