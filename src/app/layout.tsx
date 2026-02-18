@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import GodProvider from "@/provider/god-provider";
+import { Suspense } from "react";
+import Cookier from "@/components/core/cookier";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -31,7 +33,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <GodProvider>{children}</GodProvider>
+          <GodProvider>
+            {children}
+            <Suspense>
+              <Cookier />
+            </Suspense>
+          </GodProvider>
           <Toaster
             position="top-center"
             richColors

@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React from "react";
+import React, { Suspense } from "react";
 import Prods from "@/app/(view)/_home/prods";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -26,16 +26,36 @@ import {
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
 import { ApiResponse } from "@/types/base";
+import BrowsingHistory from "./browsing-history";
 
 export default async function Page() {
   const token = (await cookies()).get("token")?.value;
+  const historyOK = (await cookies()).get("historyConsent")?.value;
   const data: ApiResponse<{
     user: {
       id: number;
       name: string;
       email: string;
       profile_photo: any;
-      saved_products: Array<any>;
+      saved_products: Array<{
+        id: number;
+        title: string;
+        price: string;
+        pivot: {
+          user_id: number;
+          product_id: number;
+          created_at: string;
+          updated_at: string;
+        };
+        product_image: {
+          id: number;
+          product_id: number;
+          image: string;
+          source: string;
+          created_at: string;
+          updated_at: string;
+        };
+      }>;
     };
   }> = await howl("/profile", {
     token,
@@ -65,8 +85,8 @@ export default async function Page() {
                 />
                 <AvatarFallback>UI</AvatarFallback>
               </Avatar>
-              {/* {makeImg(`storage/${data.data.user.profile_photo}`)} */}
             </div>
+
             <div>
               <h4 className="text-2xl font-semibold">
                 {data.data?.user?.name}
@@ -75,6 +95,7 @@ export default async function Page() {
             </div>
           </CardContent>
         </Card>
+        {/* {makeImg(`storage/${data.data.user.profile_photo}`)} */}
         <div className="grid grid-cols-2 gap-6">
           <Link href={"/profile/edit"}>
             <Card className="hover:border-blue-600 hover:border-2 hover:bg-blue-600/10">
@@ -136,41 +157,48 @@ export default async function Page() {
       <div className="mt-12">
         <h4 className="text-3xl">Saved Products</h4>
         <div className="w-full grid grid-cols-4 gap-6 mt-6">
-          <Prods amm={4} />
-        </div>
-      </div>
-      <div className="mt-12">
-        <h4 className="text-3xl">Browsing history</h4>
-        <div className="w-full grid grid-cols-2 gap-6 mt-6">
-          {Array(4)
-            .fill("")
-            .map((_, i) => (
-              <Card className="border-2 border-secondary" key={i}>
-                <CardContent className="flex justify-start items-start w-full gap-6">
+          {data.data?.user?.saved_products.map((prod, i) => (
+            <Link
+              href={`/store/${prod?.pivot?.user_id}/product/${prod?.id}`}
+              key={i}
+            >
+              <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
+                <CardHeader className="px-0!">
                   <Image
-                    src={"/image/product.jpg"}
-                    height={600}
-                    width={900}
-                    alt="product_img"
-                    className="h-24 aspect-video! w-34 rounded-lg"
+                    src={
+                      prod.product_image?.image
+                        ? makeImg(`${prod.product_image?.image}`)
+                        : "/image/product.jpeg"
+                    }
+                    alt="product"
+                    height={500}
+                    width={500}
+                    unoptimized
+                    className="aspect-video object-cover object-center rounded-lg"
                   />
-                  <div className="flex-1">
-                    <h4 className="font-bold">
-                      Wireless Noise-Cancelling Headphones
-                    </h4>
-                    <p className="text-muted-foreground">By Jon Jones</p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-lg font-semibold">$299.99</p>
-                      <Button variant={"link"} className="text-secondary">
-                        View Again <ArrowRight />
-                      </Button>
-                    </div>
+                </CardHeader>
+                <CardHeader className="px-0!">
+                  <CardTitle>{prod.title}</CardTitle>
+                  <div className="flex items-center gap-6 text-xl">
+                    <p className="font-black">${prod.price}</p>
+                    {/* <del className="font-light! opacity-80">$319.99</del> */}
                   </div>
-                </CardContent>
+                </CardHeader>
               </Card>
-            ))}
+            </Link>
+          ))}
         </div>
       </div>
+      {historyOK && (
+        <div className="mt-12">
+          <h4 className="text-3xl">Browsing history</h4>
+          <div className="w-full grid grid-cols-2 gap-6 mt-6">
+            <Suspense>
+              <BrowsingHistory />
+            </Suspense>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -5,8 +5,8 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 
 
 type MailStore = {
-  me: UserType|null
-  setMe: (me: UserType) => void
+  me: Partial<UserType>|null
+  setMe: (me: Partial<UserType>) => void
   removeMe: () => void
 }
 
@@ -14,7 +14,7 @@ export const useMeStore = create<MailStore>()(
   persist(
     (set, get) => ({
         me: null,
-        setMe: (me: UserType) => set({me}),
+        setMe: (me: Partial<UserType>) => set({me}),
         removeMe: () => set({me:null})
     }),
     {

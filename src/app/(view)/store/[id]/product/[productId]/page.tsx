@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRightIcon, HeartIcon, Share2Icon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import Prods from "@/app/(view)/_home/prods";
 import { howl, makeImg } from "@/lib/utils";
@@ -11,6 +11,8 @@ import { ApiResponse } from "@/types/base";
 import ProductSection from "@/components/core/product-section";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Butts from "./butts";
+import { cookies } from "next/headers";
+import BrowseStore from "./browse-store";
 
 export default async function Page({
   params,
@@ -18,7 +20,7 @@ export default async function Page({
   params: Promise<{ id: string; productId: string }>;
 }) {
   const { id, productId } = await params;
-
+  const token = (await cookies()).get("token")?.value;
   const data: ApiResponse<{
     product: {
       id: number;
@@ -32,6 +34,7 @@ export default async function Page({
       product_link: string;
       viator_product_code: string;
       status: string;
+      is_saved: boolean;
       created_at: string;
       updated_at: string;
       storefront: {
@@ -76,7 +79,7 @@ export default async function Page({
         updated_at: string;
       };
     }>;
-  }> = await howl(`/products/${productId}`);
+  }> = await howl(`/products/${productId}`, { token });
   return (
     <main className="p-4 sm:p-8 lg:p-12">
       {/* Product Overview */}
@@ -144,7 +147,7 @@ export default async function Page({
               id={data?.data?.product?.id}
               title={data?.data?.product?.title}
               desc={data?.data?.product?.description}
-              
+              isSaved={data?.data?.product?.is_saved}
             />
           </div>
         </div>
@@ -228,6 +231,9 @@ export default async function Page({
           ))}
         </div>
       </section>
+      <Suspense>
+        <BrowseStore data={data?.data?.product} />
+      </Suspense>
     </main>
   );
 }

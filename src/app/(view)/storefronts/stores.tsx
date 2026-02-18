@@ -13,7 +13,7 @@ import { makeImg } from "@/lib/utils";
 export default function Stores({
   data,
 }: {
-  data: {
+  data?: {
     id: number;
     user_id: number;
     name: string;

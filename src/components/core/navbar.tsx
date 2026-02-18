@@ -12,10 +12,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
-import { cn } from "@/lib/utils";
+import { cn, makeImg } from "@/lib/utils";
 import { useCookies } from "react-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useMeStore } from "@/lib/moon/user-store";
+import { useEffect } from "react";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Browse Storefronts", href: "/storefronts" },
@@ -26,6 +27,7 @@ const navLinks = [
 export default function Navbar() {
   const path = usePathname();
   const [{ token }] = useCookies(["token"]);
+  useEffect(() => {}, []);
   const me = useMeStore((state) => state.me);
   const renderLinks = (isMobile = false) =>
     navLinks.map(({ label, href }) => (
@@ -68,9 +70,15 @@ export default function Navbar() {
         {token ? (
           <Link href={"/profile"}>
             <Avatar>
-              <AvatarImage src={me?.profile_photo} />
+              <AvatarImage
+                src={
+                  me?.profile_photo
+                    ? makeImg(`storage/${me?.profile_photo}`)
+                    : ""
+                }
+              />
               <AvatarFallback className="uppercase">
-                {me?.name.slice(0, 2)}
+                {me?.name?.slice(0, 2)}
               </AvatarFallback>
             </Avatar>
           </Link>
