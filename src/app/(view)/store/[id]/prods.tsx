@@ -28,23 +28,66 @@ import Prods from "../../_home/prods";
 import { Suspense, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
+import { howl, makeImg } from "@/lib/utils";
+import { useCookies } from "react-cookie";
+import { ApiResponse, Paginator } from "@/types/base";
+import Link from "next/link";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 export default function Prodss() {
-  const [minMax, setMinMax] = useState([0, 100000]);
-  const [debouncedMinMax, setDebouncedMinMax] = useDebounceValue(minMax, 500);
+  const [minMax, setMinMax] = useState<[number, number]>([0, 100000]);
+  const [{ token }] = useCookies(["token"]);
+  const [debouncedMin] = useDebounceValue(minMax[0], 500);
+  const [debouncedMax] = useDebounceValue(minMax[1], 500);
+
   const [search, setSearch] = useDebounceValue("", 500);
   const [sort, setSort] = useState("");
 
-  //   const { data, isPending } = useQuery({
-  //     queryKey: ["store_prods"],
-  //   });
+  const { data, isPending, isRefetching } = useQuery({
+    queryKey: ["store_prods", search, sort, debouncedMin, debouncedMax],
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    setDebouncedMinMax(minMax);
-  }, [minMax]);
-  useEffect(() => {
-    console.log(search);
-  }, [search]);
+    placeholderData: (prev) => prev,
+    queryFn: async (): Promise<
+      ApiResponse<{
+        profile: {
+          store_name: string;
+          bio: string;
+          profile_photo: string;
+          cover_photo: string;
+          store_slug: string;
+          instagram: any;
+          tiktok: any;
+          total_products: number;
+        };
+        products: Paginator<
+          {
+            id: number;
+            user_id: number;
+            storefront_id: number;
+            album_id: number;
+            title: string;
+            description: string;
+            price: string;
+            currency: string;
+            product_link: string;
+            viator_product_code: string;
+            status: string;
+            created_at: string;
+            updated_at: string;
+            clicks_count: number;
+            sales_count: number;
+            sales_sum_creator_commission?: string;
+          }[]
+        >;
+      }>
+    > => {
+      return howl(
+        `/storefront/2/profile?search=${search}&sort=${sort}&min_price=${debouncedMin}&max_price=${debouncedMax}`,
+        { token },
+      );
+    },
+  });
+
   return (
     <section className="grid grid-cols-1 lg:grid-cols-4 gap-8 pb-12">
       {/* Sidebar Filters */}
@@ -52,12 +95,12 @@ export default function Prodss() {
         <Label className="text-lg sm:text-xl uppercase">Price Range</Label>
         <DualRangeSlider
           value={minMax}
-          onValueChange={setMinMax}
+          onValueChange={(val) => setMinMax(val as [number, number])}
           min={0}
           max={100000}
           step={1}
         />
-        {JSON.stringify(debouncedMinMax)}
+        {/* {JSON.stringify(debouncedMin)} - {JSON.stringify(debouncedMax)} */}
         <div className="w-full grid grid-cols-2 gap-2">
           <Input
             placeholder="Min price"
@@ -65,7 +108,7 @@ export default function Prodss() {
             type="number"
             value={minMax[0]}
             onChange={(e) => {
-              const newMin = Number(e.target.value);
+              const newMin = Math.max(0, Number(e.target.value) || 0);
               if (newMin <= minMax[1]) {
                 setMinMax([newMin, minMax[1]]);
               }
@@ -77,38 +120,13 @@ export default function Prodss() {
             type="number"
             value={minMax[1]}
             onChange={(e) => {
-              const newMax = Number(e.target.value);
+              const newMax = Math.max(0, Number(e.target.value) || 0);
               if (newMax >= minMax[0]) {
                 setMinMax([minMax[0], newMax]);
               }
             }}
           />
         </div>
-
-        {/* <div>
-          <RadioGroup defaultValue="comfortable">
-            <div className="flex items-center gap-3">
-              <RadioGroupItem value="default" id="r1" />
-              <Label htmlFor="r1">All Price</Label>
-            </div>
-            <div className="flex items-center gap-3">
-              <RadioGroupItem value="comfortable" id="r2" />
-              <Label htmlFor="r2">Under $20</Label>
-            </div>
-            <div className="flex items-center gap-3">
-              <RadioGroupItem value="r3" id="r3" />
-              <Label htmlFor="r3">$25 to $100</Label>
-            </div>
-            <div className="flex items-center gap-3">
-              <RadioGroupItem value="r4" id="r4" />
-              <Label htmlFor="r4">$500 to $1,000</Label>
-            </div>
-            <div className="flex items-center gap-3">
-              <RadioGroupItem value="r5" id="r5" />
-              <Label htmlFor="r5">$1,000 to $10,000</Label>
-            </div>
-          </RadioGroup>
-        </div> */}
       </div>
 
       {/* Products */}
@@ -128,7 +146,7 @@ export default function Prodss() {
             <Label htmlFor="sorter" className="whitespace-nowrap">
               Sort by:
             </Label>
-            <Select>
+            <Select onValueChange={setSort}>
               <SelectTrigger className="border-destructive rounded-none bg-white w-[180px]">
                 <SelectValue placeholder="Select Sort" />
               </SelectTrigger>
@@ -145,9 +163,44 @@ export default function Prodss() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* <Suspense>
-            <Prods />
-          </Suspense> */}
+          <Suspense>
+            {/* <Prods /> */}
+            {data?.data?.products?.data.map((prod, i) => (
+              <Link
+                href={`/store/${prod?.storefront_id}/product/${prod?.id}`}
+                key={i}
+              >
+                <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
+                  <CardHeader className="px-0!">
+                    {/* <Image
+                        src={
+                        prod?.?.image
+                            ? makeImg(`${prod.product_image?.image}`)
+                            : "/image/product.jpeg"
+                        }
+                        alt="product"
+                        height={500}
+                        width={500}
+                        unoptimized
+                        className="aspect-video object-cover object-center rounded-lg"
+                    /> */}
+                  </CardHeader>
+                  <CardHeader className="px-0!">
+                    <CardTitle>{prod.title}</CardTitle>
+                    <div className="flex items-center gap-6 text-xl">
+                      <p className="font-black">${prod.price}</p>
+                      {/* <del className="font-light! opacity-80">$319.99</del> */}
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))}
+          </Suspense>
+          <pre className="bg-gradient-to-br col-span-3 from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
+            <code className="whitespace-pre-wrap">
+              {JSON.stringify(data?.data?.products?.data, null, 2)}
+            </code>
+          </pre>
         </div>
         {search}
         <div className="my-16 sm:my-24 flex justify-center">
