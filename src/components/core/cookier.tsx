@@ -7,6 +7,7 @@ export default function Cookier() {
   return (
     <CookieConsent
       variant={"small"}
+      
       onAcceptCallback={() => console.log("Accepted")}
       onDeclineCallback={() => console.log("Declined")}
     />

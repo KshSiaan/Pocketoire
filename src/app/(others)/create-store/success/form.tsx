@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2Icon } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 export default function Form() {
   return (
     <div className="w-2/3 space-y-6! flex flex-col justify-center items-center">

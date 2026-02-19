@@ -3,7 +3,6 @@ import { DualRangeSlider } from "@/components/ui/dual-slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight, SearchIcon } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import {
   InputGroup,
@@ -24,13 +23,12 @@ import {
   PaginationItem,
   PaginationLink,
 } from "@/components/ui/pagination";
-import Prods from "../../_home/prods";
 import { Suspense, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
-import { howl, makeImg } from "@/lib/utils";
+import { howl } from "@/lib/utils";
 import { useCookies } from "react-cookie";
-import { ApiResponse, Paginator } from "@/types/base";
+import type { ApiResponse, Paginator } from "@/types/base";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
@@ -41,10 +39,11 @@ export default function Prodss() {
   const [debouncedMax] = useDebounceValue(minMax[1], 500);
 
   const [search, setSearch] = useDebounceValue("", 500);
-  const [sort, setSort] = useState("");
+  const [sort, setSort] = useState("all");
+  const [page, setPage] = useState(1);
 
   const { data, isPending, isRefetching } = useQuery({
-    queryKey: ["store_prods", search, sort, debouncedMin, debouncedMax],
+    queryKey: ["store_prods", search, sort, debouncedMin, debouncedMax, page],
 
     placeholderData: (prev) => prev,
     queryFn: async (): Promise<
@@ -55,8 +54,8 @@ export default function Prodss() {
           profile_photo: string;
           cover_photo: string;
           store_slug: string;
-          instagram: any;
-          tiktok: any;
+          instagram: string | null;
+          tiktok: string | null;
           total_products: number;
         };
         products: Paginator<
@@ -77,16 +76,81 @@ export default function Prodss() {
             clicks_count: number;
             sales_count: number;
             sales_sum_creator_commission?: string;
+            product_image: {
+              id: number;
+              product_id: number;
+              image: string;
+              source: string;
+              created_at: string;
+              updated_at: string;
+            };
           }[]
         >;
       }>
     > => {
       return howl(
-        `/storefront/2/profile?search=${search}&sort=${sort}&min_price=${debouncedMin}&max_price=${debouncedMax}`,
+        `/storefront/2/profile?search=${search}&sort=${sort === "all" ? "" : sort}&min_price=${debouncedMin}&max_price=${debouncedMax}&per_page=16&page=${page}`,
         { token },
       );
     },
   });
+
+  // Reset to page 1 when filters change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    setPage(1);
+  }, [search, sort, debouncedMin, debouncedMax]);
+
+  const totalPages = data?.data?.products
+    ? Math.ceil(data.data.products.total / data.data.products.per_page)
+    : 0;
+  const currentPage = data?.data?.products?.current_page || 1;
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+      // window.scrollTo({ top: window.innerHeight - 100, behavior: "smooth" });
+    }
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const showPages = 3; // Show 3 page numbers at most
+
+    if (totalPages <= showPages + 2) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+
+      if (currentPage > 3) {
+        pages.push("...");
+      }
+
+      // Show current page and neighbors
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (currentPage < totalPages - 2) {
+        pages.push("...");
+      }
+
+      // Always show last page
+      if (totalPages > 1) {
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
 
   return (
     <section className="grid grid-cols-1 lg:grid-cols-4 gap-8 pb-12">
@@ -146,11 +210,12 @@ export default function Prodss() {
             <Label htmlFor="sorter" className="whitespace-nowrap">
               Sort by:
             </Label>
-            <Select onValueChange={setSort}>
+            <Select defaultValue="all" onValueChange={setSort}>
               <SelectTrigger className="border-destructive rounded-none bg-white w-[180px]">
                 <SelectValue placeholder="Select Sort" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="price_low">Price: Low to High</SelectItem>
                 <SelectItem value="price_high">Price: High to Low</SelectItem>
                 <SelectItem value="newest">Newest Arrivals</SelectItem>
@@ -164,7 +229,6 @@ export default function Prodss() {
 
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <Suspense>
-            {/* <Prods /> */}
             {data?.data?.products?.data.map((prod, i) => (
               <Link
                 href={`/store/${prod?.storefront_id}/product/${prod?.id}`}
@@ -172,66 +236,113 @@ export default function Prodss() {
               >
                 <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
                   <CardHeader className="px-0!">
-                    {/* <Image
-                        src={
-                        prod?.?.image
-                            ? makeImg(`${prod.product_image?.image}`)
-                            : "/image/product.jpeg"
-                        }
-                        alt="product"
-                        height={500}
-                        width={500}
-                        unoptimized
-                        className="aspect-video object-cover object-center rounded-lg"
-                    /> */}
+                    <Image
+                      src={prod?.product_image?.image ?? "/image/product.jpeg"}
+                      alt="product"
+                      height={500}
+                      width={500}
+                      unoptimized
+                      className="aspect-video object-cover object-center rounded-lg"
+                    />
                   </CardHeader>
                   <CardHeader className="px-0!">
                     <CardTitle>{prod.title}</CardTitle>
                     <div className="flex items-center gap-6 text-xl">
                       <p className="font-black">${prod.price}</p>
-                      {/* <del className="font-light! opacity-80">$319.99</del> */}
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
             ))}
           </Suspense>
-          <pre className="bg-gradient-to-br col-span-3 from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
-            <code className="whitespace-pre-wrap">
-              {JSON.stringify(data?.data?.products?.data, null, 2)}
-            </code>
-          </pre>
         </div>
-        {search}
-        <div className="my-16 sm:my-24 flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem className="text-secondary border-secondary border rounded-full">
-                <PaginationLink href="#" className="rounded-full">
-                  <ChevronLeft />
-                </PaginationLink>
-              </PaginationItem>
 
-              <PaginationItem className="bg-destructive text-background rounded-full border">
-                <PaginationLink href="#">1</PaginationLink>
-              </PaginationItem>
+        {totalPages > 1 && (
+          <div className="my-16 sm:my-24 flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem
+                  className={`text-secondary border-secondary border rounded-full ${
+                    currentPage === 1 || isPending || isRefetching
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  <PaginationLink
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1 && !isPending && !isRefetching) {
+                        handlePageChange(currentPage - 1);
+                      }
+                    }}
+                    className="rounded-full"
+                  >
+                    <ChevronLeft />
+                  </PaginationLink>
+                </PaginationItem>
 
-              <PaginationItem className="bg-white rounded-full border">
-                <PaginationLink href="#">2</PaginationLink>
-              </PaginationItem>
+                {getPageNumbers().map((pageNum, idx) => {
+                  if (pageNum === "...") {
+                    return (
+                      <PaginationItem key={`ellipsis-${idx}`} className="px-2">
+                        <span className="text-secondary">...</span>
+                      </PaginationItem>
+                    );
+                  }
 
-              <PaginationItem className="bg-white rounded-full border">
-                <PaginationLink href="#">3</PaginationLink>
-              </PaginationItem>
+                  const isActive = pageNum === currentPage;
+                  return (
+                    <PaginationItem
+                      key={pageNum}
+                      className={`rounded-full border ${
+                        isActive ? "bg-destructive text-background" : "bg-white"
+                      } ${
+                        isPending || isRefetching
+                          ? "cursor-not-allowed opacity-50"
+                          : "cursor-pointer"
+                      }`}
+                    >
+                      <PaginationLink
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (!isPending && !isRefetching) {
+                            handlePageChange(pageNum as number);
+                          }
+                        }}
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
 
-              <PaginationItem className="text-secondary border-secondary border rounded-full">
-                <PaginationLink href="#" className="rounded-full">
-                  <ChevronRight />
-                </PaginationLink>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+                <PaginationItem
+                  className={`text-secondary border-secondary border rounded-full ${
+                    currentPage === totalPages || isPending || isRefetching
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  <PaginationLink
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (
+                        currentPage < totalPages &&
+                        !isPending &&
+                        !isRefetching
+                      ) {
+                        handlePageChange(currentPage + 1);
+                      }
+                    }}
+                    className="rounded-full"
+                  >
+                    <ChevronRight />
+                  </PaginationLink>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
     </section>
   );

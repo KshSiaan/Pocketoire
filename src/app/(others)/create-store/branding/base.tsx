@@ -12,7 +12,7 @@ export default function Base({
 }) {
   return (
     <>
-      <section className="w-full h-full flex flex-col justify-center items-center gap-4">
+      <section className="w-full h-full flex flex-col justify-center items-center gap-4 ">
         <Image
           src={"/logo.png"}
           height={240}

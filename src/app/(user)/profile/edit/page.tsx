@@ -78,6 +78,7 @@ export default function Page() {
     },
     onSuccess: (res) => {
       toast.success(res.message ?? "Success!");
+      
     },
   });
   const avatarSrc = dropzone.fileStatuses[0]?.result;
