@@ -1,3 +1,4 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,33 +25,68 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import CreateAlbum from "./create-album";
+import { useQuery } from "@tanstack/react-query";
+import { howl } from "@/lib/utils";
+import { useCookies } from "react-cookie";
 
 export default function Page() {
+  const [{ token }] = useCookies(["token"]);
+  const { data, isPending } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: async (): Promise<{
+      totals: {
+        products: {
+          total: number;
+          change_percent: number;
+        };
+        clicks: {
+          total: number;
+          change_percent: number;
+        };
+        earnings: {
+          total: number;
+          change_percent: number;
+        };
+      };
+      recent_products: Array<any>;
+      albums: Array<{
+        name: string;
+        description: string;
+        products_count: number;
+        total_clicks: number;
+        total_earnings: number;
+      }>;
+    }> => {
+      return howl(`/creator/home`, {
+        token,
+      });
+    },
+  });
   const stats = [
     {
       title: "Total Products",
-      value: 24,
+      value: isPending ? "Loading..." : data?.totals.products.total || 0,
       icon: PackageIcon,
       change: "+2 this week",
       changeColor: "text-green-500",
     },
     {
       title: "Total Sales",
-      value: 150,
+      value: isPending ? "Loading..." : data?.totals.earnings.total || 0,
       icon: Banknote,
       change: "+12 this week",
       changeColor: "text-green-500",
     },
     {
       title: "Total Clicks",
-      value: 1240,
+      value: isPending ? "Loading..." : data?.totals.clicks.total || 0,
       icon: MousePointerClick,
       change: "-80 this week",
       changeColor: "text-red-500",
     },
     {
       title: "Total Earnings",
-      value: "$2,430",
+      value: isPending ? "Loading..." : data?.totals.earnings.total || 0,
       icon: DollarSign,
       change: "+$230 this week",
       changeColor: "text-green-500",
@@ -119,6 +155,7 @@ export default function Page() {
           </Button>
         </CardFooter>
       </Card>
+
       <Card className="rounded-none w-full">
         <CardHeader className="flex w-full justify-between items-center">
           <CardTitle className="text-xl italic text-primary font-semibold">
@@ -138,21 +175,23 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Array(3)
-                .fill("")
-                .map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="text-center">Tech Gadgets</TableCell>
-                    <TableCell className="text-center">
-                      Latest gadgets and tech accessories
-                    </TableCell>
-                    <TableCell className="text-center">8</TableCell>
-                    <TableCell className="text-center">1,500</TableCell>
-                    <TableCell className="text-center font-bold text-green-500">
-                      $350.00
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {data?.albums?.map((album, i) => (
+                <TableRow key={i}>
+                  <TableCell className="text-center">{album.name}</TableCell>
+                  <TableCell className="text-center">
+                    {album.description}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {album.products_count}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {album.total_clicks}
+                  </TableCell>
+                  <TableCell className="text-center font-bold text-green-500">
+                    ${album.total_earnings.toFixed(2)}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>

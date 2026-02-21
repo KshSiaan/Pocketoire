@@ -32,7 +32,7 @@ import type { ApiResponse, Paginator } from "@/types/base";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-export default function Prodss() {
+export default function Prodss({ id }: { id: string }) {
   const [minMax, setMinMax] = useState<[number, number]>([0, 100000]);
   const [{ token }] = useCookies(["token"]);
   const [debouncedMin] = useDebounceValue(minMax[0], 500);
@@ -89,7 +89,7 @@ export default function Prodss() {
       }>
     > => {
       return howl(
-        `/storefront/2/profile?search=${search}&sort=${sort === "all" ? "" : sort}&min_price=${debouncedMin}&max_price=${debouncedMax}&per_page=16&page=${page}`,
+        `/storefront/${id}/profile?search=${search}&sort=${sort === "all" ? "" : sort}&min_price=${debouncedMin}&max_price=${debouncedMax}&per_page=16&page=${page}`,
         { token },
       );
     },

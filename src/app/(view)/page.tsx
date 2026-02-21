@@ -6,6 +6,7 @@ import Brands from "./_home/brands";
 import Prods from "./_home/prods";
 import Link from "next/link";
 import { Suspense } from "react";
+import CreateStore from "./_home/create_store";
 
 export default function Home() {
   return (
@@ -51,11 +52,7 @@ export default function Home() {
           start earning today.
         </h3>
         <div className="flex items-center justify-center gap-2 mt-6">
-          <Button variant={"outline"} asChild>
-            <Link href={"/create-store/info"}>
-              Start your store <ArrowRightIcon />
-            </Link>
-          </Button>
+          <CreateStore />
           <Button className="border-2 border-background" asChild>
             <Link href={"/storefronts"}>Browse Stores</Link>
           </Button>

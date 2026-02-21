@@ -115,7 +115,7 @@ export default async function Page({
         </section>
 
         <Suspense>
-          <Prodss />
+          <Prodss id={id} />
         </Suspense>
       </main>
     </>

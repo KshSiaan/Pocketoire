@@ -1,3 +1,6 @@
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -10,8 +13,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { PlusIcon } from "lucide-react";
+import { z } from "zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import type { ApiResponse } from "@/types/base";
+import { useCookies } from "react-cookie";
+import { base_api, base_url, howl } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -19,13 +37,124 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { PlusIcon } from "lucide-react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+const addProductSchema = z.object({
+  album_id: z.string().optional(),
+  product_url: z
+    .union([z.url("Please enter a valid URL"), z.literal("")])
+    .optional(),
+  image_url: z
+    .union([z.url("Please enter a valid URL"), z.literal("")])
+    .optional(),
+  image: z.instanceof(File).optional(),
+  product_name: z.string().optional(),
+  description: z.string().optional(),
+  price: z
+    .union([
+      z.string().regex(/^(\d+)(\.\d+)?$/, "Price must be a valid number"),
+      z.literal(""),
+    ])
+    .optional(),
+  currency: z.string().max(3, "Use a 3-letter currency code").optional(),
+});
+
+type AddProductSchema = z.infer<typeof addProductSchema>;
 
 export default function AddProduct() {
+  const [{ token }] = useCookies(["token"]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const navig = useRouter();
+  const { data, isPending: loading } = useQuery({
+    queryKey: ["albums_list"],
+    queryFn: async (): Promise<
+      ApiResponse<
+        Array<{
+          id: number;
+          name: string;
+          slug: string;
+          description: string;
+        }>
+      >
+    > => {
+      return howl(`/storefront/albums`, {
+        token,
+      });
+    },
+  });
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["add_product"],
+    mutationFn: async (formData: FormData): Promise<ApiResponse<null>> => {
+      if (!token) {
+        throw new Error("Authentication token missing");
+      }
+
+      const res = await fetch(`${base_url}${base_api}/product`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        body: formData,
+      });
+
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+
+      if (!res.ok) {
+        throw new Error(data.message ?? "Failed to add product");
+      }
+
+      return data;
+    },
+
+    onError: (err: unknown) => {
+      const message =
+        err instanceof Error ? err.message : "Failed to complete this request";
+
+      toast.error(message);
+    },
+
+    onSuccess: (res) => {
+      toast.success(res.message ?? "Success!");
+      navig.refresh();
+      setDialogOpen(false);
+    },
+  });
+
+  const form = useForm<AddProductSchema>({
+    resolver: zodResolver(addProductSchema),
+    defaultValues: {
+      album_id: "",
+      product_url: "",
+      image_url: "",
+      image: undefined,
+      product_name: "",
+      description: "",
+      currency: "",
+    },
+  });
+
+  function onSubmit(values: AddProductSchema) {
+    console.log(values);
+    const formData = new FormData();
+    formData.append("album_id", values.album_id ?? "");
+    formData.append("product_url", values.product_url ?? "");
+    formData.append("image_url", values.image_url ?? "");
+    if (values.image) {
+      formData.append("image", values.image);
+    }
+    formData.append("product_name", values.product_name ?? "");
+    formData.append("description", values.description ?? "");
+    formData.append("price", values.price ?? "");
+    formData.append("currency", values.currency ?? "");
+
+    mutate(formData);
+  }
+
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button variant={"secondary"}>
           <PlusIcon />
@@ -39,106 +168,218 @@ export default function AddProduct() {
             Add a new affiliate product to your store
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-muted-foreground">
-                Media & Links
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <Label>Product Image </Label>
-              <Input type="file" className="rounded-none" />
-              <Label>Affiliate Link * </Label>
-              <Input
-                className="rounded-none"
-                placeholder="https://example.example"
-              />
-              <div className="border-1 border-dashed border-secondary p-4 rounded-lg">
-                <div className="flex justify-between items-center gap-6 h-24">
-                  <Image
-                    height={128}
-                    width={240}
-                    alt="product_icon"
-                    src={"/image/product.jpg"}
-                    className="h-24 w-34 rounded-lg"
-                  />
-                  <div className="flex-1 h-full flex flex-col justify-between items-start">
-                    <h3 className="text-lg font-bold">
-                      Wireless Noise cancelling Headphones
-                    </h3>
-                    <p>Retailer Name</p>
-                    <p>
-                      <span className="font-bold">$299</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="">
-            <CardHeader>
-              <CardTitle className="text-muted-foreground">
-                Product Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <Label>Product Name *</Label>
-              <Input className="rounded-none" placeholder="example name" />
-              <Label>Description *</Label>
-              <Textarea
-                className="resize-none h-24"
-                placeholder="enter product name"
-              />
-              <div className="w-full grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Album *</Label>
-                  <Select>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Album" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dum1">Dummy Item</SelectItem>
-                      <SelectItem value="dum2">Dummy Item</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Commission Rate (%)</Label>
-                  <Input type="number" placeholder="5%" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-muted-foreground">
-                Product Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="w-full grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Current Price ($) *</Label>
-                  <Input type="number" placeholder="5$" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Original Price ($) *</Label>
-                  <Input type="number" placeholder="5$" />
-                  <p className="text-xs">Leave empty if no discount</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant={"outline"} className="border-primary">
-              Cancel
-            </Button>
-          </DialogClose>
-          <Button variant={"secondary"}>Add Product</Button>
-        </DialogFooter>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-muted-foreground">
+                  Media & Links
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="product_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="rounded-none"
+                          placeholder="https://shop.live.rc.viator.com/..."
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="image_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="rounded-none"
+                          placeholder="https://hare-media-cdn.tripadvisor.com/..."
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="image"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          className="rounded-none"
+                          name={field.name}
+                          ref={field.ref}
+                          onBlur={field.onBlur}
+                          onChange={(event) => {
+                            const selectedFile = event.target.files?.[0];
+                            field.onChange(selectedFile);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-muted-foreground">
+                  Product Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="product_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="rounded-none"
+                          placeholder="Louvre Museum Paris Essential Guided Tour..."
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          className="resize-none h-24"
+                          placeholder="This 2.5 hour semi-private guided tour..."
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="album_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Album ID</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value ?? ""}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select an album" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {!loading &&
+                              data?.data?.map((album) => (
+                                <SelectItem
+                                  key={album.id}
+                                  value={album.id.toString()}
+                                >
+                                  {album.name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-muted-foreground">Pricing</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="195.5"
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="currency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Currency</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="EUR"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant={"outline"} className="border-primary">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button variant={"secondary"} type="submit" disabled={isPending}>
+                Add Product
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

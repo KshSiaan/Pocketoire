@@ -37,6 +37,7 @@ export default async function Page() {
       name: string;
       email: string;
       profile_photo: any;
+      account_type: string;
       saved_products: Array<{
         id: number;
         title: string;
@@ -107,14 +108,29 @@ export default async function Page() {
               </CardHeader>
             </Card>
           </Link>
-          <Link href={"/profile/change-password"}>
-            <Card className="hover:border-blue-600 hover:border-2 hover:bg-blue-600/10">
-              <CardHeader>
-                <CardTitle>Change Password</CardTitle>
-                <CardDescription>Update your Account security</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
+          {data?.data?.user?.account_type === "creator" ? (
+            <Link href={"/dashboard"}>
+              <Card className="hover:border-green-600 hover:border-2 hover:bg-green-600/10">
+                <CardHeader>
+                  <CardTitle>Creator Dashboard</CardTitle>
+                  <CardDescription>
+                    View your sales, products, and earnings
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          ) : (
+            <Link href={"/profile/change-password"}>
+              <Card className="hover:border-blue-600 hover:border-2 hover:bg-blue-600/10">
+                <CardHeader>
+                  <CardTitle>Change Password</CardTitle>
+                  <CardDescription>
+                    Update your Account security
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          )}
           <Link href={"/contact"}>
             <Card className="hover:border-blue-600 hover:border-2 hover:bg-blue-600/10">
               <CardHeader>

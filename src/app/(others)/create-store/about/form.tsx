@@ -70,7 +70,6 @@ export default function Form() {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          // ❗ DO NOT set Content-Type when sending FormData
         },
         body: formData,
       });
