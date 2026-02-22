@@ -5,6 +5,7 @@ import {
   BarChartBigIcon,
   BookOpen,
   Bot,
+  CircleDollarSignIcon,
   CreditCardIcon,
   FileBadgeIcon,
   Frame,
@@ -67,6 +68,11 @@ const data = {
       title: "Reports & Analytics",
       url: "/report",
       icon: BarChartBigIcon,
+    },
+    {
+      title: "Sales Commission",
+      url: "/commission",
+      icon: CircleDollarSignIcon,
     },
     {
       title: "Payouts",

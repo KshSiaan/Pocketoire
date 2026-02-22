@@ -1,3 +1,4 @@
+"use client";
 import {
   Card,
   CardContent,
@@ -20,33 +21,60 @@ import {
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { PayoutsDashboard } from "./payout";
+import { useCookies } from "react-cookie";
+import { useQuery } from "@tanstack/react-query";
+import { howl } from "@/lib/utils";
+import { ApiResponse } from "@/types/base";
 
 export default function Page() {
+  const [{ token }] = useCookies(["token"]);
+  const { data, isPending } = useQuery({
+    queryKey: ["earnings"],
+    queryFn: async (): Promise<
+      ApiResponse<{
+        total_paid_amounts: number;
+        pending_payouts_amount: number;
+        total_paid_this_month: number;
+        total_paid_previous_months: number;
+        monthly_payout_percentage_change: number;
+        products: Array<any>;
+        wallet: {
+          balance: string;
+          currency: string;
+          status: string;
+        };
+        payouts: Array<any>;
+        last_payout: any;
+      }>
+    > => {
+      return await howl("/creator/earnings", { token });
+    },
+  });
   const stats = [
     {
       title: "Pending Earnings",
-      value: "$320",
+      value: `$${data?.data?.pending_payouts_amount || 0}`,
       icon: ClockIcon,
       change: "+$40 this week",
       changeColor: "text-green-500",
     },
     {
       title: "Paid Out",
-      value: "$2,150",
+      value: `$${data?.data?.total_paid_amounts || 0}`,
       icon: Banknote,
       change: "+$120 this week",
       changeColor: "text-green-500",
     },
     {
       title: "Available Balance",
-      value: "$860",
+      value: `$${data?.data?.wallet?.balance || 0}`,
       icon: WalletIcon,
       change: "-$60 this week",
       changeColor: "text-red-500",
     },
     {
-      title: "This Month",
-      value: "$940",
+      title: "Monthly Payout Percentage Change",
+      value: `${data?.data?.monthly_payout_percentage_change || 0}%`,
       icon: DollarSign,
       change: "+$180 this week",
       changeColor: "text-green-500",
@@ -55,6 +83,11 @@ export default function Page() {
 
   return (
     <main className="flex flex-col justify-start items-start gap-6">
+      {/* <pre className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
+        <code className="whitespace-pre-wrap">
+          {JSON.stringify(data, null, 2)}
+        </code>
+      </pre> */}
       <div className="w-full grid grid-cols-4 gap-4">
         {stats.map(({ title, value, icon: Icon, change, changeColor }, i) => (
           <Card key={i} className="rounded-none">
@@ -64,9 +97,9 @@ export default function Page() {
             </CardHeader>
             <CardContent className="text-4xl">{value}</CardContent>
             <CardFooter>
-              <CardDescription className={changeColor}>
+              {/* <CardDescription className={changeColor}>
                 {change}
-              </CardDescription>
+              </CardDescription> */}
             </CardFooter>
           </Card>
         ))}
@@ -148,7 +181,7 @@ export default function Page() {
           </Table>
         </CardContent>
       </Card>
-      <PayoutsDashboard />
+      {!isPending && data?.data && <PayoutsDashboard data={data.data} />}
     </main>
   );
 }

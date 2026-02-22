@@ -48,7 +48,12 @@ export default function Page() {
           change_percent: number;
         };
       };
-      recent_products: Array<any>;
+      recent_products: Array<{
+        id: number;
+        title: string;
+        clicks: number;
+        earnings: number;
+      }>;
       albums: Array<{
         name: string;
         description: string;
@@ -111,6 +116,7 @@ export default function Page() {
           </Card>
         ))}
       </div>
+
       <Card className="rounded-none w-full">
         <CardHeader>
           <CardTitle className="text-xl italic text-primary font-semibold">
@@ -118,36 +124,32 @@ export default function Page() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {Array(3)
-            .fill("")
-            .map((_, i) => (
-              <div
-                className="flex justify-between items-center gap-6 h-24"
-                key={i}
-              >
-                <Image
-                  height={128}
-                  width={240}
-                  alt="product_icon"
-                  src={"/image/product.jpg"}
-                  className="h-24 w-34 rounded-lg"
-                />
-                <div className="flex-1 h-full flex flex-col justify-between items-start">
-                  <h3 className="text-lg font-bold">
-                    Wireless Noise cancelling Headphones
-                  </h3>
-                  <p className="space-x-6">
-                    <span className="font-bold">$299</span>
-                    <span>(8.5% commission)</span>
-                  </p>
-                </div>
-                <div className="">
-                  <Badge variant={"default"} className="px-4 py-2">
-                    Tech Gadget
-                  </Badge>
-                </div>
+          {data?.recent_products?.map((product, i) => (
+            <div
+              className="flex justify-between items-center gap-6 h-24"
+              key={i}
+            >
+              <Image
+                height={128}
+                width={240}
+                alt="product_icon"
+                src={"/image/product.jpg"}
+                className="h-24 w-34 rounded-lg"
+              />
+              <div className="flex-1 h-full flex flex-col justify-between items-start">
+                <h3 className="text-lg font-bold">{product.title}</h3>
+                <p className="space-x-6">
+                  <span className="font-bold">${product.earnings}</span>
+                  {/* <span>(8.5% commission)</span> */}
+                </p>
               </div>
-            ))}
+              <div className="">
+                <Badge variant={"outline"} className="px-4 py-2">
+                  {product.clicks} Clicks
+                </Badge>
+              </div>
+            </div>
+          ))}
         </CardContent>
         <CardFooter>
           <Button variant={"outline"} className="w-full border-primary">

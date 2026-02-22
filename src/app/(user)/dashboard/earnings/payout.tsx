@@ -70,10 +70,28 @@ const accentBgClass = "bg-[#fbebe9]"; // A light, dusty rose color
 
 // --- Component ---
 
-export function PayoutsDashboard() {
+export function PayoutsDashboard({
+  data,
+}: {
+  data: {
+    total_paid_amounts: number;
+    pending_payouts_amount: number;
+    total_paid_this_month: number;
+    total_paid_previous_months: number;
+    monthly_payout_percentage_change: number;
+    products: Array<any>;
+    wallet: {
+      balance: string;
+      currency: string;
+      status: string;
+    };
+    payouts: Array<any>;
+    last_payout: any;
+  };
+}) {
   return (
     <Card className="w-full">
-      <h1 className="text-xl font-medium mb-6 text-gray-700 font-sans">
+      <h1 className="text-xl font-medium mb-6 pl-6 font-serif italic text-gray-700">
         Payouts
       </h1>
 
@@ -87,7 +105,7 @@ export function PayoutsDashboard() {
               </span>
             </div>
             <p className="text-4xl font-bold text-gray-800 mb-2 font-serif">
-              $182.40
+              ${data?.wallet?.balance || 0}
             </p>
             <p className="text-sm text-gray-600">
               Minimum withdrawal: <span className="font-medium">$50.00</span>
