@@ -17,7 +17,7 @@ export default async function RootLayout({
     cache: "no-store",
   });
 
-  if (!res.ok) throw new Error("Failed to fetch");
+  if (!res.ok) return children;
 
   const data = await res.json();
   const role = data?.data?.user?.account_type;

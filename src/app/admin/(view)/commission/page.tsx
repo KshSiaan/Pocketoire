@@ -19,7 +19,13 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -35,37 +41,59 @@ import {
   CheckIcon,
   EyeIcon,
   Loader2Icon,
+  PlusIcon,
   SearchIcon,
   Trash2Icon,
   XCircleIcon,
 } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import { useCookies } from "react-cookie";
 import { toast } from "sonner";
+import Butts from "./butts";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
 
 export default function Page() {
   const [{ token }] = useCookies(["token"]);
   const [page, setPage] = React.useState(1);
+  const [status, setStatus] = React.useState("");
+  const [search, setSearch] = useDebounceValue("", 500);
+  const [type, setType] = React.useState("");
 
-  const [search, setSearch] = React.useState("");
-  const [type, setType] = React.useState("pending");
-
-  const { data, isPending, refetch } = useQuery({
-    queryKey: ["commisions", page, search, type],
+  const { data, isPending } = useQuery({
+    queryKey: ["commisions", page, search, type, status],
     queryFn: async () => {
-      const res: ApiResponse<
-        Paginator<
+      const res: ApiResponse<{
+        sales: Paginator<
           {
             id: number;
-            name: string;
-            email: string;
-            status: string;
-            created_at: string;
+            product_id: number;
+            user_id: number;
+            booking_ref: string;
+            transaction_ref: string;
+            event_type: string;
+            campaign_value: string;
+            platform_commission: any;
+            creator_commission: any;
+            creator_commission_percent: any;
+            product: {
+              id: number;
+              title: string;
+            };
+            user: {
+              id: number;
+              name: string;
+              email: string;
+              storefront: {
+                id: number;
+                user_id: number;
+                name: string;
+              };
+            };
           }[]
-        >
-      > = await howl(
-        `/admin/creator/view-commission?status=${type}&search=${search}&page=${page}`,
+        >;
+      }> = await howl(
+        `/admin/creator/view-commission?status=${status === "all" ? "" : status}&type=${type === "all" ? "" : type}&search=${search}&page=${page}`,
         {
           token,
         },
@@ -73,39 +101,13 @@ export default function Page() {
       return res;
     },
   });
-
-  const { mutate } = useMutation({
-    mutationKey: ["restrict"],
-    mutationFn: async (payload: {
-      id: string | number;
-      status: string;
-      status_reason: string;
-    }): Promise<
-      ApiResponse<{
-        id: number;
-        status: string;
-        status_reason: string;
-      }>
-    > => {
-      return howl(`/admin/buyer/${payload.id}/status`, {
-        method: "PATCH",
-        token,
-        body: {
-          status: payload.status,
-          status_reason: payload.status_reason,
-        },
-      });
-    },
-    onError: (err) => {
-      toast.error(err.message ?? "Failed to complete this request");
-    },
-    onSuccess: (res) => {
-      toast.success(res.message ?? "Success!");
-      refetch();
-    },
-  });
   return (
     <main>
+      {/* <pre className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
+        <code className="whitespace-pre-wrap">
+          {JSON.stringify(data, null, 2)}
+        </code>
+      </pre> */}
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl italic">
@@ -113,20 +115,34 @@ export default function Page() {
           </CardTitle>
           <div className="w-full mt-6 flex flex-row justify-between items-center gap-6">
             <InputGroup>
-              <InputGroupInput placeholder="Search Providers...." />
+              <InputGroupInput
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+                placeholder="Search Providers...."
+              />
               <InputGroupAddon>
                 <SearchIcon />
               </InputGroupAddon>
             </InputGroup>
-            <Select>
+            <Select onValueChange={(value) => setType(value)}>
               <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder="Select Type" />
               </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
+              </SelectContent>
             </Select>
-            <Select>
+            <Select onValueChange={(value) => setStatus(value)}>
               <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder="Select Status" />
               </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </CardHeader>
@@ -139,119 +155,46 @@ export default function Page() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Product Code</TableHead>
-                  <TableHead>Campaign Value</TableHead>
-                  <TableHead>Booking Reference</TableHead>
-                  <TableHead>Event Type</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-center">Product Code</TableHead>
+                  <TableHead className="text-center">Campaign Value</TableHead>
+                  <TableHead className="text-center">
+                    Booking Reference
+                  </TableHead>
+                  <TableHead className="text-center">Event Type</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data?.data?.data?.map((creator) => (
-                  <TableRow key={creator.id}>
-                    <TableCell className="flex justify-start items-center gap-2">
-                      <Avatar className="size-12">
-                        <AvatarImage
-                          src={"https://avatar.iran.liara.run/public"}
-                        />
-                        <AvatarFallback>UI</AvatarFallback>
-                      </Avatar>
-                      <div className="">
-                        <p className="font-bold">{creator.name}</p>
-                        <p className="text-xs!">{creator.email}</p>
+                {data?.data?.sales?.data?.map((creator) => (
+                  <TableRow key={creator?.id}>
+                    <TableCell className="flex justify-center items-center gap-2">
+                      <Badge variant={"outline"}>
+                        {creator?.product?.id ?? "N/A"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {creator?.campaign_value}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {creator?.booking_ref}
+                    </TableCell>
+                    <TableCell className="flex justify-center items-center">
+                      {creator?.event_type === "CONFIRMATION" ? (
+                        <Badge className="bg-green-600 text-background">
+                          {creator?.event_type}
+                        </Badge>
+                      ) : (
+                        <Badge variant={"destructive"}>
+                          {creator?.event_type}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="space-x-2">
+                        <Suspense>
+                          <Butts data={creator} />
+                        </Suspense>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge>{creator.status}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(creator?.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="space-x-2">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size={"icon-sm"} variant={"outline"}>
-                            <XCircleIcon />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              You are going about to restrict the buyer{" "}
-                              {creator.name}. This action can not be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-destructive!"
-                              onClick={() => {
-                                if (creator.status === "suspended") {
-                                  mutate({
-                                    id: creator.id,
-                                    status: "active",
-                                    status_reason: "Admin Reinstatement",
-                                  });
-                                } else {
-                                  mutate({
-                                    id: creator.id,
-                                    status: "suspended",
-                                    status_reason: "Violation of rules",
-                                  });
-                                }
-                              }}
-                            >
-                              {creator.status === "suspended"
-                                ? "Reinstate"
-                                : "Restrict"}{" "}
-                              Buyer
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size={"icon-sm"} variant={"outline"}>
-                            <Trash2Icon />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              You are going about to{" "}
-                              {creator.status === "banned" ? "unban" : "ban"}{" "}
-                              the buyer {creator.name}. This action can not be
-                              undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-destructive!"
-                              onClick={() => {
-                                if (creator.status === "banned") {
-                                  mutate({
-                                    id: creator.id,
-                                    status: "active",
-                                    status_reason: "Admin Reinstatement",
-                                  });
-                                } else {
-                                  mutate({
-                                    id: creator.id,
-                                    status: "banned",
-                                    status_reason: "Violation of rules",
-                                  });
-                                }
-                              }}
-                            >
-                              {creator.status === "banned" ? "Unban" : "Ban"}{" "}
-                              Buyer
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))}
