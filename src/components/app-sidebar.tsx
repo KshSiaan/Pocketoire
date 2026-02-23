@@ -46,7 +46,7 @@ const data = {
     },
     {
       title: "User Management",
-      url: "#",
+      url: "/user/creator",
       icon: UserCogIcon,
       items: [
         {
@@ -91,7 +91,7 @@ const data = {
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/settings/tnc",
       icon: SettingsIcon,
       items: [
         {

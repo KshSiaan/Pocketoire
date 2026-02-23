@@ -9,10 +9,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { BellIcon } from "lucide-react";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function Layout({
+export default async function Layout({
   children,
 }: Readonly<{ children: ReactNode }>) {
+  const token = (await cookies()).get("token")?.value;
+  if (!token) {
+    return redirect("/admin/login");
+  }
   return (
     <SidebarProvider>
       <AppSidebar />

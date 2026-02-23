@@ -52,7 +52,7 @@ export default function Page() {
   const [type, setType] = React.useState("pending");
 
   const { data, isPending, refetch } = useQuery({
-    queryKey: ["creators", page, search, type],
+    queryKey: ["commisions", page, search, type],
     queryFn: async () => {
       const res: ApiResponse<
         Paginator<
@@ -65,7 +65,7 @@ export default function Page() {
           }[]
         >
       > = await howl(
-        `/admin/creator/view-commission?status=${type}&search=${search}`,
+        `/admin/creator/view-commission?status=${type}&search=${search}&page=${page}`,
         {
           token,
         },
