@@ -5,7 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
-import { EyeIcon, EyeOffIcon, KeyRoundIcon, MailIcon } from "lucide-react";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  KeyRoundIcon,
+  Loader2Icon,
+  MailIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -51,7 +57,7 @@ export default function LoginForm() {
   });
   const { remember } = form.watch();
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationKey: ["login"],
     mutationFn: (data: LoginSchema) => {
       return loginApi(data);
@@ -168,8 +174,13 @@ export default function LoginForm() {
           </div>
 
           {/* Actions */}
-          <Button type="submit" className="w-full" variant="destructive">
-            Log in
+          <Button
+            type="submit"
+            className="w-full"
+            variant="destructive"
+            disabled={isPending}
+          >
+            {isPending ? <Loader2Icon className="animate-spin" /> : "Log in"}
           </Button>
 
           <Button type="button" className="w-full" variant="outline">

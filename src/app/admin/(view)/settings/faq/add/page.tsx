@@ -11,34 +11,28 @@ import React, { useEffect } from "react";
 
 import { Editor } from "primereact/editor";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { howl } from "@/lib/utils";
 import { ApiResponse } from "@/types/base";
 import { toast } from "sonner";
 import { useCookies } from "react-cookie";
+import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
+  const navig = useRouter();
+  const qcl = useQueryClient();
   const [{ token }] = useCookies(["token"]);
+  const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
-  const { data, isPending } = useQuery({
-    queryKey: ["privacy"],
-    queryFn: async (): Promise<
-      ApiResponse<{
-        id: number;
-        content: string;
-      }>
-    > => {
-      return howl(`/privacy-policy`);
-    },
-  });
-
   const { mutate } = useMutation({
-    mutationKey: ["update_privacy"],
+    mutationKey: ["update_faq"],
     mutationFn: (): Promise<ApiResponse<any>> => {
-      return howl(`/admin/privacy-policy`, {
+      return howl(`/admin/faq`, {
         method: "POST",
         body: {
-          content,
+          question: title,
+          answer: content,
         },
         token,
       });
@@ -48,24 +42,27 @@ export default function Page() {
     },
     onSuccess: (res) => {
       toast.success(res.message ?? "Success!");
+      qcl.invalidateQueries({ queryKey: ["faq"] });
+      navig.push("/admin/settings/faq");
     },
   });
-  useEffect(() => {
-    if (data?.data?.content) {
-      setContent(data?.data?.content ?? "");
-    }
-  }, [data]);
   return (
     <main>
       <Card>
         <CardHeader>
-          <CardTitle>Privacy policy</CardTitle>
-          <CardDescription>Admin can edit privacy policy</CardDescription>
+          <CardTitle>FAQ</CardTitle>
+          <CardDescription>Admin can add FAQ</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <Input
+            placeholder="Title"
+            className="border-muted-foreground/50 "
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
           <Editor
             value={content}
-            onTextChange={(e) => setContent(e.htmlValue ?? "")}
+            onTextChange={(e) => setContent(e.textValue ?? "")}
             style={{ height: "320px" }}
           />
         </CardContent>
@@ -75,7 +72,7 @@ export default function Page() {
             variant={"secondary"}
             onClick={() => mutate()}
           >
-            Update
+            Add
           </Button>
         </CardFooter>
       </Card>
