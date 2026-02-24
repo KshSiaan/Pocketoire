@@ -1,24 +1,4 @@
 "use client";
-
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import {
-  ArrowRightIcon,
-  ChevronLeft,
-  ChevronRight,
-  SearchIcon,
-} from "lucide-react";
-import { FaInstagram, FaTiktok } from "react-icons/fa";
-
-import Header from "@/components/core/header";
-import { Button } from "@/components/ui/button";
-import { DualRangeSlider } from "@/components/ui/dual-slider";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   InputGroup,
   InputGroupAddon,
@@ -31,194 +11,213 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Loader2Icon, SearchIcon } from "lucide-react";
+import Stores from "./stores";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
-
-import Prods from "../_home/prods";
-import Stores from "../storefronts/stores";
-
+import Header from "@/components/core/header";
+// import { cookies } from "next/headers";
+import { howl } from "@/lib/utils";
+import { ApiResponse, Paginator } from "@/types/base";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
+import { Spinner } from "@/components/ui/spinner";
 export default function Page() {
-  const [values, setValues] = useState([0, 100]);
+  const [search, setSearch] = useDebounceValue("", 500);
+  const [sort, setSort] = useState("");
+  const [page, setPage] = useState(1);
+  const perPage = 16;
+  // popular,newest,oldest,name_asc,name_desc.
+  const { data, isPending, isRefetching } = useQuery({
+    queryKey: ["storefronts", search, sort, page],
+    placeholderData: (prev) => prev,
+    queryFn: async (): Promise<
+      ApiResponse<
+        Paginator<
+          {
+            id: number;
+            user_id: number;
+            name: string;
+            bio: string;
+            total_sold: number;
+            total_products: number;
+            user: {
+              id: number;
+              name: string;
+              profile_photo: string;
+              cover_photo: string;
+            };
+          }[]
+        >
+      >
+    > => {
+      const safeSearch = encodeURIComponent(search);
+      const safeSort = encodeURIComponent(sort);
+      return await howl(
+        `/storefronts?search=${safeSearch}&sort=${safeSort}&per_page=${perPage}&page=${page}`,
+      );
+    },
+  });
 
-  const brands = [
-    "Apple",
-    "Google",
-    "Microsoft",
-    "Samsung",
-    "Dell",
-    "HP",
-    "Symphony",
-    "Xiaomi",
-    "Sony",
-    "Panasonic",
-    "LG",
-    "Intel",
-    "One Plus",
-  ];
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    setPage(1);
+  }, [search, sort]);
 
+  const paginator = data?.data;
+  const totalItems = paginator?.total ?? 0;
+  const currentPerPage = paginator?.per_page ?? perPage;
+  const totalPages = Math.max(1, Math.ceil(totalItems / currentPerPage));
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const pages = useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const items: Array<number | "ellipsis"> = [];
+    const minPage = Math.max(2, page - 1);
+    const maxPage = Math.min(totalPages - 1, page + 1);
+
+    items.push(1);
+
+    if (minPage > 2) {
+      items.push("ellipsis");
+    }
+
+    for (let i = minPage; i <= maxPage; i += 1) {
+      items.push(i);
+    }
+
+    if (maxPage < totalPages - 1) {
+      items.push("ellipsis");
+    }
+
+    items.push(totalPages);
+    return items;
+  }, [page, totalPages]);
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === page) {
+      return;
+    }
+    setPage(nextPage);
+  };
   return (
     <>
       <Header
-        title="Explore Amazing Products"
-        desc="Discover curated products from top creators and find your next favorite item."
+        title="Browse Inspiring Storefronts"
+        desc="Explore unique shops from creators worldwide and uncover hidden gems
+          tailored for you."
       />
 
-      <main className="px-8 lg:px-16 py-12 mt-12 space-y-16">
-        {/* Filter + Product Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-4 gap-10 pb-12">
-          {/* Sidebar Filters */}
-          <aside className="border-t pt-6 flex flex-col gap-8">
-            {/* Price Range */}
-            <div>
-              <Label className="text-xl uppercase font-semibold">
-                Price Range
-              </Label>
-              <div className="mt-4">
-                <DualRangeSlider
-                  value={values}
-                  onValueChange={setValues}
-                  min={0}
-                  max={100}
-                  step={1}
-                />
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <Input placeholder="Min" type="number" className="bg-white" />
-                  <Input placeholder="Max" type="number" className="bg-white" />
-                </div>
-              </div>
+      <main className="mt-12 p-4 lg:p-12">
+        <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-6">
+          <InputGroup className="lg:w-[400px] bg-white rounded-none!">
+            <InputGroupInput
+              placeholder="Search by Store Name"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <InputGroupAddon align={"inline-end"}>
+              {isRefetching ? <Spinner /> : <SearchIcon />}
+            </InputGroupAddon>
+          </InputGroup>
 
-              <RadioGroup defaultValue="comfortable" className="mt-4 space-y-3">
-                <div className="flex items-center gap-3">
-                  <RadioGroupItem value="default" id="r1" />
-                  <Label htmlFor="r1">All Prices</Label>
-                </div>
-                <div className="flex items-center gap-3">
-                  <RadioGroupItem value="comfortable" id="r2" />
-                  <Label htmlFor="r2">Under $20</Label>
-                </div>
-                <div className="flex items-center gap-3">
-                  <RadioGroupItem value="r3" id="r3" />
-                  <Label htmlFor="r3">$25 to $100</Label>
-                </div>
-                <div className="flex items-center gap-3">
-                  <RadioGroupItem value="r4" id="r4" />
-                  <Label htmlFor="r4">$500 to $1,000</Label>
-                </div>
-                <div className="flex items-center gap-3">
-                  <RadioGroupItem value="r5" id="r5" />
-                  <Label htmlFor="r5">$1,000 to $10,000</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <Separator />
-
-            {/* Brands */}
-            <div>
-              <Label className="text-xl uppercase font-semibold">
-                Popular Brands
-              </Label>
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                {brands.map((brand) => (
-                  <div key={brand} className="flex items-center gap-3">
-                    <Checkbox id={brand.toLowerCase()} />
-                    <Label htmlFor={brand.toLowerCase()}>{brand}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
-
-          {/* Product Grid */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Search + Sort */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-              <InputGroup className="bg-white w-full lg:w-[400px] border">
-                <InputGroupInput placeholder="Search by product name, tags..." />
-                <InputGroupAddon align="inline-end">
-                  <SearchIcon />
-                </InputGroupAddon>
-              </InputGroup>
-
-              <div className="flex items-center gap-3">
-                <Label htmlFor="sorter">Sort by:</Label>
-                <Select>
-                  <SelectTrigger className="bg-white border">
-                    <SelectValue placeholder="Select Sort" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Most Popular</SelectItem>
-                    <SelectItem value="2">Newest</SelectItem>
-                    <SelectItem value="3">Price: Low to High</SelectItem>
-                    <SelectItem value="4">Price: High to Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Products */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Prods />
-            </div>
+          <div className="w-full flex justify-end gap-6 items-center">
+            <p>Sort by:</p>
+            <Select onValueChange={setSort}>
+              <SelectTrigger className="w-[240px] bg-white rounded-none">
+                <SelectValue placeholder="Most Popular" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="popular">Most Popular</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="oldest">Oldest</SelectItem>
+                <SelectItem value="name_asc">Name (A-Z)</SelectItem>
+                <SelectItem value="name_desc">Name (Z-A)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </section>
-
-        {/* Pagination */}
-        <div className="flex justify-center mt-8">
-          <Pagination>
-            <PaginationContent className="gap-2">
-              <PaginationItem>
-                <PaginationLink href="#">
-                  <ChevronLeft />
-                </PaginationLink>
-              </PaginationItem>
-              {[1, 2, 3].map((page) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    href="#"
-                    className={`rounded-full ${
-                      page === 1
-                        ? "bg-destructive text-background"
-                        : "bg-white border"
-                    }`}
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationLink href="#">
-                  <ChevronRight />
-                </PaginationLink>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
         </div>
-
-        {/* Storefronts */}
-        <section className="mt-16 text-center">
-          <h1 className="text-4xl font-bold italic">Featured Storefronts</h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-            <Stores amm={4} />
+        <div className="w-full grid lg:grid-cols-4 gap-6 mt-12">
+          {isPending ? (
+            <div className={`flex justify-center items-center h-24 mx-auto`}>
+              <Loader2Icon className={`animate-spin`} />
+            </div>
+          ) : (
+            <Stores data={data?.data?.data} />
+          )}
+        </div>
+        {totalPages > 1 ? (
+          <div className="my-24">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handlePageChange(page - 1);
+                    }}
+                    className={
+                      page === 1 ? "pointer-events-none opacity-50" : undefined
+                    }
+                  />
+                </PaginationItem>
+                {pages.map((item, index) => (
+                  <PaginationItem key={`${item}-${index}`}>
+                    {item === "ellipsis" ? (
+                      <PaginationEllipsis />
+                    ) : (
+                      <PaginationLink
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handlePageChange(item);
+                        }}
+                        isActive={item === page}
+                        className={`rounded-full border ${
+                          item === page
+                            ? "bg-destructive text-background"
+                            : "bg-white"
+                        }`}
+                      >
+                        {item}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handlePageChange(page + 1);
+                    }}
+                    className={
+                      page === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : undefined
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
-
-          <div className="mt-12 flex justify-center">
-            <Button
-              className="px-12 py-6 border-2 text-base"
-              variant="outline"
-              size="lg"
-              asChild
-            >
-              <Link href="/storefronts">
-                Browse Stores <ArrowRightIcon className="ml-2" />
-              </Link>
-            </Button>
-          </div>
-        </section>
+        ) : null}
       </main>
     </>
   );
