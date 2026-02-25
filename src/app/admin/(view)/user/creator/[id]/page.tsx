@@ -1,16 +1,32 @@
 import Prods from "@/app/(view)/_home/prods";
 import ProductSection from "@/components/core/product-section";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { base_api, base_url, howl, makeImg } from "@/lib/utils";
 import { ApiResponse } from "@/types/base";
-import { CheckIcon, SquareArrowOutUpRight } from "lucide-react";
+import {
+  CheckCircleIcon,
+  CheckIcon,
+  SquareArrowOutUpRight,
+} from "lucide-react";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import Controller from "./controller";
 
 export default async function Page({
   params,
@@ -75,8 +91,6 @@ export default async function Page({
   }> = await howl(`/admin/creators/${id}`, {
     token,
   });
-
-  console.log(data);
 
   return (
     <main className="p-12">
@@ -182,19 +196,35 @@ export default async function Page({
               <CardTitle className="text-xl">Admin Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button
-                className="h-auto w-full flex justify-start hover:bg-green-500/10"
-                variant={"outline"}
-              >
-                <div className="size-8 flex justify-center items-center bg-green-600 text-background rounded-sm">
-                  <CheckIcon />
-                </div>
-                <div className="flex-1 flex flex-col justify-start items-start">
-                  <p className="text-lg">Approve User</p>
-                  <p className="text-xs">Grant access</p>
-                </div>
-              </Button>
-              <Button
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    className="h-auto w-full flex justify-start hover:bg-green-500/10"
+                    variant={"outline"}
+                  >
+                    <div className="size-8 flex justify-center items-center bg-green-600 text-background rounded-sm">
+                      <CheckIcon />
+                    </div>
+                    <div className="flex-1 flex flex-col justify-start items-start">
+                      <p className="text-lg">Approve User</p>
+                      <p className="text-xs">Grant access</p>
+                    </div>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      You are going to approve this store{" "}
+                      {data?.data?.user?.storefront?.name}. Once you approve
+                      this store, the creator will be able to add products and
+                      start earning commission. This action can be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <Controller id={data?.data?.user?.id} />
+                </AlertDialogContent>
+              </AlertDialog>
+              {/* <Button
                 className="h-auto w-full flex justify-start hover:bg-stone-500/10"
                 variant={"outline"}
               >
@@ -217,7 +247,7 @@ export default async function Page({
                   <p className="text-lg">Delete User</p>
                   <p className="text-xs">Permanently remove user</p>
                 </div>
-              </Button>
+              </Button> */}
             </CardContent>
           </Card>
         </div>

@@ -29,12 +29,13 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { loginApi } from "@/lib/api/auth";
 import { toast } from "sonner";
 import { useCookies } from "react-cookie";
 import { useRouter } from "next/navigation";
 import { useMeStore } from "@/lib/moon/user-store";
+import { howl } from "@/lib/utils";
 export const loginSchema = z.object({
   email: z.email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -56,7 +57,12 @@ export default function LoginForm() {
     },
   });
   const { remember } = form.watch();
-
+  const { data, isPending: loger } = useQuery({
+    queryKey: ["google_oauth"],
+    queryFn: async (): Promise<{ login_url: string }> => {
+      return howl(`/auth/google/url`);
+    },
+  });
   const { mutate, isPending } = useMutation({
     mutationKey: ["login"],
     mutationFn: (data: LoginSchema) => {
@@ -73,7 +79,11 @@ export default function LoginForm() {
           maxAge: remember ? 60 * 60 * 24 * 30 : undefined,
         });
         useMeStore.getState().setMe(res.data.user);
-        navig.push("/");
+        if (res?.data?.user?.account_type === "admin") {
+          navig.push("/admin/dashboard");
+        } else {
+          navig.push("/");
+        }
       } catch (error) {
         console.error(error);
         toast.error("Something went wrong");
@@ -183,7 +193,17 @@ export default function LoginForm() {
             {isPending ? <Loader2Icon className="animate-spin" /> : "Log in"}
           </Button>
 
-          <Button type="button" className="w-full" variant="outline">
+          <Button
+            type="button"
+            className="w-full"
+            variant="outline"
+            onClick={() => {
+              if (data?.login_url) {
+                window.open(data.login_url, "_blank");
+              }
+            }}
+            disabled={loger || !data?.login_url}
+          >
             <FcGoogle /> Continue with Google
           </Button>
         </form>

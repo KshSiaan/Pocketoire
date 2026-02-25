@@ -32,6 +32,7 @@ import { howl } from "@/lib/utils";
 import { ApiResponse, Paginator } from "@/types/base";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  CheckCircleIcon,
   CheckIcon,
   EyeIcon,
   Loader2Icon,
@@ -46,7 +47,7 @@ import { toast } from "sonner";
 
 export default function Page() {
   const [{ token }] = useCookies(["token"]);
-  const [perPage, setPerPage] = React.useState(0);
+  const [perPage, setPerPage] = React.useState(100);
   const { data, isPending, refetch } = useQuery({
     queryKey: ["creators", perPage],
     queryFn: async () => {
@@ -69,7 +70,7 @@ export default function Page() {
             };
           }[]
         >
-      > = await howl(`/admin/creators?per_page=${perPage}`, {
+      > = await howl(`/admin/creators?per_page=100`, {
         token,
       });
       return res;
@@ -105,6 +106,38 @@ export default function Page() {
       refetch();
     },
   });
+
+  const { mutate: approveMutate } = useMutation({
+    mutationKey: ["approve"],
+    mutationFn: async (payload: {
+      id: string | number;
+      status: string;
+      status_reason: string;
+    }): Promise<
+      ApiResponse<{
+        id: number;
+        status: string;
+        status_reason: string;
+      }>
+    > => {
+      return howl(`/admin/storefront/${payload.id}/status`, {
+        method: "PATCH",
+        token,
+        body: {
+          status: payload.status,
+          status_reason: payload.status_reason,
+        },
+      });
+    },
+    onError: (err) => {
+      toast.error(err.message ?? "Failed to complete this request");
+    },
+    onSuccess: (res) => {
+      toast.success(res.message ?? "Success!");
+      refetch();
+    },
+  });
+
   return (
     <main>
       <Card>
@@ -136,6 +169,7 @@ export default function Page() {
                   <TableHead>Name</TableHead>
                   <TableHead>Storefront</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Storefront Status</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead>Clicks</TableHead>
                   <TableHead>Earnings</TableHead>
@@ -162,6 +196,17 @@ export default function Page() {
                       <Badge>{creator?.status}</Badge>
                     </TableCell>
                     <TableCell>
+                      <Badge
+                        variant={
+                          creator?.storefront?.status === "approved"
+                            ? "default"
+                            : "outline"
+                        }
+                      >
+                        {creator?.storefront?.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
                       {new Date(creator?.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>{creator?.total_clicks}</TableCell>
@@ -172,6 +217,74 @@ export default function Page() {
                           <EyeIcon />
                         </Link>
                       </Button>
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size={"icon-sm"}>
+                            <CheckCircleIcon />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              You are going to approve this store {creator.name}
+                              . Once you approve this store, the creator will be
+                              able to add products and start earning commission.
+                              This action can be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            {/* <AlertDialogCancel>Cancel</AlertDialogCancel> */}
+                            <AlertDialogAction
+                              disabled={
+                                creator?.storefront?.status === "approved"
+                              }
+                              className="bg-green-700!"
+                              onClick={() => {
+                                approveMutate({
+                                  id: creator.id,
+                                  status: "approved",
+                                  status_reason: "Admin Approval",
+                                });
+                              }}
+                            >
+                              Approve
+                            </AlertDialogAction>
+                            <AlertDialogAction
+                              className="bg-destructive!"
+                              disabled={
+                                creator?.storefront?.status === "approved"
+                              }
+                              onClick={() => {
+                                approveMutate({
+                                  id: creator.id,
+                                  status: "rejected",
+                                  status_reason: "Admin Rejection",
+                                });
+                              }}
+                            >
+                              Rejected
+                            </AlertDialogAction>
+                            <AlertDialogAction
+                              className="bg-destructive!"
+                              disabled={
+                                creator?.storefront?.status !== "approved"
+                              }
+                              onClick={() => {
+                                approveMutate({
+                                  id: creator.id,
+                                  status: "banned",
+                                  status_reason: "Admin Banning",
+                                });
+                              }}
+                            >
+                              Banned
+                            </AlertDialogAction>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>

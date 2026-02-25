@@ -4,19 +4,44 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SearchIcon } from "lucide-react";
 import React from "react";
 import Prods from "./prods";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse, Paginator } from "@/types/base";
+import type { ApiResponse, Paginator } from "@/types/base";
 import { howl } from "@/lib/utils";
 import { useCookies } from "react-cookie";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
 
 export default function Page() {
   const [{ token }] = useCookies(["token"]);
+  const [search, setSearch] = useDebounceValue("", 500);
+  const [destination, setDestination] = React.useState("479");
+  const { data: dests, isPending: destWaiting } = useQuery({
+    queryKey: ["destinations"],
+    queryFn: async (): Promise<
+      ApiResponse<
+        {
+          destinationId: number;
+          name: string;
+          type: string;
+          defaultCurrencyCode: string;
+          timeZone: string;
+        }[]
+      >
+    > => {
+      return howl(`/vaitor-products-destination`, { token });
+    },
+  });
   const { data, isPending } = useQuery({
-    queryKey: ["all_generators"],
+    queryKey: ["all_generators", search, destination],
     queryFn: async (): Promise<
       Paginator<
         {
@@ -30,28 +55,58 @@ export default function Page() {
         }[]
       >
     > => {
-      return howl(`/all-viator-products?destination=479`, { token });
+      const params = new URLSearchParams({
+        destination,
+        ...(search?.trim() && { keywords: search.trim() }),
+      });
+
+      return howl(`/all-viator-products?${params}`, { token });
     },
   });
+
+  const destinationOptions = React.useMemo(() => {
+    if (destWaiting) {
+      return [
+        <SelectItem key="__loading" value="__loading" disabled>
+          Loading...
+        </SelectItem>,
+      ];
+    }
+
+    return (
+      dests?.data
+        ?.filter((dest) => Boolean(dest?.destinationId))
+        .map((dest) => (
+          <SelectItem
+            key={dest.destinationId}
+            value={dest.destinationId.toString() ?? "0"}
+          >
+            {dest.name}
+          </SelectItem>
+        )) ?? null
+    );
+  }, [dests?.data, destWaiting]);
   return (
     <main>
       <h1>Generate Affiliate Link</h1>
-      <div className="my-6 flex items-center gap-6">
-        <InputGroup className="bg-white rounded-none w-[400px]">
-          <InputGroupInput placeholder="Search by product name" />
+      <div className="my-6 gap-6 grid grid-cols-4">
+        <InputGroup className="bg-white rounded-none">
+          <InputGroupInput
+            placeholder="Search by keywords"
+            onChange={(e) => setSearch(e.target.value)}
+          />
           <InputGroupAddon align={"inline-end"}>
             <SearchIcon />
           </InputGroupAddon>
         </InputGroup>
-        <Select>
-          <SelectTrigger className="bg-white rounded-none w-[25%]">
-            <SelectValue placeholder="Select Retailers" />
+        <Select
+          defaultValue="479"
+          onValueChange={(value) => setDestination(value)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Filter by Destination" />
           </SelectTrigger>
-        </Select>
-        <Select>
-          <SelectTrigger className="bg-white rounded-none w-[25%]">
-            <SelectValue placeholder="Select Popularity" />
-          </SelectTrigger>
+          <SelectContent>{destinationOptions}</SelectContent>
         </Select>
       </div>
       {isPending ? (

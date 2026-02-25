@@ -137,7 +137,7 @@ export default async function Page({
               className="flex-1 flex items-center justify-center gap-2 text-base sm:text-lg"
               asChild
             >
-              <Link href={data?.data?.product?.product_link}>
+              <Link href={data?.data?.product?.product_link} target="_blank">
                 <FaShoppingCart /> Shop now at{" "}
                 {data?.data?.product?.product_image?.source ?? "Unknown"}
               </Link>

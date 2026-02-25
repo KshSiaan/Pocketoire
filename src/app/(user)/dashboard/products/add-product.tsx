@@ -45,9 +45,6 @@ const addProductSchema = z.object({
   product_url: z
     .union([z.url("Please enter a valid URL"), z.literal("")])
     .optional(),
-  image_url: z
-    .union([z.url("Please enter a valid URL"), z.literal("")])
-    .optional(),
   image: z.instanceof(File).optional(),
   product_name: z.string().optional(),
   description: z.string().optional(),
@@ -128,7 +125,7 @@ export default function AddProduct() {
     defaultValues: {
       album_id: "",
       product_url: "",
-      image_url: "",
+
       image: undefined,
       product_name: "",
       description: "",
@@ -141,7 +138,7 @@ export default function AddProduct() {
     const formData = new FormData();
     formData.append("album_id", values.album_id ?? "");
     formData.append("product_url", values.product_url ?? "");
-    formData.append("image_url", values.image_url ?? "");
+
     if (values.image) {
       formData.append("image", values.image);
     }
@@ -187,25 +184,6 @@ export default function AddProduct() {
                         <Input
                           className="rounded-none"
                           placeholder="https://shop.live.rc.viator.com/..."
-                          {...field}
-                          value={field.value ?? ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="image_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          className="rounded-none"
-                          placeholder="https://hare-media-cdn.tripadvisor.com/..."
                           {...field}
                           value={field.value ?? ""}
                         />

@@ -12,6 +12,7 @@ import {
   LayoutDashboardIcon,
   LayoutList,
   LifeBuoy,
+  LogOutIcon,
   // biome-ignore lint/suspicious/noShadowRestrictedNames: <explanation>
   Map,
   NetworkIcon,
@@ -36,6 +37,9 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "./ui/button";
+import { useCookies } from "react-cookie";
+import { toast } from "sonner";
 
 const data = {
   navMain: [
@@ -116,6 +120,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [, , removeCookie] = useCookies(["token"]);
   return (
     <Sidebar variant="sidebar" {...props}>
       <SidebarHeader className="pt-12">
@@ -138,7 +143,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavProjects projects={data.projects} /> */}
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
-      <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
+      <SidebarFooter>
+        <Button variant={"destructive"} className="w-full" asChild>
+          <Link href="/logout">
+            Logout <LogOutIcon />
+          </Link>
+        </Button>
+      </SidebarFooter>
     </Sidebar>
   );
 }

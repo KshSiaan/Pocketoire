@@ -50,7 +50,7 @@ export default function Page() {
   const [search, setSearch] = React.useState("");
 
   const { data, isPending, refetch } = useQuery({
-    queryKey: ["creators", perPage],
+    queryKey: ["buyers", perPage],
     queryFn: async () => {
       const res: ApiResponse<
         Paginator<
@@ -62,7 +62,7 @@ export default function Page() {
             created_at: string;
           }[]
         >
-      > = await howl(`/admin/buyers?per_page=${perPage}`, {
+      > = await howl(`/admin/buyers?per_page=100`, {
         token,
       });
       return res;

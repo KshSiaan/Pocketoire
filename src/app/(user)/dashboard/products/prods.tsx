@@ -350,7 +350,7 @@ export default function Prods() {
                   </div>
                 </CardHeader>
                 <CardFooter className="border-t flex justify-end items-center px-0">
-                  <EditProduct />
+                  <EditProduct data={prod} />
                   <Button
                     variant={"ghost"}
                     className="hover:text-secondary hover:bg-secondary/20"

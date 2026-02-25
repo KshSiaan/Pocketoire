@@ -1,13 +1,49 @@
+"use client";
 import Prods from "@/app/(view)/_home/prods";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { howl } from "@/lib/utils";
+import { ApiResponse } from "@/types/base";
+import { useMutation } from "@tanstack/react-query";
 import { CheckIcon, SquareArrowOutUpRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { useCookies } from "react-cookie";
+import { toast } from "sonner";
 
 export default function Page() {
+  const [{ token }] = useCookies(["token"]);
+  const { mutate: approveMutate } = useMutation({
+    mutationKey: ["approve"],
+    mutationFn: async (payload: {
+      id: string | number;
+      status: string;
+      status_reason: string;
+    }): Promise<
+      ApiResponse<{
+        id: number;
+        status: string;
+        status_reason: string;
+      }>
+    > => {
+      return howl(`/admin/storefront/${payload.id}/status`, {
+        method: "PATCH",
+        token,
+        body: {
+          status: payload.status,
+          status_reason: payload.status_reason,
+        },
+      });
+    },
+    onError: (err) => {
+      toast.error(err.message ?? "Failed to complete this request");
+    },
+    onSuccess: (res) => {
+      toast.success(res.message ?? "Success!");
+    },
+  });
   return (
     <main className="p-12">
       <div className="w-full grid grid-cols-6 gap-6">
@@ -41,7 +77,7 @@ export default function Page() {
                   </div>
                   <div className="">
                     <p className="text-sm font-semibold">Status</p>
-                    <Badge className="bg-green-600">Aprroved</Badge>
+                    <Badge className="bg-green-600">Approved</Badge>
                   </div>
                 </div>
               </div>
@@ -97,6 +133,7 @@ export default function Page() {
                   <p className="text-xs">Grant access</p>
                 </div>
               </Button>
+
               <Button
                 className="h-auto w-full flex justify-start hover:bg-stone-500/10"
                 variant={"outline"}
