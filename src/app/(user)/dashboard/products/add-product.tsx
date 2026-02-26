@@ -39,12 +39,10 @@ import {
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
 
 const addProductSchema = z.object({
   album_id: z.string().optional(),
-  product_url: z
-    .union([z.url("Please enter a valid URL"), z.literal("")])
-    .optional(),
   image: z.instanceof(File).optional(),
   product_name: z.string().optional(),
   description: z.string().optional(),
@@ -61,11 +59,11 @@ type AddProductSchema = z.infer<typeof addProductSchema>;
 
 export default function AddProduct() {
   const [{ token }] = useCookies(["token"]);
+  const [prod_url, setProdUrl] = useState("");
   const form = useForm<AddProductSchema>({
     resolver: zodResolver(addProductSchema),
     defaultValues: {
       album_id: "",
-      product_url: "",
 
       image: undefined,
       product_name: "",
@@ -73,8 +71,6 @@ export default function AddProduct() {
       currency: "",
     },
   });
-
-  const prod_url = form.watch("product_url");
   const [dialogOpen, setDialogOpen] = useState(false);
   const navig = useRouter();
 
@@ -99,9 +95,12 @@ export default function AddProduct() {
         }>;
       }>
     > => {
-      return howl(`/storefront/albums`, {
-        token,
-      });
+      return howl(
+        `/product/get?product_link=${encodeURIComponent(prod_url ?? "")}`,
+        {
+          token,
+        },
+      );
     },
     enabled: !!prod_url,
   });
@@ -167,7 +166,6 @@ export default function AddProduct() {
     console.log(values);
     const formData = new FormData();
     formData.append("album_id", values.album_id ?? "");
-    formData.append("product_url", values.product_url ?? "");
 
     if (values.image) {
       formData.append("image", values.image);
@@ -195,8 +193,30 @@ export default function AddProduct() {
             Add a new affiliate product to your store
           </DialogDescription>
         </DialogHeader>
+        <pre className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
+          <code className="whitespace-pre-wrap">
+            {JSON.stringify(viatorProd, null, 2)}
+          </code>
+        </pre>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-muted-foreground">
+                  Product URL
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Label>Product URL</Label>
+
+                <Input
+                  className="rounded-none"
+                  placeholder="https://shop.live.rc.viator.com/..."
+                  value={prod_url}
+                  onChange={(e) => setProdUrl(e.target.value)}
+                />
+              </CardContent>
+            </Card>
             <Card>
               <CardHeader>
                 <CardTitle className="text-muted-foreground">
@@ -204,25 +224,6 @@ export default function AddProduct() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="product_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Product URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          className="rounded-none"
-                          placeholder="https://shop.live.rc.viator.com/..."
-                          {...field}
-                          value={field.value ?? ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <FormField
                   control={form.control}
                   name="image"
@@ -392,3 +393,5 @@ export default function AddProduct() {
     </Dialog>
   );
 }
+
+//TODO: after getting product details from viator API, prefill the form with the retrieved data and restrict user from using anything except the image. and make the price readonly.
