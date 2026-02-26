@@ -38,7 +38,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const addProductSchema = z.object({
   album_id: z.string().optional(),
@@ -61,8 +61,50 @@ type AddProductSchema = z.infer<typeof addProductSchema>;
 
 export default function AddProduct() {
   const [{ token }] = useCookies(["token"]);
+  const form = useForm<AddProductSchema>({
+    resolver: zodResolver(addProductSchema),
+    defaultValues: {
+      album_id: "",
+      product_url: "",
+
+      image: undefined,
+      product_name: "",
+      description: "",
+      currency: "",
+    },
+  });
+
+  const prod_url = form.watch("product_url");
   const [dialogOpen, setDialogOpen] = useState(false);
   const navig = useRouter();
+
+  const { data: viatorProd, isPending: viatorLoader } = useQuery({
+    queryKey: ["prod_URL", prod_url],
+    queryFn: async (): Promise<
+      ApiResponse<{
+        product_name: string;
+        description: string;
+        price: number;
+        currency: string;
+        product_url: string;
+        image_url: string;
+        albums: Array<{
+          id: number;
+          storefront_id: number;
+          name: string;
+          slug: string;
+          description: string;
+          created_at: string;
+          updated_at: string;
+        }>;
+      }>
+    > => {
+      return howl(`/storefront/albums`, {
+        token,
+      });
+    },
+    enabled: !!prod_url,
+  });
   const { data, isPending: loading } = useQuery({
     queryKey: ["albums_list"],
     queryFn: async (): Promise<
@@ -80,6 +122,7 @@ export default function AddProduct() {
       });
     },
   });
+
   const { mutate, isPending } = useMutation({
     mutationKey: ["add_product"],
     mutationFn: async (formData: FormData): Promise<ApiResponse<null>> => {
@@ -117,19 +160,6 @@ export default function AddProduct() {
       toast.success(res.message ?? "Success!");
       navig.refresh();
       setDialogOpen(false);
-    },
-  });
-
-  const form = useForm<AddProductSchema>({
-    resolver: zodResolver(addProductSchema),
-    defaultValues: {
-      album_id: "",
-      product_url: "",
-
-      image: undefined,
-      product_name: "",
-      description: "",
-      currency: "",
     },
   });
 

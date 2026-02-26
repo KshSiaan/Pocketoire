@@ -1,11 +1,5 @@
 "use client";
-import {
-  useCallback,
-  useState,
-  forwardRef,
-  useEffect,
-  type ForwardedRef,
-} from "react";
+import React, { useCallback, useState, forwardRef, useEffect } from "react";
 
 // shadcn
 import {
@@ -49,7 +43,6 @@ export interface Country {
 interface CountryDropdownProps {
   options?: Country[];
   onChange?: (country: Country) => void;
-  value?: string;
   defaultValue?: string;
   disabled?: boolean;
   placeholder?: string;
@@ -63,14 +56,13 @@ const CountryDropdownComponent = (
         country.emoji && country.status !== "deleted" && country.ioc !== "PRK",
     ),
     onChange,
-    value,
     defaultValue,
     disabled = false,
     placeholder = "Select a country",
     slim = false,
     ...props
   }: CountryDropdownProps,
-  ref: ForwardedRef<HTMLButtonElement>,
+  ref: React.ForwardedRef<HTMLButtonElement>,
 ) => {
   const [open, setOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<Country | undefined>(
@@ -78,25 +70,25 @@ const CountryDropdownComponent = (
   );
 
   useEffect(() => {
-    const selectedValue = value ?? defaultValue;
-
-    if (!selectedValue) {
+    if (defaultValue) {
+      const initialCountry = options.find(
+        (country) => country.alpha3 === defaultValue,
+      );
+      if (initialCountry) {
+        setSelectedCountry(initialCountry);
+      } else {
+        // Reset selected country if defaultValue is not found
+        setSelectedCountry(undefined);
+      }
+    } else {
+      // Reset selected country if defaultValue is undefined or null
       setSelectedCountry(undefined);
-      return;
     }
-
-    const normalized = selectedValue.toLowerCase();
-    const initialCountry = options.find(
-      (country) =>
-        country.alpha2.toLowerCase() === normalized ||
-        country.alpha3.toLowerCase() === normalized,
-    );
-
-    setSelectedCountry(initialCountry);
-  }, [value, defaultValue, options]);
+  }, [defaultValue, options]);
 
   const handleSelect = useCallback(
     (country: Country) => {
+      console.log("🌍 CountryDropdown value: ", country);
       setSelectedCountry(country);
       onChange?.(country);
       setOpen(false);
@@ -132,7 +124,13 @@ const CountryDropdownComponent = (
             )}
           </div>
         ) : (
-          <span>{slim === false ? placeholder : <Globe size={20} />}</span>
+          <span>
+            {slim === false ? (
+              placeholder || setSelectedCountry.name
+            ) : (
+              <Globe size={20} />
+            )}
+          </span>
         )}
         <ChevronDown size={16} />
       </PopoverTrigger>

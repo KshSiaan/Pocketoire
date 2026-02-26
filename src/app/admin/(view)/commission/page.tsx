@@ -155,6 +155,9 @@ export default function Page() {
                   <TableHead className="text-center">
                     Booking Reference
                   </TableHead>
+                  <TableHead className="text-center">
+                    Platform Commission
+                  </TableHead>
                   <TableHead className="text-center">Event Type</TableHead>
                   <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
@@ -172,6 +175,9 @@ export default function Page() {
                     </TableCell>
                     <TableCell className="text-center">
                       {creator?.booking_ref}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {creator?.platform_commission ?? "N/A"}
                     </TableCell>
                     <TableCell className="flex justify-center items-center">
                       {creator?.event_type === "CONFIRMATION" ? (

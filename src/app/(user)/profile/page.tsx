@@ -6,11 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React, { Suspense } from "react";
-import Prods from "@/app/(view)/_home/prods";
+import { Suspense } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import { cookies } from "next/headers";
 import { howl, makeImg } from "@/lib/utils";
 import {
@@ -25,7 +22,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
-import { ApiResponse } from "@/types/base";
+import type { ApiResponse } from "@/types/base";
 import BrowsingHistory from "./browsing-history";
 
 export default async function Page() {
@@ -36,7 +33,7 @@ export default async function Page() {
       id: number;
       name: string;
       email: string;
-      profile_photo: any;
+      profile_photo: string | null;
       account_type: string;
       saved_products: Array<{
         id: number;
@@ -62,21 +59,16 @@ export default async function Page() {
     token,
   });
   return (
-    <main className="p-12">
-      {/* <pre className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
-        <code className="whitespace-pre-wrap">
-          {JSON.stringify(data, null, 2)}
-        </code>
-      </pre> */}
-      <h1 className="text-4xl text-center">Account & Support</h1>
-      <div className="grid grid-cols-2 mt-6 gap-6">
+    <main className="p-4 sm:p-6 lg:p-12">
+      <h1 className="text-3xl sm:text-4xl text-center">Account & Support</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 mt-6 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="italic">Profile Information</CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-start items-start gap-6!">
-            <div className="">
-              <Avatar className="size-[120px]">
+          <CardContent className="flex flex-col sm:flex-row justify-start items-center sm:items-start gap-6!">
+            <div>
+              <Avatar className="size-[100px] sm:size-[120px]">
                 <AvatarImage
                   src={
                     data.data?.user?.profile_photo
@@ -88,16 +80,18 @@ export default async function Page() {
               </Avatar>
             </div>
 
-            <div>
-              <h4 className="text-2xl font-semibold">
+            <div className="text-center sm:text-left min-w-0">
+              <h4 className="text-xl sm:text-2xl font-semibold break-words">
                 {data.data?.user?.name}
               </h4>
-              <p>{data.data?.user?.email}</p>
+              <p className="break-all text-sm sm:text-base">
+                {data.data?.user?.email}
+              </p>
             </div>
           </CardContent>
         </Card>
         {/* {makeImg(`storage/${data.data.user.profile_photo}`)} */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <Link href={"/profile/edit"}>
             <Card className="hover:border-blue-600 hover:border-2 hover:bg-blue-600/10">
               <CardHeader>
@@ -145,7 +139,7 @@ export default async function Page() {
             <AlertDialogTrigger asChild>
               <Card className="flex justify-center items-center cursor-pointer hover:border-2 hover:border-destructive hover:bg-destructive/10">
                 <CardContent className="flex justify-center items-center">
-                  <CardTitle className="text-2xl text-destructive">
+                  <CardTitle className="text-xl sm:text-2xl text-destructive">
                     Log out
                   </CardTitle>
                 </CardContent>
@@ -171,8 +165,8 @@ export default async function Page() {
         </div>
       </div>
       <div className="mt-12">
-        <h4 className="text-3xl">Saved Products</h4>
-        <div className="w-full grid grid-cols-4 gap-6 mt-6">
+        <h4 className="text-2xl sm:text-3xl">Saved Products</h4>
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
           {data.data?.user?.saved_products.map((prod, i) => (
             <Link
               href={`/store/${prod?.pivot?.user_id}/product/${prod?.id}`}
@@ -207,8 +201,8 @@ export default async function Page() {
       </div>
       {historyOK && (
         <div className="mt-12">
-          <h4 className="text-3xl">Browsing history</h4>
-          <div className="w-full grid grid-cols-2 gap-6 mt-6">
+          <h4 className="text-2xl sm:text-3xl">Browsing history</h4>
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <Suspense>
               <BrowsingHistory />
             </Suspense>

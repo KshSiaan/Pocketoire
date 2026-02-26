@@ -9,86 +9,46 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  WalletIcon,
-  HistoryIcon,
-  CalendarIcon,
-  CreditCardIcon, // Using CreditCardIcon for the 'Withdraw Money' button
-} from "lucide-react";
+import { WalletIcon, HistoryIcon, CalendarIcon } from "lucide-react";
 import Withdraw from "./withdraw";
-
-// --- Mock Data ---
-
-const transactionHistory = [
-  {
-    date: "Sep 30, 2025",
-    amount: "$165.50",
-    method: "Bank Transfer",
-    status: "Success",
-  },
-  {
-    date: "Sep 30, 2025",
-    amount: "$165.50",
-    method: "Bank Transfer",
-    status: "Success",
-  },
-  {
-    date: "Sep 30, 2025",
-    amount: "$165.50",
-    method: "Bank Transfer",
-    status: "Success",
-  },
-  {
-    date: "Sep 30, 2025",
-    amount: "$165.50",
-    method: "Bank Transfer",
-    status: "Success",
-  },
-  {
-    date: "Sep 30, 2025",
-    amount: "$165.50",
-    method: "Bank Transfer",
-    status: "Failed",
-  },
-];
+import type { EarningsData } from "./types";
 
 const getStatusBadge = (status: string) => {
-  //   const variant = "success"; // Custom variant for green
+  const normalized = status.toLowerCase();
   let className = "bg-green-100 text-green-700 hover:bg-green-200";
 
-  if (status === "Failed") {
+  if (normalized === "failed") {
     className = "bg-red-100 text-red-700 hover:bg-red-200";
+  } else if (normalized === "processing") {
+    className = "bg-amber-100 text-amber-700 hover:bg-amber-200";
   }
 
   return <Badge className={className}>{status}</Badge>;
 };
 
-// --- Custom Tailwind Class for the Background Cards ---
-
-// The image uses a light, dusty rose/mauve color. We'll approximate this with a custom class.
 const accentBgClass = "bg-[#fbebe9]"; // A light, dusty rose color
 
-// --- Component ---
+const money = (amount: number | string, currency = "USD") => {
+  const safeAmount = typeof amount === "string" ? Number(amount) : amount;
+  const parsed = Number.isFinite(safeAmount) ? safeAmount : 0;
 
-export function PayoutsDashboard({
-  data,
-}: {
-  data: {
-    total_paid_amounts: number;
-    pending_payouts_amount: number;
-    total_paid_this_month: number;
-    total_paid_previous_months: number;
-    monthly_payout_percentage_change: number;
-    products: Array<any>;
-    wallet: {
-      balance: string;
-      currency: string;
-      status: string;
-    };
-    payouts: Array<any>;
-    last_payout: any;
-  };
-}) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(parsed);
+};
+
+const fmtDate = (date: string) =>
+  new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+
+export function PayoutsDashboard({ data }: { data: EarningsData }) {
+  const currency = data.wallet?.currency || "USD";
+
   return (
     <Card className="w-full">
       <h1 className="text-xl font-medium mb-6 pl-6 font-serif italic text-gray-700">
@@ -105,10 +65,11 @@ export function PayoutsDashboard({
               </span>
             </div>
             <p className="text-4xl font-bold text-gray-800 mb-2 font-serif">
-              ${data?.wallet?.balance || 0}
+              {money(data?.wallet?.balance || 0, currency)}
             </p>
             <p className="text-sm text-gray-600">
-              Minimum withdrawal: <span className="font-medium">$50.00</span>
+              Minimum withdrawal:{" "}
+              <span className="font-medium">{money(50, currency)}</span>
             </p>
           </CardContent>
         </Card>
@@ -123,19 +84,34 @@ export function PayoutsDashboard({
             <p className="text-2xl italic font-bold text-gray-800 mb-1 font-serif">
               Last Payout
             </p>
-            <p className="text-sm text-gray-600">
-              Date: <span className="font-medium">Sep 30, 2025</span>
-            </p>
-            <p className="text-sm text-green-600 font-medium">
-              Status: Success
-            </p>
+            {data.last_payout ? (
+              <>
+                <p className="text-sm text-gray-600">
+                  Date:{" "}
+                  <span className="font-medium">
+                    {fmtDate(data.last_payout.created_at)}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-600">
+                  Amount:{" "}
+                  <span className="font-medium">
+                    {money(data.last_payout.amount, data.last_payout.currency)}
+                  </span>
+                </p>
+                <p className="text-sm text-green-600 font-medium">
+                  Status: {data.last_payout.status}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-gray-600">No payouts yet</p>
+            )}
           </CardContent>
         </Card>
       </CardContent>
 
       {/* Action Bar */}
       <CardContent className="flex justify-between items-center mb-6">
-        <Withdraw />
+        <Withdraw balance={data.wallet.balance} currency={currency} />
         <Button
           variant="outline"
           className="flex items-center space-x-1 text-gray-600 border border-gray-300"
@@ -158,18 +134,33 @@ export function PayoutsDashboard({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transactionHistory.map((transaction, index) => (
-              <TableRow key={index} className="text-gray-700">
-                <TableCell className="font-medium">
-                  {transaction.date}
-                </TableCell>
-                <TableCell>{transaction.amount}</TableCell>
-                <TableCell>{transaction.method}</TableCell>
-                <TableCell className="text-right">
-                  {getStatusBadge(transaction.status)}
+            {data.payouts.length ? (
+              data.payouts.map((transaction) => (
+                <TableRow key={transaction.id} className="text-gray-700">
+                  <TableCell className="font-medium">
+                    {fmtDate(transaction.created_at)}
+                  </TableCell>
+                  <TableCell>
+                    {money(transaction.amount, transaction.currency)}
+                  </TableCell>
+                  <TableCell className="capitalize">
+                    {transaction.method}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {getStatusBadge(transaction.status)}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="text-center py-6 text-muted-foreground"
+                >
+                  No payout records available.
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </CardContent>

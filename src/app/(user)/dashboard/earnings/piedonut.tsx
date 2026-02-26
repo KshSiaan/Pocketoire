@@ -11,41 +11,39 @@ import {
 
 export const description = "A donut chart";
 
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 90, fill: "var(--color-other)" },
-];
-
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  amount: {
+    label: "Amount",
   },
-  chrome: {
-    label: "Chrome",
+  this_month: {
+    label: "This Month Paid",
     color: "var(--chart-1)",
   },
-  safari: {
-    label: "Safari",
+  previous_months: {
+    label: "Previous Months Paid",
     color: "var(--chart-2)",
   },
-  firefox: {
-    label: "Firefox",
+  pending: {
+    label: "Pending Payouts",
     color: "var(--chart-3)",
-  },
-  edge: {
-    label: "Edge",
-    color: "var(--chart-4)",
-  },
-  other: {
-    label: "Other",
-    color: "var(--chart-5)",
   },
 } satisfies ChartConfig;
 
-export function PieDonut() {
+export function PieDonut({
+  data,
+}: {
+  data: Array<{
+    key: "this_month" | "previous_months" | "pending";
+    label: string;
+    value: number;
+  }>;
+}) {
+  const chartData = data.map((item) => ({
+    name: item.label,
+    amount: item.value,
+    fill: `var(--color-${item.key})`,
+  }));
+
   return (
     <ChartContainer
       config={chartConfig}
@@ -58,8 +56,8 @@ export function PieDonut() {
         />
         <Pie
           data={chartData}
-          dataKey="visitors"
-          nameKey="browser"
+          dataKey="amount"
+          nameKey="name"
           innerRadius={60}
         />
       </PieChart>

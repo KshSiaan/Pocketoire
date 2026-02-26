@@ -289,7 +289,11 @@ export default function Page() {
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size={"icon-sm"} variant={"outline"}>
-                            <XCircleIcon />
+                            {creator.status === "suspended" ? (
+                              <CheckIcon />
+                            ) : (
+                              <XCircleIcon />
+                            )}
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>

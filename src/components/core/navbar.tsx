@@ -102,9 +102,29 @@ export default function Navbar() {
               <SheetTitle />
             </SheetHeader>
             {renderLinks(true)}
-            <Button variant="outline" className="font-semibold w-full" asChild>
-              <Link href="/login">Login / Sign Up</Link>
-            </Button>
+            {token ? (
+              <Button variant={"destructive"} size={"lg"} asChild>
+                <Link href={"/profile"}>
+                  <Avatar>
+                    <AvatarImage
+                      src={
+                        me?.profile_photo
+                          ? makeImg(`storage/${me?.profile_photo}`)
+                          : ""
+                      }
+                    />
+                    <AvatarFallback className="uppercase">
+                      {me?.name?.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>{" "}
+                  My Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <Button variant="outline" className="font-semibold" asChild>
+                <Link href="/login">Login / Sign Up</Link>
+              </Button>
+            )}
           </SheetContent>
         </Sheet>
       </div>

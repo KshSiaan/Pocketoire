@@ -59,7 +59,7 @@ export default function Page() {
         description: string;
         products_count: number;
         total_clicks: number;
-        total_earnings: number;
+        total_earnings: number | string | null;
       }>;
     }> => {
       return howl(`/creator/home`, {
@@ -181,16 +181,16 @@ export default function Page() {
                 <TableRow key={i}>
                   <TableCell className="text-center">{album.name}</TableCell>
                   <TableCell className="text-center">
-                    {album.description}
+                    {album?.description}
                   </TableCell>
                   <TableCell className="text-center">
-                    {album.products_count}
+                    {album?.products_count}
                   </TableCell>
                   <TableCell className="text-center">
-                    {album.total_clicks}
+                    {album?.total_clicks}
                   </TableCell>
                   <TableCell className="text-center font-bold text-green-500">
-                    ${album.total_earnings.toFixed(2)}
+                    ${Number(album?.total_earnings ?? 0).toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}
