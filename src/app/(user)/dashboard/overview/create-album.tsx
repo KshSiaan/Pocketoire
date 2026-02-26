@@ -20,6 +20,7 @@ import { useCookies } from "react-cookie";
 import { ApiResponse } from "@/types/base";
 export default function CreateAlbum() {
   const [{ token }] = useCookies(["token"]);
+  const [open, setOpen] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const qcl = useQueryClient();
@@ -43,10 +44,11 @@ export default function CreateAlbum() {
       setTitle("");
       setDescription("");
       qcl.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      setOpen(false);
     },
   });
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogTrigger asChild>
         <Button variant={"secondary"} disabled={isPending}>
           <PlusIcon /> Create New Album

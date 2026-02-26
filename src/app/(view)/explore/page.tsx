@@ -4,6 +4,9 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { DualRangeSlider } from "@/components/ui/dual-slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -12,7 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2Icon, SearchIcon } from "lucide-react";
-import Stores from "./stores";
 import {
   Pagination,
   PaginationContent,
@@ -25,54 +27,62 @@ import {
 import Header from "@/components/core/header";
 // import { cookies } from "next/headers";
 import { howl } from "@/lib/utils";
-import { ApiResponse, Paginator } from "@/types/base";
+import type { ApiResponse, Paginator } from "@/types/base";
+import type { ProductType } from "@/types/global";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { Spinner } from "@/components/ui/spinner";
+import Prodss from "./prodss";
+
+interface ExploreProductType extends ProductType {
+  product_image: {
+    id: number;
+    product_id: number;
+    image: string;
+    source: string;
+    created_at: string;
+    updated_at: string;
+  } | null;
+}
+
+interface ExploreResponseType {
+  products: Paginator<ExploreProductType[]>;
+}
+
 export default function Page() {
-  const [search, setSearch] = useDebounceValue("", 500);
-  const [sort, setSort] = useState("");
-  const [page, setPage] = useState(1);
   const perPage = 16;
+  const [minMax, setMinMax] = useState<[number, number]>([0, 100000]);
+  const [debouncedMin] = useDebounceValue(minMax[0], 500);
+  const [debouncedMax] = useDebounceValue(minMax[1], 500);
+
+  const [search, setSearch] = useDebounceValue("", 500);
+  const [sort, setSort] = useState("newest");
+  const [page, setPage] = useState(1);
+
   // popular,newest,oldest,name_asc,name_desc.
   const { data, isPending, isRefetching } = useQuery({
-    queryKey: ["storefronts", search, sort, page],
+    queryKey: [
+      "explore_products",
+      search,
+      sort,
+      debouncedMin,
+      debouncedMax,
+      page,
+    ],
     placeholderData: (prev) => prev,
-    queryFn: async (): Promise<
-      ApiResponse<
-        Paginator<
-          {
-            id: number;
-            user_id: number;
-            name: string;
-            bio: string;
-            total_sold: number;
-            total_products: number;
-            user: {
-              id: number;
-              name: string;
-              profile_photo: string;
-              cover_photo: string;
-            };
-          }[]
-        >
-      >
-    > => {
+    queryFn: async (): Promise<ApiResponse<ExploreResponseType>> => {
       const safeSearch = encodeURIComponent(search);
-      const safeSort = encodeURIComponent(sort);
+      const safeSort = encodeURIComponent(sort === "all" ? "" : sort);
+      const safeMin = encodeURIComponent(String(debouncedMin));
+      const safeMax = encodeURIComponent(String(debouncedMax));
       return await howl(
-        `/storefronts?search=${safeSearch}&sort=${safeSort}&per_page=${perPage}&page=${page}`,
+        `/products?search=${safeSearch}&sort=${safeSort}&minPrice=${safeMin}&maxPrice=${safeMax}&per_page=${perPage}&page=${page}`,
       );
     },
   });
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    setPage(1);
-  }, [search, sort]);
-
-  const paginator = data?.data;
+  const paginator = data?.data?.products;
   const totalItems = paginator?.total ?? 0;
   const currentPerPage = paginator?.per_page ?? perPage;
   const totalPages = Math.max(1, Math.ceil(totalItems / currentPerPage));
@@ -114,110 +124,176 @@ export default function Page() {
     if (nextPage < 1 || nextPage > totalPages || nextPage === page) {
       return;
     }
+
     setPage(nextPage);
   };
+
   return (
     <>
       <Header
-        title="Browse Inspiring Storefronts"
-        desc="Explore unique shops from creators worldwide and uncover hidden gems
-          tailored for you."
+        title="Explore Amazing Products"
+        desc="Discover curated products from top creators and find your next favorite item"
       />
 
       <main className="mt-12 p-4 lg:p-12">
-        <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-6">
-          <InputGroup className="lg:w-[400px] bg-white rounded-none!">
-            <InputGroupInput
-              placeholder="Search by Store Name"
-              onChange={(e) => setSearch(e.target.value)}
+        <section className="grid grid-cols-1 lg:grid-cols-4 gap-8 pb-12">
+          <div className="border-t pt-6 flex flex-col gap-6 lg:sticky lg:top-24 self-start">
+            <Label className="text-lg sm:text-xl uppercase">Price Range</Label>
+            <DualRangeSlider
+              value={minMax}
+              onValueChange={(val) => {
+                setPage(1);
+                setMinMax(val as [number, number]);
+              }}
+              min={0}
+              max={100000}
+              step={1}
             />
-            <InputGroupAddon align={"inline-end"}>
-              {isRefetching ? <Spinner /> : <SearchIcon />}
-            </InputGroupAddon>
-          </InputGroup>
-
-          <div className="w-full flex justify-end gap-6 items-center">
-            <p>Sort by:</p>
-            <Select onValueChange={setSort}>
-              <SelectTrigger className="w-[240px] bg-white rounded-none">
-                <SelectValue placeholder="Most Popular" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="popular">Most Popular</SelectItem>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="oldest">Oldest</SelectItem>
-                <SelectItem value="name_asc">Name (A-Z)</SelectItem>
-                <SelectItem value="name_desc">Name (Z-A)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="w-full grid lg:grid-cols-4 gap-6 mt-12">
-          {isPending ? (
-            <div className={`flex justify-center items-center h-24 mx-auto`}>
-              <Loader2Icon className={`animate-spin`} />
+            <div className="w-full grid grid-cols-2 gap-2">
+              <Input
+                placeholder="Min price"
+                className="bg-white rounded-none"
+                type="number"
+                value={minMax[0]}
+                onChange={(e) => {
+                  const newMin = Math.max(0, Number(e.target.value) || 0);
+                  if (newMin <= minMax[1]) {
+                    setPage(1);
+                    setMinMax([newMin, minMax[1]]);
+                  }
+                }}
+              />
+              <Input
+                placeholder="Max price"
+                className="bg-white rounded-none"
+                type="number"
+                value={minMax[1]}
+                onChange={(e) => {
+                  const newMax = Math.max(0, Number(e.target.value) || 0);
+                  if (newMax >= minMax[0]) {
+                    setPage(1);
+                    setMinMax([minMax[0], newMax]);
+                  }
+                }}
+              />
             </div>
-          ) : (
-            <Stores data={data?.data?.data} />
-          )}
-        </div>
-        {totalPages > 1 ? (
-          <div className="my-24">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      handlePageChange(page - 1);
-                    }}
-                    className={
-                      page === 1 ? "pointer-events-none opacity-50" : undefined
-                    }
-                  />
-                </PaginationItem>
-                {pages.map((item, index) => (
-                  <PaginationItem key={`${item}-${index}`}>
-                    {item === "ellipsis" ? (
-                      <PaginationEllipsis />
-                    ) : (
-                      <PaginationLink
+          </div>
+
+          <div className="col-span-1 lg:col-span-3">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <InputGroup className="border-destructive rounded-none bg-white w-full md:w-[400px]">
+                <InputGroupInput
+                  placeholder="Search by product name, tags"
+                  onChange={(e) => {
+                    setPage(1);
+                    setSearch(e.target.value);
+                  }}
+                />
+                <InputGroupAddon align={"inline-end"}>
+                  {isRefetching ? <Spinner /> : <SearchIcon />}
+                </InputGroupAddon>
+              </InputGroup>
+
+              <div className="w-full md:w-auto flex justify-end gap-3 items-center flex-wrap">
+                <p>Sort by:</p>
+                <Select
+                  value={sort}
+                  onValueChange={(value) => {
+                    setPage(1);
+                    setSort(value);
+                  }}
+                >
+                  <SelectTrigger className="w-[240px] bg-white rounded-none">
+                    <SelectValue placeholder="Newest Arrivals" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="price_low">
+                      Price: Low to High
+                    </SelectItem>
+                    <SelectItem value="price_high">
+                      Price: High to Low
+                    </SelectItem>
+                    <SelectItem value="newest">Newest Arrivals</SelectItem>
+                    <SelectItem value="oldest">Oldest Arrivals</SelectItem>
+                    <SelectItem value="title_asc">Title: A to Z</SelectItem>
+                    <SelectItem value="title_desc">Title: Z to A</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="w-full grid lg:grid-cols-3 gap-6 mt-6">
+              {isPending ? (
+                <div className="lg:col-span-3 flex justify-center items-center h-24 mx-auto">
+                  <Loader2Icon className="animate-spin" />
+                </div>
+              ) : (
+                <Prodss data={paginator?.data ?? []} />
+              )}
+            </div>
+
+            {totalPages > 1 ? (
+              <div className="my-24">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
                         href="#"
                         onClick={(event) => {
                           event.preventDefault();
-                          handlePageChange(item);
+                          handlePageChange(page - 1);
                         }}
-                        isActive={item === page}
-                        className={`rounded-full border ${
-                          item === page
-                            ? "bg-destructive text-background"
-                            : "bg-white"
-                        }`}
-                      >
-                        {item}
-                      </PaginationLink>
-                    )}
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      handlePageChange(page + 1);
-                    }}
-                    className={
-                      page === totalPages
-                        ? "pointer-events-none opacity-50"
-                        : undefined
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                        className={
+                          page === 1
+                            ? "pointer-events-none opacity-50"
+                            : undefined
+                        }
+                      />
+                    </PaginationItem>
+                    {pages.map((item, index) => (
+                      <PaginationItem key={`${item}-${index}`}>
+                        {item === "ellipsis" ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            href="#"
+                            onClick={(event) => {
+                              event.preventDefault();
+                              handlePageChange(item);
+                            }}
+                            isActive={item === page}
+                            className={`rounded-full border ${
+                              item === page
+                                ? "bg-destructive text-background"
+                                : "bg-white"
+                            }`}
+                          >
+                            {item}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handlePageChange(page + 1);
+                        }}
+                        className={
+                          page === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : undefined
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            ) : null}
           </div>
-        ) : null}
+        </section>
       </main>
     </>
   );

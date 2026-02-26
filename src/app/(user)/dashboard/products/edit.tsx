@@ -41,6 +41,11 @@ import { base_api, base_url, howl } from "@/lib/utils";
 import type { ApiResponse } from "@/types/base";
 import { PenIcon } from "lucide-react";
 import Image from "next/image";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 const editProductSchema = z.object({
   album_id: z.string().optional(),
@@ -167,7 +172,7 @@ export default function EditProduct({
   function onSubmit(values: EditProductSchema) {
     const formData = new FormData();
     formData.append("album_id", values.album_id ?? "");
-    formData.append("product_url", values.product_url ?? "");
+    // formData.append("product_url", values.product_url ?? "");
     if (values.image) {
       formData.append("image", values.image);
     }
@@ -213,12 +218,21 @@ export default function EditProduct({
                     <FormItem>
                       <FormLabel>Product URL</FormLabel>
                       <FormControl>
-                        <Input
-                          className="rounded-none"
-                          placeholder="https://shop.live.rc.viator.com/..."
-                          {...field}
-                          value={field.value ?? ""}
-                        />
+                        <InputGroup>
+                          <InputGroupInput
+                            readOnly
+                            className="rounded-none"
+                            placeholder="https://shop.live.rc.viator.com/..."
+                            {...field}
+                            value={field.value ?? ""}
+                          />
+                          <InputGroupAddon
+                            align={"inline-end"}
+                            className="border-l pl-2 text-xs font-bold"
+                          >
+                            ReadOnly
+                          </InputGroupAddon>
+                        </InputGroup>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
