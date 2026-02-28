@@ -1,3 +1,6 @@
+"use client";
+
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,9 +12,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { WalletIcon, HistoryIcon, CalendarIcon } from "lucide-react";
 import Withdraw from "./withdraw";
 import type { EarningsData } from "./types";
+import { useQuery } from "@tanstack/react-query";
+import type { ApiResponse, Paginator } from "@/types/base";
+import { howl } from "@/lib/utils";
+import { useCookies } from "react-cookie";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
 
 const getStatusBadge = (status: string) => {
   const normalized = status.toLowerCase();
@@ -47,6 +71,96 @@ const fmtDate = (date: string) =>
   });
 
 export function PayoutsDashboard({ data }: { data: EarningsData }) {
+  const [{ token }] = useCookies(["token"]);
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
+  const [page, setPage] = React.useState(1);
+
+  const startDate = dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : "";
+  const endDate = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : "";
+
+  const rangeLabel = React.useMemo(() => {
+    if (dateRange?.from && dateRange?.to) {
+      return `${format(dateRange.from, "MMM dd, yyyy")} - ${format(dateRange.to, "MMM dd, yyyy")}`;
+    }
+
+    if (dateRange?.from) {
+      return format(dateRange.from, "MMM dd, yyyy");
+    }
+
+    return "Any Time";
+  }, [dateRange]);
+
+  const { data: payoutData, isPending } = useQuery({
+    queryKey: ["payout_earning", startDate, endDate, page],
+    queryFn: async (): Promise<
+      ApiResponse<
+        Paginator<
+          {
+            id: number;
+            user_id: number;
+            wallet_id: number;
+            amount: string;
+            currency: string;
+            method: string;
+            status: string;
+            created_at: string;
+          }[]
+        >
+      >
+    > => {
+      const query = new URLSearchParams({
+        start_date: startDate,
+        end_date: endDate,
+        page: String(page),
+        per_page: "8",
+      }).toString();
+
+      return await howl(`/creator/earnings/payouts?${query}`, {
+        token,
+      });
+    },
+  });
+
+  const payouts = payoutData?.data?.data ?? [];
+  const totalItems = payoutData?.data?.total ?? 0;
+  const perPage = payoutData?.data?.per_page ?? 10;
+  const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+
+  const pages = React.useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const items: Array<number | "ellipsis"> = [];
+    const minPage = Math.max(2, page - 1);
+    const maxPage = Math.min(totalPages - 1, page + 1);
+
+    items.push(1);
+
+    if (minPage > 2) {
+      items.push("ellipsis");
+    }
+
+    for (let i = minPage; i <= maxPage; i += 1) {
+      items.push(i);
+    }
+
+    if (maxPage < totalPages - 1) {
+      items.push("ellipsis");
+    }
+
+    items.push(totalPages);
+    return items;
+  }, [page, totalPages]);
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === page) {
+      return;
+    }
+
+    setPage(nextPage);
+  };
+
   const currency = data.wallet?.currency || "USD";
 
   return (
@@ -111,19 +225,34 @@ export function PayoutsDashboard({ data }: { data: EarningsData }) {
 
       {/* Action Bar */}
       <CardContent className="flex justify-between items-center mb-6">
-        <Withdraw balance={data.wallet.balance} currency={currency} />
-        <Button
-          variant="outline"
-          className="flex items-center space-x-1 text-gray-600 border border-gray-300"
-        >
-          <CalendarIcon className="w-4 h-4" />
-          <span>Any Time</span>
-        </Button>
+        <Withdraw />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="flex items-center space-x-1 text-gray-600 border border-gray-300"
+            >
+              <CalendarIcon className="w-4 h-4" />
+              <span>{rangeLabel}</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <Calendar
+              mode="range"
+              selected={dateRange}
+              onSelect={(value) => {
+                setDateRange(value);
+                setPage(1);
+              }}
+              numberOfMonths={2}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
       </CardContent>
 
       {/* Payouts Table */}
       <CardContent>
-        {" "}
         <Table className="border-t">
           <TableHeader>
             <TableRow className="text-gray-500 hover:bg-white">
@@ -134,8 +263,17 @@ export function PayoutsDashboard({ data }: { data: EarningsData }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.payouts.length ? (
-              data.payouts.map((transaction) => (
+            {isPending ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="text-center py-6 text-muted-foreground"
+                >
+                  Loading payouts...
+                </TableCell>
+              </TableRow>
+            ) : payouts.length ? (
+              payouts.map((transaction) => (
                 <TableRow key={transaction.id} className="text-gray-700">
                   <TableCell className="font-medium">
                     {fmtDate(transaction.created_at)}
@@ -163,6 +301,66 @@ export function PayoutsDashboard({ data }: { data: EarningsData }) {
             )}
           </TableBody>
         </Table>
+
+        {totalPages > 1 ? (
+          <div className="mt-6">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handlePageChange(page - 1);
+                    }}
+                    className={
+                      page === 1 ? "pointer-events-none opacity-50" : undefined
+                    }
+                  />
+                </PaginationItem>
+
+                {pages.map((item, index) => (
+                  <PaginationItem key={`${item}-${index}`}>
+                    {item === "ellipsis" ? (
+                      <PaginationEllipsis />
+                    ) : (
+                      <PaginationLink
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handlePageChange(item);
+                        }}
+                        isActive={item === page}
+                        className={
+                          item === page
+                            ? "bg-destructive text-white"
+                            : undefined
+                        }
+                      >
+                        {item}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handlePageChange(page + 1);
+                    }}
+                    className={
+                      page === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : undefined
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

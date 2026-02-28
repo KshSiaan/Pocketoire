@@ -19,7 +19,7 @@ import { base_api, base_url, cn, howl } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ApiResponse } from "@/types/base";
 import { useCookies } from "react-cookie";
@@ -27,6 +27,7 @@ import { useMeStore } from "@/lib/moon/user-store";
 import { useRouter } from "next/navigation";
 export default function Page() {
   const navig = useRouter();
+  const queryClient = useQueryClient();
   const [{ token }] = useCookies(["token"]);
   const [name, setName] = React.useState("");
 
@@ -49,7 +50,25 @@ export default function Page() {
   });
   const { mutate, isPending: Loading } = useMutation({
     mutationKey: ["edit_profile"],
-    mutationFn: async (): Promise<ApiResponse<unknown>> => {
+    mutationFn: async (): Promise<
+      ApiResponse<{
+        data: {
+          id: number;
+          store_id: number;
+          store_name: string;
+          store_bio: string;
+          name: string;
+          profile_photo: string;
+          cover_photo: string;
+          email: string;
+          storefront_url: string;
+          tiktok_link: any;
+          instagram_link: any;
+          stripe_account_id: string;
+          stripe_onboarded: number;
+        };
+      }>
+    > => {
       const form = new FormData();
       form.append("name", name);
 
@@ -78,7 +97,11 @@ export default function Page() {
     },
     onSuccess: (res) => {
       toast.success(res.message ?? "Success!");
-      
+      const currentMe = useMeStore.getState().me;
+      const userData = res.data.data || res.data;
+      useMeStore.getState().setMe({ ...currentMe, ...userData });
+      queryClient.invalidateQueries({ queryKey: ["edit_profile"] });
+      window.location.reload();
     },
   });
   const avatarSrc = dropzone.fileStatuses[0]?.result;

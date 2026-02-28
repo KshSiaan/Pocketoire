@@ -175,7 +175,7 @@ export default function FormSignup() {
           type="submit"
           className="w-full"
           variant="destructive"
-          disabled={form.formState.isSubmitting || !form.formState.isValid}
+          disabled={form.formState.isSubmitting}
         >
           Sign up
         </Button>

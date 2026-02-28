@@ -60,6 +60,7 @@ export default function Butts({
   const [commission, setCommission] = useState(
     String(data.platform_commission ?? "0"),
   );
+  const [open, setOpen] = useState(false);
   const [{ token }] = useCookies(["token"]);
   const qcl = useQueryClient();
   const { mutate, isPending } = useMutation({
@@ -76,10 +77,12 @@ export default function Butts({
     },
     onError: (err) => {
       toast.error(err.message ?? "Failed to complete this request");
+      setOpen(false);
     },
     onSuccess: (res) => {
       toast.success(res.message ?? "Success!");
       qcl.invalidateQueries({ queryKey: ["commisions"] });
+      setOpen(false);
     },
   });
 
@@ -168,7 +171,7 @@ export default function Butts({
           </div>
         </DialogContent>
       </Dialog>
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button>
             <PlusIcon /> Commission

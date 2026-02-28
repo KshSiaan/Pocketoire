@@ -8,35 +8,36 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const description = "A donut chart";
 
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-destructive)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-primary)" },
-  { browser: "firefox", visitors: 187, fill: "var(--color-pink-500)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-purple-500)" },
-  { browser: "other", visitors: 90, fill: "var(--color-other)" },
+const defaultChartData = [
+  { retailer: "Amazon", sales: 275, fill: "var(--color-destructive)" },
+  { retailer: "Shopify", sales: 200, fill: "var(--color-primary)" },
+  { retailer: "eBay", sales: 187, fill: "var(--color-pink-500)" },
+  { retailer: "Walmart", sales: 173, fill: "var(--color-purple-500)" },
+  { retailer: "Other", sales: 90, fill: "var(--color-other)" },
 ];
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  sales: {
+    label: "Sales",
   },
-  chrome: {
-    label: "Chrome",
+  amazon: {
+    label: "Amazon",
     color: "var(--chart-1)",
   },
-  safari: {
-    label: "Safari",
+  shopify: {
+    label: "Shopify",
     color: "var(--chart-2)",
   },
-  firefox: {
-    label: "Firefox",
+  ebay: {
+    label: "eBay",
     color: "var(--chart-3)",
   },
-  edge: {
-    label: "Edge",
+  walmart: {
+    label: "Walmart",
     color: "var(--chart-4)",
   },
   other: {
@@ -45,7 +46,18 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function Retailer() {
+export function Retailer({
+  data,
+  isLoading,
+}: {
+  data?: { retailer: string; sales: number; fill: string }[];
+  isLoading?: boolean;
+}) {
+  if (isLoading) {
+    return <Skeleton className="mx-auto aspect-square max-h-[250px]" />;
+  }
+
+  const chartData = data || defaultChartData;
   return (
     <ChartContainer
       config={chartConfig}
@@ -58,8 +70,8 @@ export function Retailer() {
         />
         <Pie
           data={chartData}
-          dataKey="visitors"
-          nameKey="browser"
+          dataKey="sales"
+          nameKey="retailer"
           innerRadius={60}
         />
       </PieChart>

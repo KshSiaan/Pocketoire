@@ -27,8 +27,10 @@ export default function Home() {
             <h2 className="text-lg lg:text-3xl font-semibold italic">
               Featured Products
             </h2>
-            <Button variant={"outline"}>
-              View All <ArrowRightIcon />
+            <Button variant={"outline"} asChild>
+              <Link href={"/explore"}>
+                View All <ArrowRightIcon />
+              </Link>
             </Button>
           </div>
           <div className="w-full py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

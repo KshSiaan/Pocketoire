@@ -246,7 +246,9 @@ export default function Prods() {
                 <CardHeader className="px-0!">
                   <CardTitle>{prod.title}</CardTitle>
                   <div className="flex items-center gap-6 text-xl">
-                    <p className="font-black">${prod.price}</p>
+                    <p className="font-black">
+                      {prod.price} {prod.currency}
+                    </p>
                   </div>
                   <div className="flex justify-between items-center">
                     <p className="flex items-center gap-2">

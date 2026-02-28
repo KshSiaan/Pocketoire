@@ -68,8 +68,10 @@ export default function Form() {
     > => {
       const res = await fetch(`${base_url}${base_api}/storefront/create`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Authorization: `Bearer ${token}`,
+          Accept: "application/json",
         },
         body: formData,
       });
@@ -103,7 +105,7 @@ export default function Form() {
     const storeData = useStoreCreator.getState().getStoreData();
     formData.append("storename", storeData.storename || "");
     formData.append("storeurl", storeData.storeurl || "");
-    formData.append("description", storeData.description);
+    formData.append("description", storeData.description ?? "");
     if (storeData.profile_photo) {
       formData.append("profile_photo", storeData.profile_photo);
     }

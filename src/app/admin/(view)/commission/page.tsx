@@ -1,18 +1,5 @@
 "use client";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   InputGroup,
@@ -34,22 +21,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { howl } from "@/lib/utils";
-import { ApiResponse, Paginator } from "@/types/base";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import {
-  CheckIcon,
-  EyeIcon,
-  Loader2Icon,
-  PlusIcon,
-  SearchIcon,
-  Trash2Icon,
-  XCircleIcon,
-} from "lucide-react";
-import Link from "next/link";
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { howl } from "@/lib/utils";
+import type { ApiResponse, Paginator } from "@/types/base";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2Icon, SearchIcon } from "lucide-react";
 import React, { Suspense } from "react";
 import { useCookies } from "react-cookie";
-import { toast } from "sonner";
 import Butts from "./butts";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
 
@@ -63,6 +49,13 @@ export default function Page() {
   const { data, isPending } = useQuery({
     queryKey: ["commisions", page, search, type, status],
     queryFn: async () => {
+      const query = new URLSearchParams({
+        status: status === "all" ? "" : status,
+        type: type === "all" ? "" : type,
+        search,
+        page: String(page),
+      }).toString();
+
       const res: ApiResponse<{
         sales: Paginator<
           {
@@ -73,9 +66,9 @@ export default function Page() {
             transaction_ref: string;
             event_type: string;
             campaign_value: string;
-            platform_commission: any;
-            creator_commission: any;
-            creator_commission_percent: any;
+            platform_commission: string | number | null;
+            creator_commission: string | number | null;
+            creator_commission_percent: string | number | null;
             product: {
               id: number;
               title: string;
@@ -92,15 +85,53 @@ export default function Page() {
             };
           }[]
         >;
-      }> = await howl(
-        `/admin/creator/view-commission?status=${status === "all" ? "" : status}&type=${type === "all" ? "" : type}&search=${search}&page=${page}`,
-        {
-          token,
-        },
-      );
+      }> = await howl(`/admin/creator/view-commission?${query}`, {
+        token,
+      });
       return res;
     },
   });
+
+  const sales = data?.data?.sales?.data ?? [];
+  const totalItems = data?.data?.sales?.total ?? 0;
+  const perPage = data?.data?.sales?.per_page ?? 10;
+  const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+
+  const pages = React.useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const items: Array<number | "ellipsis"> = [];
+    const minPage = Math.max(2, page - 1);
+    const maxPage = Math.min(totalPages - 1, page + 1);
+
+    items.push(1);
+
+    if (minPage > 2) {
+      items.push("ellipsis");
+    }
+
+    for (let i = minPage; i <= maxPage; i += 1) {
+      items.push(i);
+    }
+
+    if (maxPage < totalPages - 1) {
+      items.push("ellipsis");
+    }
+
+    items.push(totalPages);
+    return items;
+  }, [page, totalPages]);
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === page) {
+      return;
+    }
+
+    setPage(nextPage);
+  };
+
   return (
     <main>
       <Card>
@@ -112,6 +143,7 @@ export default function Page() {
             <InputGroup>
               <InputGroupInput
                 onChange={(e) => {
+                  setPage(1);
                   setSearch(e.target.value);
                 }}
                 placeholder="Search Providers...."
@@ -120,7 +152,12 @@ export default function Page() {
                 <SearchIcon />
               </InputGroupAddon>
             </InputGroup>
-            <Select onValueChange={(value) => setType(value)}>
+            <Select
+              onValueChange={(value) => {
+                setPage(1);
+                setType(value);
+              }}
+            >
               <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder="Select Type" />
               </SelectTrigger>
@@ -129,7 +166,12 @@ export default function Page() {
                 <SelectItem value="confirmed">Confirmed</SelectItem>
               </SelectContent>
             </Select>
-            <Select onValueChange={(value) => setStatus(value)}>
+            <Select
+              onValueChange={(value) => {
+                setPage(1);
+                setStatus(value);
+              }}
+            >
               <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder="Select Status" />
               </SelectTrigger>
@@ -158,12 +200,13 @@ export default function Page() {
                   <TableHead className="text-center">
                     Platform Commission
                   </TableHead>
+                  <TableHead className="text-center">Status</TableHead>
                   <TableHead className="text-center">Event Type</TableHead>
                   <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data?.data?.sales?.data?.map((creator) => (
+                {sales.map((creator) => (
                   <TableRow key={creator?.id}>
                     <TableCell className="flex justify-center items-center gap-2">
                       <Badge variant={"outline"}>
@@ -179,7 +222,16 @@ export default function Page() {
                     <TableCell className="text-center">
                       {creator?.platform_commission ?? "N/A"}
                     </TableCell>
-                    <TableCell className="flex justify-center items-center">
+                    <TableCell className="text-center">
+                      {creator?.platform_commission ? (
+                        <Badge className="bg-green-600 text-background">
+                          Paid
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-amber-500">Pending</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
                       {creator?.event_type === "CONFIRMATION" ? (
                         <Badge className="bg-green-600 text-background">
                           {creator?.event_type}
@@ -190,6 +242,7 @@ export default function Page() {
                         </Badge>
                       )}
                     </TableCell>
+
                     <TableCell className="text-center">
                       <div className="space-x-2">
                         <Suspense>
@@ -202,6 +255,68 @@ export default function Page() {
               </TableBody>
             </Table>
           )}
+
+          {!isPending && totalPages > 1 ? (
+            <div className="mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handlePageChange(page - 1);
+                      }}
+                      className={
+                        page === 1
+                          ? "pointer-events-none opacity-50"
+                          : undefined
+                      }
+                    />
+                  </PaginationItem>
+
+                  {pages.map((item, index) => (
+                    <PaginationItem key={`${item}-${index}`}>
+                      {item === "ellipsis" ? (
+                        <PaginationEllipsis />
+                      ) : (
+                        <PaginationLink
+                          href="#"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            handlePageChange(item);
+                          }}
+                          isActive={item === page}
+                          className={
+                            item === page
+                              ? "bg-destructive text-white"
+                              : undefined
+                          }
+                        >
+                          {item}
+                        </PaginationLink>
+                      )}
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handlePageChange(page + 1);
+                      }}
+                      className={
+                        page === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : undefined
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
     </main>

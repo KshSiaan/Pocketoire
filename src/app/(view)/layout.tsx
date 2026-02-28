@@ -14,7 +14,7 @@ export default function RootLayout({
     <>
       <Navbar />
       <DynamicBread />
-      {children}
+      <Suspense>{children}</Suspense>
 
       <Footer />
     </>

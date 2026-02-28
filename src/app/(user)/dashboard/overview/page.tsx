@@ -28,6 +28,7 @@ import CreateAlbum from "./create-album";
 import { useQuery } from "@tanstack/react-query";
 import { howl } from "@/lib/utils";
 import { useCookies } from "react-cookie";
+import Link from "next/link";
 
 export default function Page() {
   const [{ token }] = useCookies(["token"]);
@@ -129,13 +130,13 @@ export default function Page() {
               className="flex justify-between items-center gap-6 h-24"
               key={i}
             >
-              <Image
+              {/* <Image
                 height={128}
                 width={240}
                 alt="product_icon"
                 src={"/image/product.jpg"}
                 className="h-24 w-34 rounded-lg"
-              />
+              /> */}
               <div className="flex-1 h-full flex flex-col justify-between items-start">
                 <h3 className="text-lg font-bold">{product.title}</h3>
                 <p className="space-x-6">
@@ -152,8 +153,8 @@ export default function Page() {
           ))}
         </CardContent>
         <CardFooter>
-          <Button variant={"outline"} className="w-full border-primary">
-            View All Products
+          <Button variant={"outline"} className="w-full border-primary" asChild>
+            <Link href="/dashboard/products">View All Products</Link>
           </Button>
         </CardFooter>
       </Card>

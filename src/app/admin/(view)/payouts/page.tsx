@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -13,10 +12,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { howl } from "@/lib/utils";
-import { ApiResponse } from "@/types/base";
+import type { ApiResponse, Paginator } from "@/types/base";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { CheckIcon, CreditCardIcon, PlusIcon, XIcon } from "lucide-react";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { toast } from "sonner";
@@ -26,11 +33,12 @@ import PayoutController from "./payout-controller";
 
 export default function Page() {
   const [{ token }] = useCookies(["token"]);
+  const [page, setPage] = React.useState(1);
   const [globalCommission, setGlobalCommission] = React.useState(0);
   const [min, setMin] = React.useState(0);
   const [max, setMax] = React.useState(0);
   const { data, isPending, refetch } = useQuery({
-    queryKey: ["payouts"],
+    queryKey: ["payouts", page],
     queryFn: async (): Promise<
       ApiResponse<{
         global_creator_commission_percent: string;
@@ -69,61 +77,107 @@ export default function Page() {
           minimum_amount: string;
           maximum_amount: string;
         };
-        payouts: Array<{
-          id: number;
-          user_id: number;
-          wallet_id: number;
-          amount: string;
-          currency: string;
-          method: string;
-          status: string;
-          created_at: string;
-          user: {
-            id: number;
-            name: string;
-            email: string;
-            email_verified_at: string;
-            otp: any;
-            otp_verified_at: any;
-            otp_expires_at: any;
-            password_reset_token: any;
-            password_reset_expires_at: any;
-            profile_photo: string;
-            cover_photo: string;
-            account_type: string;
-            status: string;
-            status_reason: any;
-            stripe_customer_id: any;
-            stripe_account_id: string;
-            stripe_onboarded: number;
-            moderated_by: any;
-            moderated_at: any;
-            google_id: any;
-            created_at: string;
-            updated_at: string;
-            commission_percent: string;
-            storefront: {
-              id: number;
-              user_id: number;
-              name: string;
-            };
-          };
-          wallet: {
+        payouts: Paginator<
+          Array<{
             id: number;
             user_id: number;
-            balance: string;
-            status: string;
+            wallet_id: number;
+            amount: string;
             currency: string;
-          };
-        }>;
+            method: string;
+            status: string;
+            created_at: string;
+            user: {
+              id: number;
+              name: string;
+              email: string;
+              email_verified_at: string;
+              otp: string | null;
+              otp_verified_at: string | null;
+              otp_expires_at: string | null;
+              password_reset_token: string | null;
+              password_reset_expires_at: string | null;
+              profile_photo: string;
+              cover_photo: string;
+              account_type: string;
+              status: string;
+              status_reason: string | null;
+              stripe_customer_id: string | null;
+              stripe_account_id: string;
+              stripe_onboarded: number;
+              moderated_by: number | null;
+              moderated_at: string | null;
+              google_id: string | null;
+              created_at: string;
+              updated_at: string;
+              commission_percent: string;
+              storefront: {
+                id: number;
+                user_id: number;
+                name: string;
+              };
+            };
+            wallet: {
+              id: number;
+              user_id: number;
+              balance: string;
+              status: string;
+              currency: string;
+            };
+          }>
+        >;
       }>
     > => {
-      return howl(`/admin/payouts`, {
+      const query = new URLSearchParams({
+        page: String(page),
+      }).toString();
+
+      return howl(`/admin/payouts?${query}`, {
         method: "GET",
         token,
       });
     },
   });
+
+  const payouts = data?.data?.payouts?.data ?? [];
+  const totalItems = data?.data?.payouts?.total ?? 0;
+  const perPage = data?.data?.payouts?.per_page ?? 10;
+  const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+
+  const pages = React.useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const items: Array<number | "ellipsis"> = [];
+    const minPage = Math.max(2, page - 1);
+    const maxPage = Math.min(totalPages - 1, page + 1);
+
+    items.push(1);
+
+    if (minPage > 2) {
+      items.push("ellipsis");
+    }
+
+    for (let i = minPage; i <= maxPage; i += 1) {
+      items.push(i);
+    }
+
+    if (maxPage < totalPages - 1) {
+      items.push("ellipsis");
+    }
+
+    items.push(totalPages);
+    return items;
+  }, [page, totalPages]);
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === page) {
+      return;
+    }
+
+    setPage(nextPage);
+  };
   const { mutate, isPending: globalLoading } = useMutation({
     mutationKey: ["update_global_commission"],
     mutationFn: (): Promise<ApiResponse<null>> => {
@@ -259,7 +313,7 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data?.data?.payouts.map((payment, index) => (
+              {payouts.map((payment, index) => (
                 <TableRow key={index}>
                   <TableCell className="font-medium">
                     {payment?.user?.name}
@@ -287,6 +341,68 @@ export default function Page() {
               ))}
             </TableBody>
           </Table>
+
+          {!isPending && totalPages > 1 ? (
+            <div className="mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handlePageChange(page - 1);
+                      }}
+                      className={
+                        page === 1
+                          ? "pointer-events-none opacity-50"
+                          : undefined
+                      }
+                    />
+                  </PaginationItem>
+
+                  {pages.map((item, index) => (
+                    <PaginationItem key={`${item}-${index}`}>
+                      {item === "ellipsis" ? (
+                        <PaginationEllipsis />
+                      ) : (
+                        <PaginationLink
+                          href="#"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            handlePageChange(item);
+                          }}
+                          isActive={item === page}
+                          className={
+                            item === page
+                              ? "bg-destructive text-white"
+                              : undefined
+                          }
+                        >
+                          {item}
+                        </PaginationLink>
+                      )}
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handlePageChange(page + 1);
+                      }}
+                      className={
+                        page === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : undefined
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
       <Card className="mt-6">

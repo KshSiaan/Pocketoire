@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { PayoutsDashboard } from "./payout";
 import { useCookies } from "react-cookie";
 import { useQuery } from "@tanstack/react-query";
-import { howl } from "@/lib/utils";
+import { howl, makeImg } from "@/lib/utils";
 import type { EarningsResponse } from "./types";
 
 const money = (amount: number | string, currency = "USD") => {
@@ -180,7 +180,11 @@ export default function Page() {
                     <TableCell>{prod.product_code}</TableCell>
                     <TableCell className="flex gap-2 items-center">
                       <Image
-                        src={prod.main_image || "/image/product.jpeg"}
+                        src={
+                          prod.main_image
+                            ? makeImg(prod.main_image)
+                            : "/image/product.jpeg"
+                        }
                         height={64}
                         width={124}
                         alt={prod.title}
@@ -189,6 +193,7 @@ export default function Page() {
                       />
                       <span className="line-clamp-2">{prod.title}</span>
                     </TableCell>
+
                     <TableCell>{prod.total_clicks}</TableCell>
                     <TableCell>{prod.total_conversions}</TableCell>
                     <TableCell>

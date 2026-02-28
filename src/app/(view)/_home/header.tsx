@@ -1,9 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { DualRangeSlider } from "@/components/ui/dual-slider";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
-  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
@@ -16,8 +17,26 @@ import {
 } from "@/components/ui/select";
 import { PopoverArrow } from "@radix-ui/react-popover";
 import { SearchIcon, SlidersHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React from "react";
 
 export default function Header() {
+  const navig = useRouter();
+  const [minMax, setMinMax] = React.useState<[number, number]>([0, 100000]);
+  const [sort, setSort] = React.useState("all");
+  const [search, setSearch] = React.useState("");
+
+  const goToExplore = React.useCallback(() => {
+    const query = new URLSearchParams({
+      search: search.trim(),
+      sort,
+      min_price: String(minMax[0]),
+      max_price: String(minMax[1]),
+    }).toString();
+
+    navig.push(`/explore?${query}`);
+  }, [minMax, navig, search, sort]);
+
   return (
     <header className="h-[50dvh] lg:h-[calc(100dvh-72px)] w-full p-4 sm:p-8 lg:p-12">
       <div
@@ -39,6 +58,13 @@ export default function Header() {
               <Input
                 className="flex-1 border-0 text-background placeholder:text-background/80 focus-visible:ring-0 bg-transparent shadow-none! italic"
                 placeholder="Search for products or storefronts..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    goToExplore();
+                  }
+                }}
               />
               <Popover>
                 <PopoverTrigger asChild>
@@ -50,49 +76,62 @@ export default function Header() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-[600px] grid grid-cols-3 gap-6"
+                  className="lg:w-[600px] lg:grid lg:grid-cols-3 gap-6"
                   side="bottom"
                   align="end"
                 >
                   <PopoverArrow className="fill-background" />
                   <div className="space-y-2">
-                    <p>Filter by Retailer</p>
-                    <Select>
-                      <SelectTrigger className="w-full rounded-sm">
-                        <SelectValue placeholder="Select Retailer" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="amazon">Amazon</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <p>Filter by Popularity</p>
-                    <Select>
-                      <SelectTrigger className="w-full rounded-sm">
-                        <SelectValue placeholder="By Popularity" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="trending">Trending</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
                     <p>Sort By</p>
-                    <Select>
+                    <Select value={sort} onValueChange={setSort}>
                       <SelectTrigger className="w-full rounded-sm">
                         <SelectValue placeholder="Select Filter" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="fav">Nicole's favourite</SelectItem>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="price_low">
+                          Price: Low to High
+                        </SelectItem>
+                        <SelectItem value="price_high">
+                          Price: High to Low
+                        </SelectItem>
+                        <SelectItem value="newest">Newest Arrivals</SelectItem>
+                        <SelectItem value="oldest">Oldest Arrivals</SelectItem>
+                        <SelectItem value="title_asc">Title: A to Z</SelectItem>
+                        <SelectItem value="title_desc">
+                          Title: Z to A
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="w-full flex justify-end items-center gap-2 col-span-3">
-                    <Button variant={"outline"} className="bg-transparent!">
+                  <div className="space-y-8 lg:col-span-2 pr-4">
+                    <Label className="">Price Range</Label>
+                    <DualRangeSlider
+                      label={(value) => <span>{value}</span>}
+                      value={minMax}
+                      onValueChange={(val) => {
+                        setMinMax(val as [number, number]);
+                      }}
+                      min={0}
+                      max={100000}
+                      step={1}
+                    />
+                  </div>
+                  <div className="w-full flex justify-end items-center gap-2 mt-6 lg:mt-0 col-span-3">
+                    <Button
+                      variant={"outline"}
+                      className="bg-transparent!"
+                      onClick={() => {
+                        setMinMax([0, 100000]);
+                        setSort("all");
+                        setSearch("");
+                      }}
+                    >
                       Reset
                     </Button>
-                    <Button variant={"destructive"}>Apply Filter</Button>
+                    <Button variant={"destructive"} onClick={goToExplore}>
+                      Apply Filter
+                    </Button>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -100,6 +139,7 @@ export default function Header() {
                 className="text-secondary"
                 variant={"outline"}
                 size={"icon"}
+                onClick={goToExplore}
               >
                 <SearchIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
