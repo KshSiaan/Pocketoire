@@ -16,7 +16,7 @@ export default function Page() {
     <main className="h-dvh w-dvw p-6 grid grid-cols-2 gap-6">
       <Base
         title={"Verify email"}
-        subtitle={`We have sent 4digits code at ${mail}`}
+        subtitle={`We have sent 6 digits code at ${mail}`}
         image="/image/verify.jpg"
       />
     </main>

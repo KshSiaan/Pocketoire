@@ -1,29 +1,14 @@
 "use client";
-
-import * as React from "react";
 import {
   BarChartBigIcon,
-  BookOpen,
-  Bot,
   CircleDollarSignIcon,
   CreditCardIcon,
-  FileBadgeIcon,
-  Frame,
   LayoutDashboardIcon,
   LayoutList,
-  LifeBuoy,
   LogOutIcon,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: <explanation>
-  Map,
-  NetworkIcon,
-  PieChart,
-  Send,
-  Settings2,
   SettingsIcon,
-  SquareTerminal,
   UserCogIcon,
 } from "lucide-react";
-
 import { NavMain } from "@/components/nav-main";
 // import { NavProjects } from "@/components/nav-projects";
 // import { NavSecondary } from "@/components/nav-secondary";
@@ -38,8 +23,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { useCookies } from "react-cookie";
-import { toast } from "sonner";
 
 const data = {
   navMain: [
@@ -63,19 +46,19 @@ const data = {
         },
       ],
     },
-    // {
-    //   title: "Affiliate Feeds",
-    //   url: "/affiliate-feeds",
-    //   icon: FileBadgeIcon,
-    // },
     {
       title: "Reports & Analytics",
       url: "/report",
       icon: BarChartBigIcon,
     },
     {
-      title: "Sales Commission",
-      url: "/commission",
+      title: "Viator Commission",
+      url: "/viator_commission",
+      icon: CircleDollarSignIcon,
+    },
+    {
+      title: "Expedia Commission",
+      url: "/expedia_commission",
       icon: CircleDollarSignIcon,
     },
     {
@@ -83,11 +66,6 @@ const data = {
       url: "/payouts",
       icon: CreditCardIcon,
     },
-    // {
-    //   title: "Affiliate Network",
-    //   url: "/network",
-    //   icon: NetworkIcon,
-    // },
     {
       title: "Content Management",
       url: "/content",
@@ -120,7 +98,6 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [, , removeCookie] = useCookies(["token"]);
   return (
     <Sidebar variant="sidebar" {...props}>
       <SidebarHeader className="pt-12">

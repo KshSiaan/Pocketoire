@@ -7,7 +7,7 @@ const footerLinks = {
   topCategories: [
     { name: "Hotels", href: "/explore" },
     { name: "Activities", href: "/explore" },
-    { name: "Restaurants", href: "/explore" },
+    // { name: "Restaurants", href: "/explore" },
     { name: "Vacation Rentals", href: "/explore" },
   ],
   support: [

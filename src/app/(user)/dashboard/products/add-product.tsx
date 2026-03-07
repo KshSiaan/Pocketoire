@@ -85,12 +85,13 @@ export default function AddProduct() {
     retry: 2,
     queryFn: async (): Promise<
       ApiResponse<{
-        product_name: string;
-        description: string;
-        price: number;
+        product_source: string;
+        product_name: string | undefined;
+        description: string | undefined;
+        price: string;
         currency: string;
         product_url: string;
-        image_url: string;
+        image_url: string | undefined;
         albums: Array<{
           id: number;
           storefront_id: number;
@@ -198,6 +199,9 @@ export default function AddProduct() {
       form.setValue("description", viatorProd.data.description);
       form.setValue("price", viatorProd.data.price.toString());
       form.setValue("currency", viatorProd.data.currency);
+      if (viatorProd.data.product_source === "expedia") {
+        setChangeImg(true);
+      }
     }
   }, [viatorProd]);
 
