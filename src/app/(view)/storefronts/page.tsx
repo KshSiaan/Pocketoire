@@ -158,7 +158,7 @@ export default function Page() {
               <Loader2Icon className={`animate-spin`} />
             </div>
           ) : (
-            <Stores data={data?.data?.data} />
+            <Stores />
           )}
         </div>
         {totalPages > 1 ? (
