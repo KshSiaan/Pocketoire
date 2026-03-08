@@ -10,7 +10,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { BellIcon } from "lucide-react";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { howl } from "@/lib/utils";
+import { ApiResponse } from "@/types/base";
 
 export default async function Layout({
   children,
@@ -19,6 +21,42 @@ export default async function Layout({
   if (!token) {
     return redirect("/admin/login");
   }
+
+  const data: ApiResponse<{
+    user: {
+      id: number;
+      name: string;
+      email: string;
+      profile_photo: string | null;
+      account_type: string;
+      saved_products: Array<{
+        id: number;
+        title: string;
+        price: string;
+        pivot: {
+          user_id: number;
+          product_id: number;
+          created_at: string;
+          updated_at: string;
+        };
+        product_image: {
+          id: number;
+          product_id: number;
+          image: string;
+          source: string;
+          created_at: string;
+          updated_at: string;
+        };
+      }>;
+    };
+  }> = await howl("/profile", {
+    token,
+  });
+
+  if (data?.data?.user.account_type !== "admin") {
+    return notFound();
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />

@@ -9,7 +9,16 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-export default function Page() {
+import { howl } from "@/lib/utils";
+import { ApiResponse } from "@/types/base";
+export default async function Page() {
+  const data: ApiResponse<
+    {
+      id: number;
+      question: string;
+      answer: string;
+    }[]
+  > = await howl(`/faq`);
   return (
     <>
       <Header
@@ -25,51 +34,14 @@ export default function Page() {
               className="w-full"
               defaultValue="item-1"
             >
-              <AccordionItem value="item-1">
-                <AccordionTrigger>Product Information</AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-4 text-balance">
-                  <p>
-                    Our flagship product combines cutting-edge technology with
-                    sleek design. Built with premium materials, it offers
-                    unparalleled performance and reliability.
-                  </p>
-                  <p>
-                    Key features include advanced processing capabilities, and
-                    an intuitive user interface designed for both beginners and
-                    experts.
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2">
-                <AccordionTrigger>Shipping Details</AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-4 text-balance">
-                  <p>
-                    We offer worldwide shipping through trusted courier
-                    partners. Standard delivery takes 3-5 business days, while
-                    express shipping ensures delivery within 1-2 business days.
-                  </p>
-                  <p>
-                    All orders are carefully packaged and fully insured. Track
-                    your shipment in real-time through our dedicated tracking
-                    portal.
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-3">
-                <AccordionTrigger>Return Policy</AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-4 text-balance">
-                  <p>
-                    We stand behind our products with a comprehensive 30-day
-                    return policy. If you&apos;re not completely satisfied,
-                    simply return the item in its original condition.
-                  </p>
-                  <p>
-                    Our hassle-free return process includes free return shipping
-                    and full refunds processed within 48 hours of receiving the
-                    returned item.
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
+              {data?.data?.map((item) => (
+                <AccordionItem value={"item-" + item.id} key={item.id}>
+                  <AccordionTrigger>{item.question}</AccordionTrigger>
+                  <AccordionContent className="flex flex-col gap-4 text-balance">
+                    <p>{item.answer}</p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
             </Accordion>
           </CardContent>
         </Card>

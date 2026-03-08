@@ -10,7 +10,13 @@ import {
 } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { base_api, base_url, howl, makeImg } from "@/lib/utils";
+import {
+  base_api,
+  base_url,
+  handleUnauthorizedResponse,
+  howl,
+  makeImg,
+} from "@/lib/utils";
 import type { ApiResponse } from "@/types/base";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CameraIcon, GlobeIcon } from "lucide-react";
@@ -128,6 +134,7 @@ export default function Page() {
         .json()
         .catch(() => ({}))) as ApiResponse<null>;
       if (!res.ok) {
+        handleUnauthorizedResponse(res.status);
         throw new Error(responseData?.message || "Failed to update profile");
       }
 

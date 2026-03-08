@@ -18,6 +18,7 @@ export default function Stores({
     user_id: number;
     name: string;
     bio: string;
+    slug: string;
     total_sold: number;
     total_products: number;
     user: {
@@ -75,7 +76,7 @@ export default function Stores({
       </CardHeader>
       <CardFooter className="px-0!">
         <Button size={"lg"} className="w-full" variant={"secondary"} asChild>
-          <Link href={`/store/${store.id}`}>Visit Storefront</Link>
+          <Link href={`/storefront/${store.slug}`}>Visit Storefront</Link>
         </Button>
       </CardFooter>
     </Card>

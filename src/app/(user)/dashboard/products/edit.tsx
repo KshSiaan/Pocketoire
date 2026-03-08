@@ -37,7 +37,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { base_api, base_url, howl } from "@/lib/utils";
+import {
+  base_api,
+  base_url,
+  handleUnauthorizedResponse,
+  howl,
+} from "@/lib/utils";
 import type { ApiResponse } from "@/types/base";
 import { PenIcon } from "lucide-react";
 import Image from "next/image";
@@ -138,6 +143,7 @@ export default function EditProduct({
       const responseData = text ? JSON.parse(text) : {};
 
       if (!res.ok) {
+        handleUnauthorizedResponse(res.status);
         throw new Error(responseData.message ?? "Failed to update product");
       }
 

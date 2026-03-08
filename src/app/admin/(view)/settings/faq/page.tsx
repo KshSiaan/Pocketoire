@@ -1,4 +1,15 @@
 "use client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -59,6 +70,26 @@ export default function Page() {
       setEditableFaq(null);
     },
   });
+  const { mutate: deleteFAQ, isPending: isDeleting } = useMutation({
+    mutationKey: ["delete_FAQ"],
+    mutationFn: (id: string) => {
+      return howl(`/admin/faq/${id}`, {
+        method: "DELETE",
+        token,
+      });
+    },
+    onError: (err) => {
+      toast.error(err.message ?? "Failed to complete this request");
+    },
+    onSuccess: async (res: unknown) => {
+      const message =
+        typeof res === "object" && res !== null && "message" in res
+          ? String((res as { message?: unknown }).message ?? "Success!")
+          : "Success!";
+      toast.success(message);
+      await qcl.invalidateQueries({ queryKey: ["faq"] });
+    },
+  });
 
   return (
     <main>
@@ -97,13 +128,40 @@ export default function Page() {
               >
                 <Edit />
               </Button>
-              <Button
-                variant={"outline"}
-                className="text-destructive"
-                size={"icon-sm"}
-              >
-                <Trash2Icon />
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    disabled={isDeleting}
+                    variant={"outline"}
+                    className="text-destructive"
+                    size={"icon-sm"}
+                  >
+                    <Trash2Icon />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you sure you want to delete this FAQ?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. The FAQ will be permanently
+                      deleted.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={isDeleting}
+                      onClick={() => {
+                        deleteFAQ(String(faq.id));
+                      }}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         ))}

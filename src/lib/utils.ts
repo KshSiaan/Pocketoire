@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
+import { Cookies } from "react-cookie";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -16,10 +17,69 @@ interface ApiClientOptions {
 export const base_api = "/api";
 export const base_url = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 
+const AUTH_FAILURE_STATUSES = new Set([401, 419]);
+const AUTH_COOKIE_NAME = "token";
+const cookieStore = new Cookies();
+
+function isJwtToken(value: string): boolean {
+  return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value);
+}
+
+function isLaravelSanctumToken(value: string): boolean {
+  return /^\d+\|[A-Za-z0-9]+$/.test(value);
+}
+
+export function isSupportedAuthToken(value: string): boolean {
+  return isJwtToken(value) || isLaravelSanctumToken(value);
+}
+
+function getLoginRedirectPath(): string {
+  if (typeof window === "undefined") {
+    return "/login";
+  }
+
+  const currentPath = window.location.pathname;
+  return currentPath.startsWith("/admin") ? "/admin/login" : "/login";
+}
+
+export function clearAuthSession(redirect = true): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  // Ensure token cookie is removed for the whole app.
+  cookieStore.remove(AUTH_COOKIE_NAME, { path: "/" });
+
+  window.localStorage.removeItem("user-me");
+  window.dispatchEvent(new CustomEvent("auth:expired"));
+
+  if (redirect) {
+    const currentPath = window.location.pathname;
+    const targetPath = getLoginRedirectPath();
+    if (currentPath !== targetPath) {
+      window.location.assign(targetPath);
+    }
+  }
+}
+
+export function handleUnauthorizedResponse(status: number): boolean {
+  if (!AUTH_FAILURE_STATUSES.has(status)) {
+    return false;
+  }
+
+  clearAuthSession(true);
+  return true;
+}
+
 export async function howl<T>(
   endpoint: string,
   { method = "GET", body, token, content, headers = {} }: ApiClientOptions = {}
 ): Promise<T> {
+  if (token && !isSupportedAuthToken(token)) {
+    clearAuthSession(true);
+    throw new Error("Authentication token format is invalid. Please log in again.");
+  }
+
   const res = await fetch(`${base_url}${base_api}${endpoint}`, {
     method,
     headers: {
@@ -33,7 +93,7 @@ export async function howl<T>(
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    console.log(errorData);
+    handleUnauthorizedResponse(res.status);
     
     throw new Error((errorData as idk).message || "API request failed");
   }

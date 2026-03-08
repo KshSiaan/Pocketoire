@@ -9,7 +9,7 @@ import React, { useEffect } from "react";
 import { useStoreCreator } from "@/lib/moon/create-store";
 import { set } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { base_api, base_url, howl } from "@/lib/utils";
+import { base_api, base_url, handleUnauthorizedResponse } from "@/lib/utils";
 import { useCookies } from "react-cookie";
 import { toast } from "sonner";
 import { ApiResponse } from "@/types/base";
@@ -77,6 +77,7 @@ export default function Form() {
       });
 
       if (!res.ok) {
+        handleUnauthorizedResponse(res.status);
         throw new Error("Failed to create storefront");
       }
 

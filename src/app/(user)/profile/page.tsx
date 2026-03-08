@@ -102,7 +102,18 @@ export default async function Page() {
               </CardHeader>
             </Card>
           </Link>
-          {data?.data?.user?.account_type === "creator" ? (
+          {data?.data?.user?.account_type === "admin" ? (
+            <Link href={"/admin/dashboard"}>
+              <Card className="hover:border-green-600 hover:border-2 hover:bg-green-600/10">
+                <CardHeader>
+                  <CardTitle>Admin Dashboard</CardTitle>
+                  <CardDescription>
+                    Manage and Control the platform
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          ) : data?.data?.user?.account_type === "creator" ? (
             <Link href={"/dashboard"}>
               <Card className="hover:border-green-600 hover:border-2 hover:bg-green-600/10">
                 <CardHeader>

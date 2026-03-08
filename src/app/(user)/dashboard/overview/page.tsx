@@ -71,28 +71,28 @@ export default function Page() {
   const stats = [
     {
       title: "Total Products",
-      value: isPending ? "Loading..." : data?.totals.products.total || 0,
+      value: isPending ? "Loading..." : data?.totals?.products.total || 0,
       icon: PackageIcon,
       change: "+2 this week",
       changeColor: "text-green-500",
     },
     {
       title: "Total Sales",
-      value: isPending ? "Loading..." : data?.totals.earnings.total || 0,
+      value: isPending ? "Loading..." : data?.totals?.earnings.total || 0,
       icon: Banknote,
       change: "+12 this week",
       changeColor: "text-green-500",
     },
     {
       title: "Total Clicks",
-      value: isPending ? "Loading..." : data?.totals.clicks.total || 0,
+      value: isPending ? "Loading..." : data?.totals?.clicks.total || 0,
       icon: MousePointerClick,
       change: "-80 this week",
       changeColor: "text-red-500",
     },
     {
       title: "Total Earnings",
-      value: isPending ? "Loading..." : data?.totals.earnings.total || 0,
+      value: isPending ? "Loading..." : data?.totals?.earnings.total || 0,
       icon: DollarSign,
       change: "+$230 this week",
       changeColor: "text-green-500",

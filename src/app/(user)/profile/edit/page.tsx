@@ -15,7 +15,12 @@ import {
   useDropzone,
 } from "@/components/ui/dropzone";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { base_api, base_url, cn, howl } from "@/lib/utils";
+import {
+  base_api,
+  base_url,
+  cn,
+  handleUnauthorizedResponse,
+} from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -86,6 +91,7 @@ export default function Page() {
       });
 
       if (!response.ok) {
+        handleUnauthorizedResponse(response.status);
         throw new Error("Failed to update profile");
       }
 

@@ -99,80 +99,76 @@ export default function Withdraw() {
     },
     onSuccess: (res) => {
       toast.success(res.message ?? "Success!");
-      window.location.href = res.data.url;
+      window.open(res.data.url, "_blank", "noopener,noreferrer");
     },
   });
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
-        <DialogTrigger asChild>
-          <Button className="bg-[#a53b3b] hover:bg-[#8e3333] text-white py-2 px-4 rounded shadow-md">
-            <CreditCardIcon className="w-4 h-4 mr-2" />
-            Withdraw Money
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader className="border-b pb-4">
-            <DialogTitle>
-              {data?.data?.data?.stripe_onboarded
-                ? "Initiate Payout"
-                : "Connect Stripe Account"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="w-full space-y-4">
-            {data?.data?.data?.stripe_onboarded ? (
-              <>
-                <Label>Amount to withdraw</Label>
-                <Input
-                  value={amount}
-                  placeholder="Withdraw amount"
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-                {!data.data.data.stripe_onboarded && (
-                  <p className="text-red-600 text-sm font-semibold">
-                    Please connect your Stripe account first.
-                  </p>
-                )}
-              </>
-            ) : (
-              <>
-                <Label>Country</Label>
-                <CountryDropdown
-                  value={country?.alpha2}
-                  onChange={(e) => setCountry(e)}
-                />
-              </>
-            )}
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant={"outline"}>Cancel</Button>
-            </DialogClose>
-            {data?.data?.data?.stripe_onboarded ? (
-              <Button
-                variant={"secondary"}
-                onClick={() => mutate()}
-                disabled={
-                  isPending ||
-                  withdrawing ||
-                  !data?.data?.data?.stripe_onboarded
-                }
-              >
-                {withdrawing ? "Processing..." : "Withdraw"}
-              </Button>
-            ) : (
-              <Button
-                variant={"secondary"}
-                onClick={() => connector()}
-                disabled={connecting}
-              >
-                Connect Stripe Account
-              </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+    <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
+      <DialogTrigger asChild>
+        <Button className="bg-[#a53b3b] hover:bg-[#8e3333] text-white py-2 px-4 rounded shadow-md">
+          <CreditCardIcon className="w-4 h-4 mr-2" />
+          Withdraw Money
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle>
+            {data?.data?.data?.stripe_onboarded
+              ? "Initiate Payout"
+              : "Connect Stripe Account"}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="w-full space-y-4">
+          {data?.data?.data?.stripe_onboarded ? (
+            <>
+              <Label>Amount to withdraw</Label>
+              <Input
+                value={amount}
+                placeholder="Withdraw amount"
+                onChange={(e) => setAmount(e.target.value)}
+              />
+              {!data.data.data.stripe_onboarded && (
+                <p className="text-red-600 text-sm font-semibold">
+                  Please connect your Stripe account first.
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <Label>Country</Label>
+              <CountryDropdown
+                value={country?.alpha2}
+                onChange={(e) => setCountry(e)}
+              />
+            </>
+          )}
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant={"outline"}>Cancel</Button>
+          </DialogClose>
+          {data?.data?.data?.stripe_onboarded ? (
+            <Button
+              variant={"secondary"}
+              onClick={() => mutate()}
+              disabled={
+                isPending || withdrawing || !data?.data?.data?.stripe_onboarded
+              }
+            >
+              {withdrawing ? "Processing..." : "Withdraw"}
+            </Button>
+          ) : (
+            <Button
+              variant={"secondary"}
+              onClick={() => connector()}
+              disabled={connecting}
+            >
+              Connect Stripe Account
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

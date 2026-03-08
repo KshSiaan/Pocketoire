@@ -29,7 +29,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { ApiResponse } from "@/types/base";
 import { useCookies } from "react-cookie";
-import { base_api, base_url, howl } from "@/lib/utils";
+import {
+  base_api,
+  base_url,
+  handleUnauthorizedResponse,
+  howl,
+} from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -152,6 +157,7 @@ export default function AddProduct() {
       const data = text ? JSON.parse(text) : {};
 
       if (!res.ok) {
+        handleUnauthorizedResponse(res.status);
         throw new Error(data.message ?? "Failed to add product");
       }
 
@@ -169,6 +175,8 @@ export default function AddProduct() {
       toast.success(res.message ?? "Success!");
       navig.refresh();
       qcl.invalidateQueries({ queryKey: ["products_list"] });
+      qcl.invalidateQueries({ queryKey: ["store_prods"] });
+      navig.refresh();
       setDialogOpen(false);
     },
   });
@@ -365,7 +373,7 @@ export default function AddProduct() {
                   name="album_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Album ID</FormLabel>
+                      <FormLabel>Album Name</FormLabel>
                       <FormControl>
                         <Select
                           onValueChange={field.onChange}
