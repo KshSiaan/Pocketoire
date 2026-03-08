@@ -1,18 +1,43 @@
 import Header from "@/components/core/header";
 import { Card, CardContent } from "@/components/ui/card";
+import { howl } from "@/lib/utils";
+import type { ApiResponse } from "@/types/base";
+import DOMPurify from "isomorphic-dompurify";
 
-export default function Page() {
+export default async function Page() {
+  const data: ApiResponse<{
+    id: number;
+    content: string;
+  }> = await howl(`/terms`);
+
+  const sanitizedContent = DOMPurify.sanitize(data?.data?.content ?? "");
+
   return (
     <>
       <Header
         title="Terms & Condition"
-        desc="Last updated: September 07, 2025. Please read these terms carefully before using the Pocketoire platform."
+        // desc="Last updated: September 07, 2025. Please read these terms carefully before using the Pocketoire platform."
       />
 
       <main className="my-24 px-4">
         <Card className="lg:w-3/4 mx-auto shadow-md">
           <CardContent className="prose prose-neutral max-w-none py-10">
-            <p className="font-semibold">Last Updated: 12/01/2025</p>
+            <div
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: purified
+              dangerouslySetInnerHTML={{
+                __html: sanitizedContent,
+              }}
+            />
+          </CardContent>
+        </Card>
+      </main>
+    </>
+  );
+}
+
+// biome-ignore lint/complexity/noUselessLoneBlockStatements: kept as archived static terms draft reference.
+{
+  /* <p className="font-semibold">Last Updated: 12/01/2025</p>
 
             <p>
               These Terms of Use (“Terms”) govern your access and use of
@@ -21,7 +46,7 @@ export default function Page() {
               Terms.
             </p>
 
-            {/* ================= SECTION 1 ================= */}
+
             <h2 className="mt-10 font-bold text-xl">1. Eligibility</h2>
             <p>To use Pocketoire, you must:</p>
             <ul className="list-disc pl-6 space-y-1">
@@ -30,7 +55,7 @@ export default function Page() {
               <li>Comply with all applicable laws</li>
             </ul>
 
-            {/* ================= SECTION 2 ================= */}
+
             <h2 className="mt-10 font-bold text-xl">2. Your Account</h2>
             <p>You are responsible for:</p>
             <ul className="list-disc pl-6 space-y-1">
@@ -43,7 +68,7 @@ export default function Page() {
               these Terms.
             </p>
 
-            {/* ================= SECTION 3 ================= */}
+
             <h2 className="mt-10 font-bold text-xl">
               3. Creator Responsibilities
             </h2>
@@ -62,7 +87,7 @@ export default function Page() {
             </ul>
             <p>Creators are solely responsible for the content they publish.</p>
 
-            {/* ================= SECTION 4 ================= */}
+
             <h2 className="mt-10 font-bold text-xl">
               4. Affiliate Links & Earnings
             </h2>
@@ -87,7 +112,7 @@ export default function Page() {
               You must provide valid payout information to receive earnings.
             </p>
 
-            {/* ================= SECTION 5 ================= */}
+
             <h2 className="mt-10 font-bold text-xl">5. Payouts</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>
@@ -100,7 +125,7 @@ export default function Page() {
               </li>
             </ul>
 
-            {/* ================= SECTION 6 ================= */}
+   
             <h2 className="mt-10 font-bold text-xl">6. Prohibited Conduct</h2>
             <p>
               Users may <strong>not</strong>:
@@ -114,7 +139,7 @@ export default function Page() {
             </ul>
             <p>Violation may result in account suspension or termination.</p>
 
-            {/* ================= SECTION 7 ================= */}
+     
             <h2 className="mt-10 font-bold text-xl">
               7. Intellectual Property
             </h2>
@@ -131,7 +156,7 @@ export default function Page() {
               a <strong>license</strong> to display and use it on the platform.
             </p>
 
-            {/* ================= SECTION 8 ================= */}
+    
             <h2 className="mt-10 font-bold text-xl">8. Third-Party Services</h2>
             <p>
               Pocketoire uses third-party affiliate networks, APIs, analytics
@@ -148,7 +173,7 @@ export default function Page() {
               Your use of those third parties is governed by their own terms.
             </p>
 
-            {/* ================= SECTION 9 ================= */}
+         
             <h2 className="mt-10 font-bold text-xl">
               9. Disclaimer of Warranties
             </h2>
@@ -161,7 +186,7 @@ export default function Page() {
               <li>Website uptime</li>
             </ul>
 
-            {/* ================= SECTION 10 ================= */}
+
             <h2 className="mt-10 font-bold text-xl">
               10. Limitation of Liability
             </h2>
@@ -177,7 +202,7 @@ export default function Page() {
               <li>Harm caused by misuse of the platform</li>
             </ul>
 
-            {/* ================= SECTION 11 ================= */}
+   
             <h2 className="mt-10 font-bold text-xl">11. Indemnification</h2>
             <p>
               You agree to indemnify and hold harmless Pocketoire from any
@@ -190,7 +215,7 @@ export default function Page() {
               <li>Violations of affiliate network policies</li>
             </ul>
 
-            {/* ================= SECTION 12 ================= */}
+
             <h2 className="mt-10 font-bold text-xl">
               12. Changes to These Terms
             </h2>
@@ -199,16 +224,11 @@ export default function Page() {
               constitutes acceptance of the updated terms.
             </p>
 
-            {/* ================= SECTION 13 ================= */}
+  
             <h2 className="mt-10 font-bold text-xl">13. Contact Us</h2>
             <p>For questions regarding these Terms:</p>
             <p>
               <strong>Pocketoire</strong>
             </p>
-            <p>Email: pocketoiretravel@gmail.com</p>
-          </CardContent>
-        </Card>
-      </main>
-    </>
-  );
+            <p>Email: pocketoiretravel@gmail.com</p> */
 }
