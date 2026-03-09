@@ -89,7 +89,7 @@ export default function Prodss({ id }: { id: string }) {
       }>
     > => {
       return howl(
-        `/storefront/${id}/profile?search=${search}&sort=${sort === "all" ? "" : sort}&min_price=${debouncedMin}&max_price=${debouncedMax}&per_page=16&page=${page}`,
+        `/v2/storefront/${id}/profile?search=${search}&sort=${sort === "all" ? "" : sort}&min_price=${debouncedMin}&max_price=${debouncedMax}&per_page=16&page=${page}`,
         { token },
       );
     },
