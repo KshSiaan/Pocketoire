@@ -47,6 +47,7 @@ export default function Page() {
             user_id: number;
             name: string;
             bio: string;
+            slug: string;
             total_sold: number;
             total_products: number;
             user: {
@@ -158,7 +159,7 @@ export default function Page() {
               <Loader2Icon className={`animate-spin`} />
             </div>
           ) : (
-            <Stores />
+            <Stores data={data?.data?.data ?? []} />
           )}
         </div>
         {totalPages > 1 ? (
