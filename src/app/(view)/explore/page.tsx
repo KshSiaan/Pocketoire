@@ -47,19 +47,46 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-interface ExploreProductType extends ProductType {
-  product_image: {
-    id: number;
-    product_id: number;
-    image: string;
-    source: string;
-    created_at: string;
-    updated_at: string;
-  } | null;
-}
-
 interface ExploreResponseType {
-  products: Paginator<ExploreProductType[]>;
+  products: Paginator<
+    {
+      id: number;
+      user_id: number;
+      storefront_id: number;
+      album_id: number;
+      source: string;
+      title: string;
+      description: string;
+      price: string;
+      currency: string;
+      product_link: string;
+      viator_product_code?: string;
+      status: string;
+      created_at: string;
+      updated_at: string;
+      slug?: string;
+      clicks_count: number;
+      sales_count: number;
+      storefront: {
+        id: number;
+        user_id: number;
+        name: string;
+        slug: string;
+        user: {
+          id: number;
+          name: string;
+        };
+      };
+      product_image: {
+        id: number;
+        product_id: number;
+        image: string;
+        source: string;
+        created_at: string;
+        updated_at: string;
+      };
+    }[]
+  >;
   featured_storefronts: Array<{
     id: number;
     user_id: number;

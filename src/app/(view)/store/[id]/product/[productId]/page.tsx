@@ -79,7 +79,7 @@ export default async function Page({
         updated_at: string;
       };
     }>;
-  }> = await howl(`/products/${productId}`, { token });
+  }> = await howl(`/v2/products/${productId}`, { token });
   return (
     <main className="p-4 sm:p-8 lg:p-12">
       {/* Product Overview */}

@@ -93,6 +93,12 @@ export async function howl<T>(
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
+    console.log(
+      `${base_url}${base_api}${endpoint}`
+    );
+    
+    console.log(errorData);
+    
     handleUnauthorizedResponse(res.status);
     
     throw new Error((errorData as idk).message || "API request failed");

@@ -13,6 +13,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Butts from "./butts";
 import { cookies } from "next/headers";
 import BrowseStore from "./browse-store";
+import { no } from "zod/v4/locales";
 
 export default async function Page({
   params,
@@ -28,10 +29,12 @@ export default async function Page({
       storefront_id: number;
       album_id: number;
       title: string;
+      slug: string;
       description: string;
       price: string;
       currency: string;
       product_link: string;
+      source: string;
       viator_product_code: string;
       status: string;
       is_saved: boolean;
@@ -41,6 +44,7 @@ export default async function Page({
         id: number;
         user_id: number;
         name: string;
+        slug: string;
         bio: string;
         user: {
           id: number;
@@ -66,6 +70,7 @@ export default async function Page({
       price: string;
       currency: string;
       product_link: string;
+      slug: string;
       viator_product_code: string;
       status: string;
       created_at: string;
@@ -79,11 +84,14 @@ export default async function Page({
         updated_at: string;
       };
     }>;
-  }> = await howl(`/products/${productId}`, { token });
+  }> = await howl(`/v2/products/${productId}`, {
+    token,
+    headers: {
+      cache: "no-store",
+    },
+  });
   return (
     <main className="p-4 sm:p-8 lg:p-12">
-      {/* Product Overview */}
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         <Image
           src={
@@ -126,7 +134,7 @@ export default async function Page({
             /> */}
             Sold By{" "}
             <span className="font-bold not-italic ml-1">
-              {data?.data?.product?.product_image?.source ?? "Unknown"}
+              {data?.data?.product?.source ?? "Unknown"}
             </span>
           </div>
 
@@ -139,7 +147,7 @@ export default async function Page({
             >
               <Link href={data?.data?.product?.product_link} target="_blank">
                 <FaShoppingCart /> Shop now at{" "}
-                {data?.data?.product?.product_image?.source ?? "Unknown"}
+                {data?.data?.product?.source ?? "Unknown"}
               </Link>
             </Button>
             <Butts
@@ -177,7 +185,6 @@ export default async function Page({
             {data?.data?.product?.storefront?.name ?? "Unknown"}’s Storefront
           </h2>
           <p className="text-sm max-w-md">
-            {}
             {data?.data?.product?.storefront?.bio ??
               "No bio available for this storefront."}
           </p>
@@ -192,7 +199,6 @@ export default async function Page({
           </Button>
         </div>
       </section>
-
       {/* Related Products */}
       <section className="mt-16 sm:mt-20 lg:mt-24">
         <h2 className="text-2xl sm:text-3xl lg:text-4xl italic text-center lg:text-left">
@@ -201,7 +207,7 @@ export default async function Page({
         <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {data?.data?.related_products?.map((prod, i) => (
             <Link
-              href={`/store/${prod?.storefront_id}/product/${prod?.id}`}
+              href={`/store/${data?.data?.product?.storefront?.slug}/product/${prod?.slug}`}
               key={i}
             >
               <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
