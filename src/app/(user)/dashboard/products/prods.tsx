@@ -88,6 +88,7 @@ export default function Prods() {
             album_id: number;
             title: string;
             description: string;
+            source: string;
             price: string;
             currency: string;
             product_link: string;
@@ -268,11 +269,16 @@ export default function Prods() {
                   </div>
                 </CardHeader>
                 <CardFooter className="border-t flex justify-between items-center px-0">
-                  <Badge
-                    variant={prod?.status === "pending" ? "outline" : "default"}
-                  >
-                    {prod?.status}
-                  </Badge>
+                  <div className="space-x-2">
+                    <Badge
+                      variant={
+                        prod?.status === "pending" ? "outline" : "default"
+                      }
+                    >
+                      {prod?.status}
+                    </Badge>
+                    <Badge variant={"destructive"}>{prod?.source}</Badge>
+                  </div>
                   <div className="">
                     <EditProduct data={prod} />
                     <Button

@@ -34,6 +34,7 @@ export default async function Page({
       product_link: string;
       viator_product_code: string;
       status: string;
+      source: string;
       is_saved: boolean;
       created_at: string;
       updated_at: string;
@@ -126,7 +127,7 @@ export default async function Page({
             /> */}
             Sold By{" "}
             <span className="font-bold not-italic ml-1">
-              {data?.data?.product?.product_image?.source ?? "Unknown"}
+              {data?.data?.product?.source ?? "Unknown"}
             </span>
           </div>
 
@@ -139,7 +140,7 @@ export default async function Page({
             >
               <Link href={data?.data?.product?.product_link} target="_blank">
                 <FaShoppingCart /> Shop now at{" "}
-                {data?.data?.product?.product_image?.source ?? "Unknown"}
+                {data?.data?.product?.source ?? "Unknown"}
               </Link>
             </Button>
             <Butts

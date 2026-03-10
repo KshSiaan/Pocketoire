@@ -65,6 +65,7 @@ interface ExploreResponseType {
       created_at: string;
       updated_at: string;
       slug?: string;
+
       clicks_count: number;
       sales_count: number;
       storefront: {

@@ -32,6 +32,7 @@ import type { ApiResponse, Paginator } from "@/types/base";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 export default function Prodss({ id }: { id: string }) {
   const [minMax, setMinMax] = useState<[number, number]>([0, 100000]);
   const [{ token }] = useCookies(["token"]);
@@ -64,6 +65,7 @@ export default function Prodss({ id }: { id: string }) {
             user_id: number;
             storefront_id: number;
             album_id: number;
+            source: string;
             title: string;
             description: string;
             price: string;
@@ -247,8 +249,9 @@ export default function Prodss({ id }: { id: string }) {
                   </CardHeader>
                   <CardHeader className="px-0!">
                     <CardTitle>{prod.title}</CardTitle>
-                    <div className="flex items-center gap-6 text-xl">
+                    <div className="flex justify-between items-center gap-6 text-xl">
                       <p className="font-black">${prod.price}</p>
+                      <Badge variant={"outline"}>{prod.source}</Badge>
                     </div>
                   </CardHeader>
                 </Card>

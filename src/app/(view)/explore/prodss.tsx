@@ -1,9 +1,9 @@
 "use client";
 import { makeImg } from "@/lib/utils";
-import type { ProductType } from "@/types/global";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 // interface ExploreProductType extends ProductType {
 //   product_image: {
 //     id: number;
@@ -70,9 +70,9 @@ export default function Prodss({
         <Link
           href={`/store/${prod?.storefront?.slug}/product/${prod.slug}`}
           key={prod.id}
+          className="block h-full"
         >
-          <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
-            {prod?.slug}
+          <Card className="h-full border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
             <CardHeader className="px-0!">
               <Image
                 src={
@@ -87,10 +87,13 @@ export default function Prodss({
                 className="aspect-video object-cover object-center rounded-lg"
               />
             </CardHeader>
-            <CardHeader className="px-0!">
-              <CardTitle>{prod.title}</CardTitle>
-              <div className="flex items-center gap-6 text-xl">
-                <p className="font-black">${prod.price}</p>
+            <CardHeader className="px-0! flex-1 flex flex-col">
+              <CardTitle className="leading-6 line-clamp-3 min-h-[4.5rem]">
+                {prod.title}
+              </CardTitle>
+              <div className="mt-auto flex w-full justify-between items-center gap-6 text-xl">
+                <p className="font-black">${prod.price}</p>{" "}
+                <Badge variant={"outline"}>{prod.source}</Badge>
               </div>
             </CardHeader>
           </Card>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display } from "next/font/google";
+import { Spectral, Rubik } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -7,11 +7,17 @@ import GodProvider from "@/provider/god-provider";
 import { Suspense } from "react";
 import Cookier from "@/components/core/cookier";
 
-const playfair = Playfair_Display({
+const spectral = Spectral({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-spectral",
   style: ["normal", "italic"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700"],
+});
+const rubik = Rubik({
+  subsets: ["latin"],
+  variable: "--font-rubik",
+  style: ["normal", "italic"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -26,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${playfair.className} font-sans antialiased`}>
+      <body className={`${spectral.variable} ${rubik.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

@@ -15,9 +15,9 @@ export const description = "A donut chart";
 const defaultChartData = [
   { retailer: "Amazon", sales: 275, fill: "var(--color-destructive)" },
   { retailer: "Shopify", sales: 200, fill: "var(--color-primary)" },
-  { retailer: "eBay", sales: 187, fill: "var(--color-pink-500)" },
-  { retailer: "Walmart", sales: 173, fill: "var(--color-purple-500)" },
-  { retailer: "Other", sales: 90, fill: "var(--color-other)" },
+  { retailer: "eBay", sales: 187, fill: "var(--color-destructive)" },
+  { retailer: "Walmart", sales: 173, fill: "var(--color-primary)" },
+  { retailer: "Other", sales: 90, fill: "var(--color-destructive)" },
 ];
 
 const chartConfig = {
@@ -26,23 +26,23 @@ const chartConfig = {
   },
   amazon: {
     label: "Amazon",
-    color: "var(--chart-1)",
+    color: "var(--color-destructive)",
   },
   shopify: {
     label: "Shopify",
-    color: "var(--chart-2)",
+    color: "var(--color-primary)",
   },
   ebay: {
     label: "eBay",
-    color: "var(--chart-3)",
+    color: "var(--color-destructive)",
   },
   walmart: {
     label: "Walmart",
-    color: "var(--chart-4)",
+    color: "var(--color-primary)",
   },
   other: {
     label: "Other",
-    color: "var(--chart-5)",
+    color: "var(--color-destructive)",
   },
 } satisfies ChartConfig;
 
@@ -57,7 +57,7 @@ export function Retailer({
     return <Skeleton className="mx-auto aspect-square max-h-[250px]" />;
   }
 
-  const chartData = data || defaultChartData;
+  const chartData = data?.length ? data : defaultChartData;
   return (
     <ChartContainer
       config={chartConfig}
