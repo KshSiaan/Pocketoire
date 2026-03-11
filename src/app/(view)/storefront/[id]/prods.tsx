@@ -64,6 +64,7 @@ export default function Prodss({ id }: { id: string }) {
             id: number;
             user_id: number;
             storefront_id: number;
+            slug: string;
             album_id: number;
             source: string;
             title: string;
@@ -233,7 +234,7 @@ export default function Prodss({ id }: { id: string }) {
           <Suspense>
             {data?.data?.products?.data.map((prod, i) => (
               <Link
-                href={`/store/${prod?.storefront_id}/product/${prod?.id}`}
+                href={`/store/${data?.data?.profile?.store_slug}/product/${prod?.slug}`}
                 key={i}
               >
                 <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
