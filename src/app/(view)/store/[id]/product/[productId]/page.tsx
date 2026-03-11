@@ -42,6 +42,7 @@ export default async function Page({
         id: number;
         user_id: number;
         name: string;
+        slug: string;
         bio: string;
         user: {
           id: number;
@@ -71,6 +72,7 @@ export default async function Page({
       status: string;
       created_at: string;
       updated_at: string;
+      slug: string;
       product_image: {
         id: number;
         product_id: number;
@@ -202,7 +204,7 @@ export default async function Page({
         <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {data?.data?.related_products?.map((prod, i) => (
             <Link
-              href={`/store/${prod?.storefront_id}/product/${prod?.id}`}
+              href={`/store/${data?.data?.product?.storefront?.slug}/product/${prod?.slug}`}
               key={i}
             >
               <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">

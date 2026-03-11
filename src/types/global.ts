@@ -24,11 +24,15 @@ export interface UserType {
 export interface ProductType {
         id: number
         user_id: number
+        storefront:{
+          slug: string
+        }
         storefront_id: number
         album_id: number
         title: string
         description: string
         price: string
+        slug: string
         currency: string
         product_link: string
         viator_product_code: string
