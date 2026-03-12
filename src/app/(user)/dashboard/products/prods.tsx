@@ -1,13 +1,12 @@
 "use client";
-import { DualRangeSlider } from "@/components/ui/dual-slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   BanknoteIcon,
   ChevronLeft,
   ChevronRight,
+  CopyIcon,
   LinkIcon,
-  Loader2Icon,
   MousePointerClickIcon,
   SearchIcon,
   Trash2Icon,
@@ -38,7 +37,6 @@ import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { howl } from "@/lib/utils";
 import { useCookies } from "react-cookie";
 import type { ApiResponse, Paginator } from "@/types/base";
-import Link from "next/link";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import EditProduct from "./edit";
@@ -54,15 +52,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Badge } from "@/components/ui/badge";
+import { useRef } from "react";
 export default function Prods() {
   const [{ token }] = useCookies(["token"]);
+  const shareInputRef = useRef<HTMLInputElement | null>(null);
 
   const [search, setSearch] = useDebounceValue("", 500);
   const [sort, setSort] = useState("all");
   const [page, setPage] = useState(1);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [selectedShareUrl, setSelectedShareUrl] = useState("");
 
   const { data, isPending, isRefetching, refetch } = useQuery({
     queryKey: ["store_prods", search, sort, page],
@@ -86,6 +95,7 @@ export default function Prods() {
             user_id: number;
             storefront_id: number;
             album_id: number;
+            slug: string;
             title: string;
             description: string;
             source: string;
@@ -133,7 +143,7 @@ export default function Prods() {
   });
 
   // Reset to page 1 when filters change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: page reset intentionally depends on filter changes only.
   useEffect(() => {
     setPage(1);
   }, [search, sort]);
@@ -148,6 +158,45 @@ export default function Prods() {
       setPage(newPage);
       // window.scrollTo({ top: window.innerHeight - 100, behavior: "smooth" });
     }
+  };
+
+  const openShareDialog = (storeSlug?: string, productSlug?: string) => {
+    if (typeof window === "undefined") {
+      toast.error("Unable to generate product link");
+      return;
+    }
+
+    if (!storeSlug || !productSlug) {
+      toast.error("Unable to generate product link");
+      return;
+    }
+
+    setSelectedShareUrl(
+      `${window.location.origin}/store/${storeSlug}/product/${productSlug}`,
+    );
+    setIsShareDialogOpen(true);
+  };
+
+  const handleCopyProductLink = async () => {
+    if (!selectedShareUrl) {
+      toast.error("Unable to generate product link");
+      return;
+    }
+
+    const copied = await copyToClipboardWithFallback(selectedShareUrl);
+    if (copied) {
+      toast.success("Product link copied to clipboard!");
+      return;
+    }
+
+    if (shareInputRef.current) {
+      shareInputRef.current.focus();
+      shareInputRef.current.select();
+      toast.error("Auto-copy failed. Link selected so you can copy manually.");
+      return;
+    }
+
+    toast.error("Something went wrong while copying the link");
   };
 
   // Generate page numbers to display
@@ -286,10 +335,10 @@ export default function Prods() {
                       className="hover:text-secondary hover:bg-secondary/20"
                       size={"icon"}
                       onClick={() => {
-                        navigator.clipboard.writeText(
-                          `${window.location.origin}/store/${prod?.storefront_id}/product/${prod?.id}`,
+                        openShareDialog(
+                          data?.data?.profile?.store_slug,
+                          prod?.slug,
                         );
-                        toast.success("Product link copied to clipboard!");
                       }}
                     >
                       <LinkIcon />
@@ -422,6 +471,70 @@ export default function Prods() {
           </div>
         )}
       </div>
+
+      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share product link</DialogTitle>
+            <DialogDescription>
+              Copy automatically, or select and copy manually if needed.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <Input
+              ref={shareInputRef}
+              value={selectedShareUrl}
+              readOnly
+              onFocus={(e) => e.currentTarget.select()}
+            />
+            <Button onClick={handleCopyProductLink} className="w-full">
+              <CopyIcon />
+              Copy link
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
+}
+
+async function copyToClipboardWithFallback(text: string): Promise<boolean> {
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.clipboard &&
+    typeof navigator.clipboard.writeText === "function"
+  ) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // fall through to legacy copy strategy
+    }
+  }
+
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  textarea.style.left = "-9999px";
+
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  let copied = false;
+  try {
+    copied = document.execCommand("copy");
+  } catch {
+    copied = false;
+  }
+
+  document.body.removeChild(textarea);
+  return copied;
 }

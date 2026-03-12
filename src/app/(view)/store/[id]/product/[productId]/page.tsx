@@ -29,6 +29,7 @@ export default async function Page({
       album_id: number;
       title: string;
       description: string;
+      slug: string;
       price: string;
       currency: string;
       product_link: string;
@@ -146,8 +147,8 @@ export default async function Page({
               </Link>
             </Button>
             <Butts
-              storeId={data?.data?.product?.storefront_id}
-              id={data?.data?.product?.id}
+              storeId={data?.data?.product?.storefront?.slug}
+              id={data?.data?.product?.slug}
               title={data?.data?.product?.title}
               desc={data?.data?.product?.description}
               isSaved={data?.data?.product?.is_saved}
@@ -189,7 +190,9 @@ export default async function Page({
             className="px-0 hover:gap-4 text-secondary text-base sm:text-lg font-semibold"
             asChild
           >
-            <Link href={`/store/${data?.data?.product?.storefront?.id ?? "#"}`}>
+            <Link
+              href={`/storefront/${data?.data?.product?.storefront?.slug ?? "#"}`}
+            >
               View all products from this storefront <ArrowRightIcon />
             </Link>
           </Button>
