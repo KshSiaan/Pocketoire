@@ -13,13 +13,34 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -28,8 +49,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { howl } from "@/lib/utils";
-import { ApiResponse, Paginator } from "@/types/base";
+import type { ApiResponse, Paginator } from "@/types/base";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   CheckCircleIcon,
@@ -47,9 +69,12 @@ import { toast } from "sonner";
 
 export default function Page() {
   const [{ token }] = useCookies(["token"]);
-  const [perPage, setPerPage] = React.useState(100);
+  const [search, setSearch] = useDebounceValue("", 500);
+  const [status, setStatus] = React.useState("all");
+  const [page, setPage] = React.useState(1);
+  const perPage = 10;
   const { data, isPending, refetch } = useQuery({
-    queryKey: ["creators", perPage],
+    queryKey: ["creators", search, status, page, perPage],
     queryFn: async () => {
       const res: ApiResponse<
         Paginator<
@@ -70,12 +95,65 @@ export default function Page() {
             };
           }[]
         >
-      > = await howl(`/admin/creators?per_page=100`, {
-        token,
-      });
+      > = await howl(
+        `/admin/creators?keywords=${encodeURIComponent(search)}&user_status=${encodeURIComponent(
+          status === "all" ? "" : status,
+        )}&per_page=${perPage}&page=${page}`,
+        {
+          token,
+        },
+      );
       return res;
     },
   });
+
+  const paginator = data?.data;
+  const totalItems = paginator?.total ?? 0;
+  const currentPerPage = paginator?.per_page ?? perPage;
+  const totalPages = Math.max(1, Math.ceil(totalItems / currentPerPage));
+
+  React.useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const pages = React.useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    const items: Array<number | "ellipsis"> = [];
+    const minPage = Math.max(2, page - 1);
+    const maxPage = Math.min(totalPages - 1, page + 1);
+
+    items.push(1);
+
+    if (minPage > 2) {
+      items.push("ellipsis");
+    }
+
+    for (let current = minPage; current <= maxPage; current += 1) {
+      items.push(current);
+    }
+
+    if (maxPage < totalPages - 1) {
+      items.push("ellipsis");
+    }
+
+    items.push(totalPages);
+
+    return items;
+  }, [page, totalPages]);
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === page) {
+      return;
+    }
+
+    setPage(nextPage);
+  };
+
   const { mutate } = useMutation({
     mutationKey: ["restrict"],
     mutationFn: async (payload: {
@@ -145,15 +223,33 @@ export default function Page() {
           <CardTitle className="text-2xl italic">Creator Management</CardTitle>
           <div className="w-full mt-6 flex flex-row justify-between items-center gap-6">
             <InputGroup>
-              <InputGroupInput placeholder="Search Providers...." />
+              <InputGroupInput
+                placeholder="Search Providers...."
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+              />
               <InputGroupAddon>
                 <SearchIcon />
               </InputGroupAddon>
             </InputGroup>
-            <Select>
+            <Select
+              value={status}
+              onValueChange={(value) => {
+                setStatus(value);
+                setPage(1);
+              }}
+            >
               <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder="Select Status" />
               </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="suspended">Suspended</SelectItem>
+                <SelectItem value="banned">Banned</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </CardHeader>
@@ -177,7 +273,7 @@ export default function Page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data?.data?.data?.map((creator) => (
+                {paginator?.data?.map((creator) => (
                   <TableRow key={creator.id}>
                     <TableCell className="flex justify-start items-center gap-2">
                       <Avatar className="size-12">
@@ -381,6 +477,58 @@ export default function Page() {
             </Table>
           )}
         </CardContent>
+        <CardFooter>
+          {totalPages > 1 ? (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handlePageChange(page - 1);
+                    }}
+                    className={
+                      page === 1 ? "pointer-events-none opacity-50" : undefined
+                    }
+                  />
+                </PaginationItem>
+                {pages.map((item, index) => (
+                  <PaginationItem key={`${item}-${index}`}>
+                    {item === "ellipsis" ? (
+                      <PaginationEllipsis />
+                    ) : (
+                      <PaginationLink
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handlePageChange(item);
+                        }}
+                        isActive={item === page}
+                      >
+                        {item}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handlePageChange(page + 1);
+                    }}
+                    className={
+                      page === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : undefined
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          ) : null}
+        </CardFooter>
       </Card>
     </main>
   );

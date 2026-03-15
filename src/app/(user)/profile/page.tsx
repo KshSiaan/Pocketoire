@@ -141,7 +141,7 @@ export default async function Page() {
               <CardHeader>
                 <CardTitle>Help Center</CardTitle>
                 <CardDescription>
-                  Find Answe to common questions
+                  Find Answers to common questions
                 </CardDescription>
               </CardHeader>
             </Card>
