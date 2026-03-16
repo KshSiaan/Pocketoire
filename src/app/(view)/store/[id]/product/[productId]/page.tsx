@@ -149,6 +149,7 @@ export default async function Page({
             <Butts
               storeId={data?.data?.product?.storefront?.slug}
               id={data?.data?.product?.slug}
+              productId={data?.data?.product?.id}
               title={data?.data?.product?.title}
               desc={data?.data?.product?.description}
               isSaved={data?.data?.product?.is_saved}

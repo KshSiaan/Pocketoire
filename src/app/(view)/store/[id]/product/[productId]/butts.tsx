@@ -21,12 +21,14 @@ import { toast } from "sonner";
 
 export default function Butts({
   id,
+  productId,
   storeId,
   title,
   desc,
   isSaved,
 }: {
   id?: string;
+  productId: string;
   storeId?: string;
   title?: string;
   desc?: string;
@@ -99,7 +101,7 @@ export default function Butts({
   const { mutate, isPending } = useMutation({
     mutationKey: ["heart_toggle"],
     mutationFn: async (): Promise<ApiResponse<null>> => {
-      return howl(`/saved-products/${id}/toggle`, {
+      return howl(`/saved-products/${productId}/toggle`, {
         token,
         method: "POST",
       });
