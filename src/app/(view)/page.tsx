@@ -39,7 +39,7 @@ export default function Home() {
         </section>
         <section className="px-8 lg:px-0">
           <h3 className="font-semibold text-center text-2xl">
-            Shop by Location
+            Creator Destinations
           </h3>
           <div className="w-10/11 mx-auto">
             <Suspense>

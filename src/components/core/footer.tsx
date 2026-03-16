@@ -4,12 +4,12 @@ import { ArrowRight } from "lucide-react";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
 
 const footerLinks = {
-  topCategories: [
-    { name: "Hotels", href: "/explore" },
-    { name: "Activities", href: "/explore" },
-    // { name: "Restaurants", href: "/explore" },
-    { name: "Vacation Rentals", href: "/explore" },
-  ],
+  // topCategories: [
+  //   { name: "Hotels", href: "/explore" },
+  //   { name: "Activities", href: "/explore" },
+  //   // { name: "Restaurants", href: "/explore" },
+  //   { name: "Vacation Rentals", href: "/explore" },
+  // ],
   support: [
     { name: "Terms & Condition", href: "/tnc" },
     { name: "FAQs", href: "/faq" },
@@ -26,7 +26,7 @@ const socialLinks = [
 export default function Footer() {
   return (
     <footer className="px-6 py-12 bg-primary text-background">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
         {/* Logo Section */}
         <div>
           <div className="flex items-center gap-2">
@@ -54,11 +54,11 @@ export default function Footer() {
         </div>
 
         {/* Top Category */}
-        <FooterSection
+        {/* <FooterSection
           title="TOP CATEGORY"
           items={footerLinks.topCategories}
           browseAll
-        />
+        /> */}
 
         {/* Support */}
         <FooterSection title="SUPPORT" items={footerLinks.support} />
