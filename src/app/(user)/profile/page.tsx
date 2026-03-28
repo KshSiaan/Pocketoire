@@ -60,11 +60,6 @@ export default async function Page() {
   });
   return (
     <main className="p-4 sm:p-6 lg:p-12">
-      <pre className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-amber-400 rounded-xl p-6 shadow-lg overflow-x-auto text-sm leading-relaxed border border-zinc-700">
-        <code className="whitespace-pre-wrap">
-          {JSON.stringify(data, null, 2)}
-        </code>
-      </pre>
       <h1 className="text-3xl sm:text-4xl text-center">Account & Support</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 mt-6 gap-6">
         <Card>
