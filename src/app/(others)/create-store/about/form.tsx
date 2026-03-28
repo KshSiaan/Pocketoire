@@ -78,14 +78,33 @@ export default function Form() {
 
       if (!res.ok) {
         handleUnauthorizedResponse(res.status);
-        throw new Error("Failed to create storefront");
+        const errorData = await res.json().catch(() => ({}));
+        const error = new Error(
+          errorData.message ?? "Failed to create storefront",
+        );
+        (error as any).errors = errorData.errors;
+        throw error;
       }
 
       return res.json();
     },
 
-    onError: (err) => {
-      toast.error(err.message ?? "Failed to complete this request");
+    onError: (err: any) => {
+      // Show field-level errors if available
+      if (err.errors && typeof err.errors === "object") {
+        const errorMessages = Object.entries(err.errors)
+          .map(([field, messages]: [string, any]) => {
+            const fieldErrors = Array.isArray(messages) ? messages : [messages];
+            return fieldErrors.join(", ");
+          })
+          .join("\n");
+
+        toast.error(
+          (errorMessages || err.message) ?? "Failed to complete this request",
+        );
+      } else {
+        toast.error(err.message ?? "Failed to complete this request");
+      }
     },
     onSuccess: (res) => {
       toast.success(res.message ?? "Success!");

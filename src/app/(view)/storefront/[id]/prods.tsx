@@ -34,7 +34,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 export default function Prodss({ id }: { id: string }) {
-  const [minMax, setMinMax] = useState<[number, number]>([0, 100000]);
+  const [minMax, setMinMax] = useState<[number, number]>([0, 1000000]);
   const [{ token }] = useCookies(["token"]);
   const [debouncedMin] = useDebounceValue(minMax[0], 500);
   const [debouncedMax] = useDebounceValue(minMax[1], 500);
@@ -164,7 +164,7 @@ export default function Prodss({ id }: { id: string }) {
           value={minMax}
           onValueChange={(val) => setMinMax(val as [number, number])}
           min={0}
-          max={100000}
+          max={1000000}
           step={1}
         />
         {/* {JSON.stringify(debouncedMin)} - {JSON.stringify(debouncedMax)} */}
@@ -251,7 +251,9 @@ export default function Prodss({ id }: { id: string }) {
                   <CardHeader className="px-0!">
                     <CardTitle>{prod.title}</CardTitle>
                     <div className="flex justify-between items-center gap-6 text-xl">
-                      <p className="font-black">${prod.price}</p>
+                      <p className="font-black">
+                        {prod.price} {prod.currency}
+                      </p>
                       <Badge variant={"outline"}>{prod.source}</Badge>
                     </div>
                   </CardHeader>

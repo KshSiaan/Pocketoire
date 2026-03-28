@@ -120,7 +120,7 @@ export default function Page() {
   const initialSort = searchParams.get("sort") || "newest";
 
   const parsedMin = Number(searchParams.get("min_price") ?? "0");
-  const parsedMax = Number(searchParams.get("max_price") ?? "100000");
+  const parsedMax = Number(searchParams.get("max_price") ?? "1000000");
   const safeMin = Number.isFinite(parsedMin) ? Math.max(0, parsedMin) : 0;
   const safeMax = Number.isFinite(parsedMax)
     ? Math.max(safeMin, parsedMax)
@@ -229,7 +229,7 @@ export default function Page() {
                 setMinMax(val as [number, number]);
               }}
               min={0}
-              max={100000}
+              max={1000000}
               step={1}
             />
             <div className="w-full grid grid-cols-2 gap-2">

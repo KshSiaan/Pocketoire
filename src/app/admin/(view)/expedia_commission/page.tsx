@@ -231,7 +231,7 @@ export default function Page() {
                       {!proding &&
                         prods?.data?.map((prod) => (
                           <SelectItem key={prod?.id} value={String(prod?.id)}>
-                            {prod?.title}
+                            {prod?.title} ( {prod?.storefront?.name} )
                           </SelectItem>
                         ))}
                     </SelectContent>

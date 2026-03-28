@@ -40,11 +40,11 @@ export type ExpediaProduct = {
     price: string
     currency: string
     product_link: string
-    viator_product_code: string | null
+    viator_product_code: any
     status: string
     created_at: string
     updated_at: string
-    slug?: string
+    slug: string
     product_image: {
       id: number
       product_id: number
@@ -52,5 +52,21 @@ export type ExpediaProduct = {
       source: string
       created_at: string
       updated_at: string
+    }
+    storefront: {
+      id: number
+      user_id: number
+      name: string
+      slug: string
+      status: string
+      status_reason: string
+      bio: string
+      instagram_link: any
+      tiktok_link: any
+      moderated_by: any
+      moderated_at: any
+      created_at: string
+      updated_at: string
+      deleted_at: any
     }
   }
