@@ -3,6 +3,7 @@ import { DualRangeSlider } from "@/components/ui/dual-slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight, SearchIcon } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import {
   InputGroup,
@@ -38,13 +39,22 @@ export default function Prodss({ id }: { id: string }) {
   const [{ token }] = useCookies(["token"]);
   const [debouncedMin] = useDebounceValue(minMax[0], 500);
   const [debouncedMax] = useDebounceValue(minMax[1], 500);
+  const [groupByAlbum, setGroupByAlbum] = useState(false);
 
   const [search, setSearch] = useDebounceValue("", 500);
   const [sort, setSort] = useState("all");
   const [page, setPage] = useState(1);
 
   const { data, isPending, isRefetching } = useQuery({
-    queryKey: ["store_prods", search, sort, debouncedMin, debouncedMax, page],
+    queryKey: [
+      "store_prods",
+      search,
+      sort,
+      debouncedMin,
+      debouncedMax,
+      page,
+      groupByAlbum,
+    ],
 
     placeholderData: (prev) => prev,
     queryFn: async (): Promise<
@@ -92,7 +102,7 @@ export default function Prodss({ id }: { id: string }) {
       }>
     > => {
       return howl(
-        `/v2/storefront/${id}/profile?search=${search}&sort=${sort === "all" ? "" : sort}&min_price=${debouncedMin}&max_price=${debouncedMax}&per_page=16&page=${page}`,
+        `/v2/storefront/${id}/profile?search=${search}&sort=${sort === "all" ? "" : sort}&min_price=${debouncedMin}&max_price=${debouncedMax}&per_page=16&page=${page}&group_by_album=${groupByAlbum ? "true" : "false"}`,
         { token },
       );
     },
@@ -102,7 +112,7 @@ export default function Prodss({ id }: { id: string }) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setPage(1);
-  }, [search, sort, debouncedMin, debouncedMax]);
+  }, [search, sort, debouncedMin, debouncedMax, groupByAlbum]);
 
   const totalPages = data?.data?.products
     ? Math.ceil(data.data.products.total / data.data.products.per_page)
@@ -199,17 +209,32 @@ export default function Prodss({ id }: { id: string }) {
       {/* Products */}
       <div className="col-span-1 lg:col-span-3">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <InputGroup className="border-destructive rounded-none bg-white w-full md:w-[400px]">
-            <InputGroupInput
-              placeholder="Search by product name, tags"
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <InputGroupAddon align={"inline-end"}>
-              <SearchIcon />
-            </InputGroupAddon>
-          </InputGroup>
+          <div className="flex gap-4 flex-row items-center w-full md:w-auto">
+            <InputGroup className="border-destructive rounded-none bg-white w-full md:w-[400px]">
+              <InputGroupInput
+                placeholder="Search by product name, tags"
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <InputGroupAddon align={"inline-end"}>
+                <SearchIcon />
+              </InputGroupAddon>
+            </InputGroup>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="group-by-album"
+                checked={groupByAlbum}
+                onCheckedChange={(checked) => setGroupByAlbum(checked === true)}
+              />
+              <Label
+                htmlFor="group-by-album"
+                className="text-base cursor-pointer"
+              >
+                Group by Album
+              </Label>
+            </div>
+          </div>
 
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex items-center gap-3 md:gap-4 justify-center">
             <Label htmlFor="sorter" className="whitespace-nowrap">
               Sort by:
             </Label>

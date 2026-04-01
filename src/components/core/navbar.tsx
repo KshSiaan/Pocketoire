@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
-import { MenuIcon } from "lucide-react";
+import { MenuIcon, Store } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -12,11 +12,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
-import { cn, makeImg } from "@/lib/utils";
+import { cn, makeImg, howl } from "@/lib/utils";
 import { useCookies } from "react-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useMeStore } from "@/lib/moon/user-store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ApiResponse } from "@/types/base";
+
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Browse Storefronts", href: "/storefronts" },
@@ -27,8 +30,32 @@ const navLinks = [
 export default function Navbar() {
   const path = usePathname();
   const [{ token }] = useCookies(["token"]);
+  const [storefrontUrl, setStorefrontUrl] = useState<string | null>(null);
   useEffect(() => {}, []);
   const me = useMeStore((state) => state.me);
+
+  const { data: profileData } = useQuery({
+    queryKey: ["navbar_creator_profile", token],
+    queryFn: async (): Promise<
+      ApiResponse<{
+        data: {
+          storefront_url: string;
+        };
+      }>
+    > => {
+      return howl(`/creator/profile`, { token });
+    },
+    enabled: !!token,
+  });
+
+  useEffect(() => {
+    const url = profileData?.data?.data?.storefront_url;
+    if (url) {
+      setStorefrontUrl(url);
+    } else {
+      setStorefrontUrl(null);
+    }
+  }, [profileData?.data?.data?.storefront_url]);
   const renderLinks = (isMobile = false) =>
     navLinks.map(({ label, href }) => (
       <Button
@@ -63,6 +90,25 @@ export default function Navbar() {
       {/* Center Nav (Desktop) */}
       <div className="hidden absolute left-1/2 -translate-x-1/2 lg:flex gap-4">
         {renderLinks()}
+        {token && storefrontUrl && (
+          <Button
+            asChild
+            variant="ghost"
+            className={cn(
+              "font-medium rounded-none text-background",
+              path === `/storefront/${storefrontUrl}` &&
+                "border border-background",
+            )}
+          >
+            <Link
+              href={`/storefront/${storefrontUrl}`}
+              className="flex items-center gap-2"
+            >
+              <Store className="size-4" />
+              My Store
+            </Link>
+          </Button>
+        )}
       </div>
 
       {/* Auth Button (Desktop) */}
@@ -102,6 +148,21 @@ export default function Navbar() {
               <SheetTitle />
             </SheetHeader>
             {renderLinks(true)}
+            {token && storefrontUrl && (
+              <Button
+                asChild
+                variant="ghost"
+                className="font-medium rounded-none text-background w-full"
+              >
+                <Link
+                  href={`/storefront/${storefrontUrl}`}
+                  className="flex items-center justify-center gap-2"
+                >
+                  <Store className="size-4" />
+                  My Store
+                </Link>
+              </Button>
+            )}
             {token ? (
               <Button variant={"destructive"} size={"lg"} asChild>
                 <Link href={"/profile"}>

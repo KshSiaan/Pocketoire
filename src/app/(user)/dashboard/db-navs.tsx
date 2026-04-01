@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, howl } from "@/lib/utils";
 import Link from "next/link";
 import {
   Banknote,
@@ -9,10 +9,15 @@ import {
   LockKeyhole,
   PackageIcon,
   UserIcon,
+  Store,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useCookies } from "react-cookie";
+import { useQuery } from "@tanstack/react-query";
+import { ApiResponse } from "@/types/base";
+import { useEffect, useState } from "react";
 
-const navs = [
+const staticNavs = [
   { title: "Overview", icon: ChartColumnIcon, link: "/dashboard/overview" },
   { title: "Products", icon: PackageIcon, link: "/dashboard/products" },
   { title: "Earnings", icon: Banknote, link: "/dashboard/earnings" },
@@ -28,6 +33,39 @@ const navs = [
 export default function DBNavs() {
   const path = usePathname();
   const currentLink = path.split("/").at(-1);
+  const [{ token }] = useCookies(["token"]);
+  const [navs, setNavs] = useState(staticNavs);
+
+  const { data: profileData } = useQuery({
+    queryKey: ["creator_profile", token],
+    queryFn: async (): Promise<
+      ApiResponse<{
+        data: {
+          storefront_url: string;
+          store_name: string;
+        };
+      }>
+    > => {
+      return howl(`/creator/profile`, { token });
+    },
+    enabled: !!token,
+  });
+
+  useEffect(() => {
+    const storefrontUrl = profileData?.data?.data?.storefront_url;
+
+    if (storefrontUrl) {
+      const storefrontNav = {
+        title: "My Store",
+        icon: Store,
+        link: `/storefront/${storefrontUrl}`,
+      };
+
+      setNavs([...staticNavs, storefrontNav]);
+    } else {
+      setNavs(staticNavs);
+    }
+  }, [profileData?.data?.data?.storefront_url]);
 
   return (
     <ul className="space-y-4">
