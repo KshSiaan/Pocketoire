@@ -5,10 +5,14 @@ export default function Base({
   title,
   subtitle,
   image,
+  email,
+  passwordResetToken,
 }: {
   title: string;
   subtitle: string;
   image: string;
+  email?: string;
+  passwordResetToken?: string;
 }) {
   return (
     <>
@@ -24,7 +28,7 @@ export default function Base({
           <h1 className="text-4xl font-bold text-destructive">{title}</h1>
           <p className="text-muted-foreground">{subtitle}</p>
         </div>
-        <Form />
+        <Form email={email} passwordResetToken={passwordResetToken} />
       </section>
       <section
         className="w-full h-full rounded-xl bg-primary bg-cover bg-center shadow-xl"

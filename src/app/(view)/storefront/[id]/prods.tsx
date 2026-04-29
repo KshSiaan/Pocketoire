@@ -69,7 +69,7 @@ export default function Prodss({ id }: { id: string }) {
           tiktok: string | null;
           total_products: number;
         };
-        products: Paginator<
+        products?: Paginator<
           {
             id: number;
             user_id: number;
@@ -99,10 +99,47 @@ export default function Prodss({ id }: { id: string }) {
             };
           }[]
         >;
+        albums?: Array<{
+          id: number;
+          storefront_id: number;
+          name: string;
+          slug: string;
+          description: string;
+          created_at: string;
+          updated_at: string;
+          products: Array<{
+            id: number;
+            user_id: number;
+            storefront_id: number;
+            slug: string;
+            album_id: number;
+            source: string;
+            title: string;
+            description: string;
+            price: string;
+            currency: string;
+            product_link: string;
+            viator_product_code: string;
+            status: string;
+            created_at: string;
+            updated_at: string;
+            clicks_count: number;
+            sales_count: number;
+            sales_sum_creator_commission?: string;
+            product_image: {
+              id: number;
+              product_id: number;
+              image: string;
+              source: string;
+              created_at: string;
+              updated_at: string;
+            };
+          }>;
+        }>;
       }>
     > => {
       return howl(
-        `/v2/storefront/${id}/profile?search=${search}&sort=${sort === "all" ? "" : sort}&min_price=${debouncedMin}&max_price=${debouncedMax}&per_page=16&page=${page}&group_by_album=${groupByAlbum ? "true" : "false"}`,
+        `/v2/storefront/${id}/profile?search=${search}&sort=${sort === "all" ? "" : sort}&min_price=${debouncedMin}&max_price=${debouncedMax}&per_page=16&page=${page}&group_by_album=${groupByAlbum ? 1 : 0}`,
         { token },
       );
     },
@@ -255,40 +292,96 @@ export default function Prodss({ id }: { id: string }) {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-6">
           <Suspense>
-            {data?.data?.products?.data.map((prod, i) => (
-              <Link
-                href={`/store/${data?.data?.profile?.store_slug}/product/${prod?.slug}`}
-                key={i}
-              >
-                <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
-                  <CardHeader className="px-0!">
-                    <Image
-                      src={prod?.product_image?.image ?? "/image/product.jpeg"}
-                      alt="product"
-                      height={500}
-                      width={500}
-                      unoptimized
-                      className="aspect-video object-cover object-center rounded-lg"
-                    />
-                  </CardHeader>
-                  <CardHeader className="px-0!">
-                    <CardTitle>{prod.title}</CardTitle>
-                    <div className="flex justify-between items-center gap-6 text-xl">
-                      <p className="font-black">
-                        {prod.price} {prod.currency}
+            {groupByAlbum ? (
+              // Grouped by album view
+              <div className="space-y-8">
+                {data?.data?.albums?.map((album) => (
+                  <div key={album.id}>
+                    <div className="mb-4">
+                      <h3 className="text-2xl font-bold text-primary mb-2">
+                        {album.name}
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        {album.description}
                       </p>
-                      <Badge variant={"outline"}>{prod.source}</Badge>
                     </div>
-                  </CardHeader>
-                </Card>
-              </Link>
-            ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {album.products.map((prod, i) => (
+                        <Link
+                          href={`/store/${data?.data?.profile?.store_slug}/product/${prod?.slug}`}
+                          key={i}
+                        >
+                          <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
+                            <CardHeader className="px-0!">
+                              <Image
+                                src={
+                                  prod?.product_image?.image ??
+                                  "/image/product.jpeg"
+                                }
+                                alt="product"
+                                height={500}
+                                width={500}
+                                unoptimized
+                                className="aspect-video object-cover object-center rounded-lg"
+                              />
+                            </CardHeader>
+                            <CardHeader className="px-0!">
+                              <CardTitle>{prod.title}</CardTitle>
+                              <div className="flex justify-between items-center gap-6 text-xl">
+                                <p className="font-black">
+                                  {prod.price} {prod.currency}
+                                </p>
+                                <Badge variant={"outline"}>{prod.source}</Badge>
+                              </div>
+                            </CardHeader>
+                          </Card>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Flat product list view
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {data?.data?.products?.data.map((prod, i) => (
+                  <Link
+                    href={`/store/${data?.data?.profile?.store_slug}/product/${prod?.slug}`}
+                    key={i}
+                  >
+                    <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
+                      <CardHeader className="px-0!">
+                        <Image
+                          src={
+                            prod?.product_image?.image ?? "/image/product.jpeg"
+                          }
+                          alt="product"
+                          height={500}
+                          width={500}
+                          unoptimized
+                          className="aspect-video object-cover object-center rounded-lg"
+                        />
+                      </CardHeader>
+                      <CardHeader className="px-0!">
+                        <CardTitle>{prod.title}</CardTitle>
+                        <div className="flex justify-between items-center gap-6 text-xl">
+                          <p className="font-black">
+                            {prod.price} {prod.currency}
+                          </p>
+                          <Badge variant={"outline"}>{prod.source}</Badge>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
           </Suspense>
         </div>
 
-        {totalPages > 1 && (
+        {!groupByAlbum && totalPages > 1 && (
           <div className="my-16 sm:my-24 flex justify-center">
             <Pagination>
               <PaginationContent>

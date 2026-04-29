@@ -1,16 +1,15 @@
 "use client";
-import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useMailStore } from "@/lib/moon/email-store";
-import { verifyOtpApi } from "@/lib/api/auth";
+import { forgotVerifyOtpApi } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 export default function Form() {
   const availableEmail = useMailStore((state) => state.email);
@@ -20,16 +19,18 @@ export default function Form() {
     mutationKey: ["verify_otp"],
     mutationFn: () => {
       const body = { email: availableEmail, otp };
-      return verifyOtpApi(body);
+      return forgotVerifyOtpApi(body);
     },
     onError: (err) => {
       toast.error(err.message ?? "Failed to complete this request");
     },
     onSuccess: (res) => {
       toast.success(res.message ?? "Success!");
-      console.log(res);
-      useMailStore.getState().removeEmail();
-      navig.push("/login");
+      useMailStore.getState().setEmail(res.data.email ?? availableEmail);
+      useMailStore
+        .getState()
+        .setPasswordResetToken(res.data.password_reset_token);
+      navig.push("/new-pass");
     },
   });
   return (

@@ -1,6 +1,6 @@
-import { ApiResponse } from "@/types/base";
+import type { ApiResponse } from "@/types/base";
 import { howl } from "../utils";
-import { UserType } from "@/types/global";
+import type { UserType } from "@/types/global";
 
 
 export async function loginApi(body: { email: string; password: string;}):Promise<ApiResponse<{
@@ -40,10 +40,31 @@ export async function verifyOtpApi(body: {email: string; otp: string;}):Promise<
         body
     })
 }
+export async function forgotVerifyOtpApi(body: {email: string; otp: string;}):Promise<ApiResponse<{
+      email: string
+      password_reset_token: string
+  }>> {
+    return howl("/auth/forgot-password/verify-otp",{
+        method:"POST",
+        body
+    })
+}
 
-export async function forgotApi(body: {email: string;}):Promise<ApiResponse<any>> {
+export async function forgotApi(body: {email: string;}):Promise<ApiResponse<unknown>> {
     return howl("/auth/forgot-password",{
         method:"POST",
         body
     })
+}
+
+export async function updateForgotPasswordApi(body: {
+    email: string;
+    password_reset_token: string;
+    password: string;
+    password_confirmation: string;
+}): Promise<ApiResponse<unknown>> {
+    return howl("/auth/forgot-password/update-password", {
+        method: "POST",
+        body,
+    });
 }

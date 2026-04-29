@@ -2,7 +2,7 @@
 import { useMailStore } from "@/lib/moon/email-store";
 import Base from "./base";
 export default function Page() {
-  const mail = useMailStore.getState().email;
+  const mail = useMailStore((state) => state.email);
   if (!mail) {
     return (
       <div className="h-dvh w-dvw flex items-center justify-center">

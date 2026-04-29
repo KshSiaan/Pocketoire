@@ -1,25 +1,32 @@
-import {create} from "zustand"
-import { persist, createJSONStorage } from 'zustand/middleware'
-
-
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 type MailStore = {
-  email: string
-  setEmail: (email: string) => void
-  removeEmail: () => void
-}
+  email: string;
+  passwordResetToken: string;
+  setEmail: (email: string) => void;
+  setPasswordResetToken: (token: string) => void;
+  removeEmail: () => void;
+  removePasswordResetToken: () => void;
+  clearRecovery: () => void;
+};
 
 export const useMailStore = create<MailStore>()(
   persist(
-    (set, get) => ({
-        email: "",
-        setEmail: (email: string) => set({email}),
-        removeEmail: () => set({email:""})
+    (set) => ({
+      email: "",
+      passwordResetToken: "",
+      setEmail: (email: string) => set({ email }),
+      setPasswordResetToken: (passwordResetToken: string) =>
+        set({ passwordResetToken }),
+      removeEmail: () => set({ email: "" }),
+      removePasswordResetToken: () => set({ passwordResetToken: "" }),
+      clearRecovery: () => set({ email: "", passwordResetToken: "" }),
     }),
     {
-      name: 'email_verif', // name of the item in the storage (must be unique)
-      storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+      name: "email_verif",
+      storage: createJSONStorage(() => sessionStorage),
     },
   ),
-)
+);
 
