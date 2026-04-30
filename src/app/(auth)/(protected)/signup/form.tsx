@@ -60,7 +60,7 @@ export default function FormSignup() {
     },
     onSuccess: (res) => {
       toast.success(res.message ?? "Success!");
-      navig.push("/verify-otp");
+      navig.push("/verify");
     },
   });
 
