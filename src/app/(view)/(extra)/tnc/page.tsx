@@ -3,12 +3,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { howl } from "@/lib/utils";
 import type { ApiResponse } from "@/types/base";
 import DOMPurify from "isomorphic-dompurify";
+import { headers } from "next/headers";
 
 export default async function Page() {
   const data: ApiResponse<{
     id: number;
     content: string;
-  }> = await howl(`/terms`);
+  }> = await howl(`/terms`, {
+    headers: {
+      cache: "no-store",
+    },
+  });
 
   const sanitizedContent = DOMPurify.sanitize(data?.data?.content ?? "");
 
@@ -18,7 +23,6 @@ export default async function Page() {
         title="Terms & Condition"
         // desc="Last updated: September 07, 2025. Please read these terms carefully before using the Pocketoire platform."
       />
-
       <main className="my-24 px-4">
         <Card className="lg:w-3/4 mx-auto shadow-md">
           <CardContent className="prose prose-neutral max-w-none py-10">

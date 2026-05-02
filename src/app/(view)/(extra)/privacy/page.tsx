@@ -8,7 +8,11 @@ export default async function Page() {
   const data: ApiResponse<{
     id: number;
     content: string;
-  }> = await howl(`/privacy-policy`);
+  }> = await howl(`/privacy-policy`, {
+    headers: {
+      cache: "no-store",
+    },
+  });
 
   const sanitizedContent = DOMPurify.sanitize(data?.data?.content ?? "");
 

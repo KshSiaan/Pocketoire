@@ -18,7 +18,11 @@ export default async function Page() {
       question: string;
       answer: string;
     }[]
-  > = await howl(`/faq`);
+  > = await howl(`/faq`, {
+    headers: {
+      cache: "no-store",
+    },
+  });
   return (
     <>
       <Header
