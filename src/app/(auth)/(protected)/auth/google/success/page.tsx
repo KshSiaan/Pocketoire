@@ -17,7 +17,7 @@ export default function Page() {
   const { mutate, isPending } = useMutation({
     mutationKey: ["google_auth_success", token],
     mutationFn: async (googleToken: string) => {
-      return await exchangeGoogleTokenApi({ token: googleToken });
+      return await exchangeGoogleTokenApi({ social_login_token: googleToken });
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to complete authentication");
