@@ -21,6 +21,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { MailIcon } from "lucide-react";
+import Link from "next/link";
 
 const forgotSchema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -93,8 +94,9 @@ export default function ForgotForm() {
             className="px-0 text-destructive font-semibold cursor-pointer"
             variant="link"
             type="button"
+            asChild
           >
-            Sign in
+            <Link href={"/login"}>Login</Link>
           </Button>
         </div>
         <div className="text-sm">
@@ -103,8 +105,9 @@ export default function ForgotForm() {
             className="px-0 text-destructive font-semibold cursor-pointer"
             variant="link"
             type="button"
+            asChild
           >
-            Sign Up
+            <Link href={"/signup"}>Sign up</Link>
           </Button>
         </div>
       </form>
