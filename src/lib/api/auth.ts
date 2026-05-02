@@ -68,3 +68,12 @@ export async function updateForgotPasswordApi(body: {
         body,
     });
 }
+
+export async function exchangeGoogleTokenApi(body: {
+    token: string;
+}): Promise<ApiResponse<{ token: string }>> {
+    return howl("/auth/google/exchange-token", {
+        method: "POST",
+        body,
+    });
+}

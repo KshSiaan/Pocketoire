@@ -11,11 +11,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2Icon } from "lucide-react";
-import React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteAlbumApi } from "@/lib/api/storefront";
 import { toast } from "sonner";
-import { clearAuthSession } from "@/lib/utils";
 import { useCookies } from "react-cookie";
 
 export default function DelAlbum({
@@ -52,7 +50,6 @@ export default function DelAlbum({
       qcl.invalidateQueries({ queryKey: ["dashboard-stats"] });
     },
   });
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
