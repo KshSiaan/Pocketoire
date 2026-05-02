@@ -110,9 +110,9 @@ export default function Page() {
             </CardHeader>
             <CardContent className="text-4xl">{value}</CardContent>
             <CardFooter>
-              <CardDescription className={changeColor}>
+              {/* <CardDescription className={changeColor}>
                 {change}
-              </CardDescription>
+              </CardDescription> */}
             </CardFooter>
           </Card>
         ))}
@@ -164,7 +164,6 @@ export default function Page() {
           <CardTitle className="text-xl italic text-primary font-semibold">
             My Album
           </CardTitle>
-          <CreateAlbum />
         </CardHeader>
         <CardContent>
           <Table className="border">

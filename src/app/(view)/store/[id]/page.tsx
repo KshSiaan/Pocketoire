@@ -98,7 +98,7 @@ export default async function Page({
           </span>
 
           <span className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-4">
-            <p className="text-lg sm:text-xl">by N/A</p>
+            {/* <p className="text-lg sm:text-xl">by N/A</p> */}
             <span className="flex items-center gap-2">
               <BoxesIcon className="text-secondary w-5 h-5" />
               <p className="text-secondary font-semibold text-base sm:text-lg">

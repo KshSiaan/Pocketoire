@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { howl } from "@/lib/utils";
 import { useCookies } from "react-cookie";
 import { useState } from "react";
+import CreateAlbum from "../overview/create-album";
 
 export default function Page() {
   const [{ token }] = useCookies(["token"]);
@@ -31,7 +32,8 @@ export default function Page() {
   });
   return (
     <main>
-      <div className="w-full flex justify-end items-center">
+      <div className="w-full flex justify-end items-center gap-4">
+        <CreateAlbum />
         <AddProduct />
       </div>
       {/* {!isPending && (
