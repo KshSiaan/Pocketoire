@@ -70,7 +70,7 @@ export async function updateForgotPasswordApi(body: {
 }
 
 export async function exchangeGoogleTokenApi(body: {
-    token: string;
+    social_login_token: string;
 }): Promise<ApiResponse<{ token: string }>> {
     return howl("/auth/google/exchange-token", {
         method: "POST",

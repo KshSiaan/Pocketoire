@@ -23,11 +23,12 @@ import { KeyRoundIcon, MailIcon, UserIcon } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { signupApi } from "@/lib/api/auth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useMailStore } from "@/lib/moon/email-store";
+import { howl } from "@/lib/utils";
 export const signupSchema = z.object({
   email: z.string().email("Invalid email address"),
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -41,6 +42,12 @@ export type SignupFormValues = z.infer<typeof signupSchema>;
 
 export default function FormSignup() {
   const navig = useRouter();
+  const { data, isPending: loger } = useQuery({
+    queryKey: ["google_oauth"],
+    queryFn: async (): Promise<{ login_url: string }> => {
+      return howl(`/auth/google/url`);
+    },
+  });
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -184,7 +191,12 @@ export default function FormSignup() {
           type="button"
           className="w-full"
           variant="outline"
-          disabled={form.formState.isSubmitting}
+          onClick={() => {
+            if (data?.login_url) {
+              window.open(data.login_url, "_blank");
+            }
+          }}
+          disabled={loger || !data?.login_url}
         >
           <FcGoogle /> Continue with Google
         </Button>
