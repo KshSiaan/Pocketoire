@@ -22,6 +22,8 @@ import {
   Banknote,
   MousePointerClick,
   DollarSign,
+  EditIcon,
+  Trash2Icon,
 } from "lucide-react";
 import Image from "next/image";
 import CreateAlbum from "./create-album";
@@ -29,6 +31,8 @@ import { useQuery } from "@tanstack/react-query";
 import { howl } from "@/lib/utils";
 import { useCookies } from "react-cookie";
 import Link from "next/link";
+import DelAlbum from "./del-album";
+import EditAlbum from "./edit-album";
 
 export default function Page() {
   const [{ token }] = useCookies(["token"]);
@@ -56,6 +60,7 @@ export default function Page() {
         earnings: number;
       }>;
       albums: Array<{
+        id: number;
         name: string;
         description: string;
         products_count: number;
@@ -174,6 +179,7 @@ export default function Page() {
                 <TableHead className="text-center">Products</TableHead>
                 <TableHead className="text-center">Clicks</TableHead>
                 <TableHead className="text-center">Earnings</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -191,6 +197,10 @@ export default function Page() {
                   </TableCell>
                   <TableCell className="text-center font-bold text-green-500">
                     ${Number(album?.total_earnings ?? 0).toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <EditAlbum album={album} />
+                    <DelAlbum album={album} />
                   </TableCell>
                 </TableRow>
               ))}
