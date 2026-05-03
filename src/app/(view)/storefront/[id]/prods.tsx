@@ -39,7 +39,7 @@ export default function Prodss({ id }: { id: string }) {
   const [{ token }] = useCookies(["token"]);
   const [debouncedMin] = useDebounceValue(minMax[0], 500);
   const [debouncedMax] = useDebounceValue(minMax[1], 500);
-  const [groupByAlbum, setGroupByAlbum] = useState(false);
+  const [groupByAlbum, setGroupByAlbum] = useState(true);
 
   const [search, setSearch] = useDebounceValue("", 500);
   const [sort, setSort] = useState("all");

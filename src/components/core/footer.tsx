@@ -19,8 +19,16 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: FaInstagram, label: "Instagram", href: "#" },
-  { icon: FaTiktok, label: "TikTok", href: "#" },
+  {
+    icon: FaInstagram,
+    label: "Instagram",
+    href: "https://www.instagram.com/pocketolre",
+  },
+  {
+    icon: FaTiktok,
+    label: "TikTok",
+    href: "https://www.tiktok.com/@pocketolre",
+  },
 ];
 
 export default function Footer() {
@@ -107,24 +115,24 @@ function FooterSection({
       <ul className="space-y-2">
         {items.map(({ name, href }) => (
           <li key={name}>
-            <Link
+            <a
               href={href}
               className="text-sm hover:text-background/80 transition-colors block"
             >
               {name}
-            </Link>
+            </a>
           </li>
         ))}
 
         {browseAll && (
           <li className="pt-2">
-            <Link
+            <a
               href="/explore"
               className="text-sm text-destructive font-bold inline-flex items-center gap-1 transition-colors"
             >
               Browse All Product
               <ArrowRight className="size-4" />
-            </Link>
+            </a>
           </li>
         )}
       </ul>

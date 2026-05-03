@@ -37,8 +37,20 @@ export default async function Page() {
       account_type: string;
       saved_products: Array<{
         id: number;
+        slug: string;
+        user_id: number;
+        storefront_id: number;
+        album_id: number;
+        source: string;
         title: string;
+        description: string;
         price: string;
+        currency: string;
+        product_link: string;
+        viator_product_code: string;
+        status: string;
+        created_at: string;
+        updated_at: string;
         pivot: {
           user_id: number;
           product_id: number;
@@ -52,6 +64,22 @@ export default async function Page() {
           source: string;
           created_at: string;
           updated_at: string;
+        };
+        storefront: {
+          id: number;
+          user_id: number;
+          name: string;
+          slug: string;
+          status: string;
+          status_reason: string;
+          bio: string;
+          instagram_link: string;
+          tiktok_link: string;
+          moderated_by: any;
+          moderated_at: any;
+          created_at: string;
+          updated_at: string;
+          deleted_at: any;
         };
       }>;
     };
@@ -180,7 +208,7 @@ export default async function Page() {
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
           {data.data?.user?.saved_products.map((prod, i) => (
             <Link
-              href={`/storefront/${prod?.pivot?.user_id}/product/${prod?.id}`}
+              href={`/storefront/${prod?.storefront?.slug}/product/${prod?.slug}`}
               key={i}
             >
               <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">
