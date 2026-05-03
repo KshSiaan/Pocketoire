@@ -180,7 +180,7 @@ export default async function Page() {
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
           {data.data?.user?.saved_products.map((prod, i) => (
             <Link
-              href={`/store/${prod?.pivot?.user_id}/product/${prod?.id}`}
+              href={`/storefront/${prod?.pivot?.user_id}/product/${prod?.id}`}
               key={i}
             >
               <Card className="border-destructive border-2 rounded-lg text-primary p-4! hover:scale-[102%] transition-transform">

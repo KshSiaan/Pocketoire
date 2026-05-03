@@ -68,7 +68,7 @@ export default function Prodss({
     <>
       {data.map((prod) => (
         <Link
-          href={`/store/${prod?.storefront?.slug}/product/${prod.slug}`}
+          href={`/storefront/${prod?.storefront?.slug}/product/${prod.slug}`}
           key={prod.id}
           className="block h-full"
         >

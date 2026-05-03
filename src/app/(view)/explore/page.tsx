@@ -437,7 +437,9 @@ export default function Page() {
                   variant={"secondary"}
                   asChild
                 >
-                  <Link href={`/store/${store.id}`}>Visit Storefront</Link>
+                  <Link href={`/storefront/${store.slug}`}>
+                    Visit Storefront
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>
