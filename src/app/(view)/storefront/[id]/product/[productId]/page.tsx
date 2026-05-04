@@ -14,7 +14,6 @@ import Butts from "./butts";
 import { cookies } from "next/headers";
 import BrowseStore from "./browse-store";
 import { no } from "zod/v4/locales";
-
 export default async function Page({
   params,
 }: {

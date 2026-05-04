@@ -13,6 +13,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Butts from "./butts";
 import { cookies } from "next/headers";
 import BrowseStore from "./browse-store";
+import ImageViewer_Basic from "@/components/commerce-ui/image-viewer-basic";
 
 export default async function Page({
   params,
@@ -89,7 +90,7 @@ export default async function Page({
       {/* Product Overview */}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-        <Image
+        {/* <Image
           src={
             data?.data?.product?.product_image
               ? makeImg(`${data?.data?.product?.product_image?.image}`)
@@ -100,6 +101,12 @@ export default async function Page({
           unoptimized
           alt="product"
           className="aspect-video rounded-lg w-full object-cover"
+        /> */}
+        <ImageViewer_Basic
+          thumbnailUrl={makeImg(`${data?.data?.product?.product_image?.image}`)}
+          imageUrl={makeImg(`${data?.data?.product?.product_image?.image}`)}
+          className="aspect-video rounded-lg w-full object-cover"
+          showControls={false}
         />
 
         <div className="space-y-4">
