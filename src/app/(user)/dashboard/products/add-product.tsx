@@ -68,6 +68,7 @@ export default function AddProduct() {
   const [{ token }] = useCookies(["token"]);
   const [prod_url, setProdUrl] = useState("");
   const [changeImg, setChangeImg] = useState(false);
+  const [imagePreview, setImagePreview] = useState("");
   const form = useForm<AddProductSchema>({
     resolver: zodResolver(addProductSchema),
     defaultValues: {
@@ -200,9 +201,17 @@ export default function AddProduct() {
     mutate(formData);
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    if (viatorProd && viatorProd.data) {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: viator response should populate fields when it changes
+  useEffect(() => {
+    if (viatorProd?.data) {
       form.setValue("product_name", viatorProd.data.product_name);
       form.setValue("description", viatorProd.data.description);
       form.setValue("price", viatorProd.data.price.toString());
@@ -260,6 +269,18 @@ export default function AddProduct() {
               <CardContent className="space-y-6">
                 {changeImg ? (
                   <>
+                    <div className="w-full aspect-video relative rounded-md overflow-hidden border">
+                      <Image
+                        src={
+                          imagePreview ||
+                          viatorProd?.data?.image_url ||
+                          "https://via.placeholder.com/640x360?text=No+Image"
+                        }
+                        fill
+                        alt="selected product image preview"
+                        className="object-cover"
+                      />
+                    </div>
                     <FormField
                       control={form.control}
                       name="image"
@@ -275,6 +296,16 @@ export default function AddProduct() {
                               onBlur={field.onBlur}
                               onChange={(event) => {
                                 const selectedFile = event.target.files?.[0];
+                                if (imagePreview) {
+                                  URL.revokeObjectURL(imagePreview);
+                                }
+                                if (selectedFile) {
+                                  setImagePreview(
+                                    URL.createObjectURL(selectedFile),
+                                  );
+                                } else {
+                                  setImagePreview("");
+                                }
                                 field.onChange(selectedFile);
                               }}
                             />
@@ -287,7 +318,14 @@ export default function AddProduct() {
                       type="button"
                       variant={"outline"}
                       className=""
-                      onClick={() => setChangeImg(false)}
+                      onClick={() => {
+                        if (imagePreview) {
+                          URL.revokeObjectURL(imagePreview);
+                        }
+                        setImagePreview("");
+                        form.setValue("image", undefined);
+                        setChangeImg(false);
+                      }}
                     >
                       Cancel Image Change
                     </Button>
@@ -305,7 +343,7 @@ export default function AddProduct() {
                           alt="image"
                           className="object-cover rounded-md"
                         />
-                        {/** biome-ignore lint/a11y/useButtonType: <explanation> */}
+                        {/* biome-ignore lint/a11y/useButtonType: overlay click uses button semantics without submit behavior */}
                         <button
                           onClick={() => {
                             setChangeImg(true);

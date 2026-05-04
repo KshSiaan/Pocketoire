@@ -25,12 +25,14 @@ export default function BrowseStore({ data }: { data: any }) {
     // ✅ create new product entry
     const newItem = {
       id: data.id,
+      slug: data.slug ?? "",
       title: data.title ?? "",
       image: data?.product_image?.image ?? null,
       price: data.price ?? null,
       currency: data.currency ?? "",
       store: {
         id: data?.storefront?.id ?? null,
+        slug: data?.storefront?.slug ?? "",
         name: data?.storefront?.name ?? "",
       },
     };

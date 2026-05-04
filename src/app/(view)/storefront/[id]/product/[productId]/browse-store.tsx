@@ -1,15 +1,45 @@
 "use client";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useCookies } from "react-cookie";
 
-export default function BrowseStore({ data }: { data: any }) {
+type BrowseStoreData = {
+  id?: number;
+  slug?: string;
+  title?: string;
+  price?: string | number | null;
+  currency?: string;
+  product_image?: {
+    image?: string | null;
+  };
+  storefront?: {
+    id?: number | null;
+    slug?: string;
+    name?: string;
+  };
+};
+
+type HistoryItem = {
+  id: number;
+  slug: string;
+  title: string;
+  image: string | null;
+  price: string | number | null;
+  currency: string;
+  store: {
+    id: number | null;
+    slug: string;
+    name: string;
+  };
+};
+
+export default function BrowseStore({ data }: { data: BrowseStoreData }) {
   const [{ historyToken }, setCookie] = useCookies(["historyToken"]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: write cookie when viewed product changes
   useEffect(() => {
     if (!data?.id) return;
 
-    let historyList: any[] = [];
+    let historyList: HistoryItem[] = [];
 
     // ✅ safely parse existing cookie
     try {
@@ -25,12 +55,14 @@ export default function BrowseStore({ data }: { data: any }) {
     // ✅ create new product entry
     const newItem = {
       id: data.id,
+      slug: data.slug ?? "",
       title: data.title ?? "",
       image: data?.product_image?.image ?? null,
       price: data.price ?? null,
       currency: data.currency ?? "",
       store: {
         id: data?.storefront?.id ?? null,
+        slug: data?.storefront?.slug ?? "",
         name: data?.storefront?.name ?? "",
       },
     };
