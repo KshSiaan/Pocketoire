@@ -22,12 +22,12 @@ const socialLinks = [
   {
     icon: FaInstagram,
     label: "Instagram",
-    href: "https://www.instagram.com/pocketolre",
+    href: "https://www.instagram.com/pocketoire/",
   },
   {
     icon: FaTiktok,
     label: "TikTok",
-    href: "https://www.tiktok.com/@pocketolre",
+    href: "https://www.tiktok.com/@pocketoire",
   },
 ];
 
