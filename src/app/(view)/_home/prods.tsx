@@ -15,8 +15,14 @@ interface expandedProductType extends ProductType {
   };
 }
 export default async function Prods({ amm }: { amm?: number }) {
-  const data: ApiResponse<expandedProductType[]> =
-    await howl("/products/featured");
+  const data: ApiResponse<expandedProductType[]> = await howl(
+    "/products/featured",
+    {
+      headers: {
+        cache: "no-store",
+      },
+    },
+  );
   return data?.data.slice(0, amm).map((prod, i) => (
     <Link
       href={`/store/${prod?.storefront?.slug}/product/${prod?.slug}`}
