@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { howl, makeImg } from "@/lib/utils";
+import { makeImg } from "@/lib/utils";
+import { base_api, base_url } from "@/lib/utils";
 import type { ApiResponse } from "@/types/base";
 import type { ProductType } from "@/types/global";
 import Image from "next/image";
@@ -15,14 +16,11 @@ interface expandedProductType extends ProductType {
   };
 }
 export default async function Prods({ amm }: { amm?: number }) {
-  const data: ApiResponse<expandedProductType[]> = await howl(
-    "/products/featured",
-    {
-      headers: {
-        cache: "no-store",
-      },
-    },
-  );
+  const res = await fetch(`${base_url}${base_api}/products/featured`, {
+    cache: "no-store",
+    headers: { Accept: "application/json" },
+  });
+  const data: ApiResponse<expandedProductType[]> = await res.json();
   return data?.data.slice(0, amm).map((prod, i) => (
     <Link
       href={`/store/${prod?.storefront?.slug}/product/${prod?.slug}`}
