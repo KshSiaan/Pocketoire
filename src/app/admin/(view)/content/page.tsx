@@ -76,10 +76,13 @@ export default function Page() {
             storefront_id: number;
             title: string;
             status: string;
+            description: string;
             product_link: string;
+            slug: string;
             storefront: {
               id: number;
               name: string;
+              slug: string;
             };
             user: {
               id: number;
@@ -261,7 +264,7 @@ export default function Page() {
                       asChild
                     >
                       <Link
-                        href={`/store/${product.storefront.id}/product/${product.id}`}
+                        href={`/store/${product.storefront.slug}/product/${product.slug}`}
                       >
                         <EyeIcon className="h-4 w-4 text-gray-700" />
                       </Link>
