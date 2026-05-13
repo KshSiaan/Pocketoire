@@ -241,6 +241,16 @@ export default function Prodss({ id }: { id: string }) {
             }}
           />
         </div>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="group-by-album"
+            checked={groupByAlbum}
+            onCheckedChange={(checked) => setGroupByAlbum(checked === true)}
+          />
+          <Label htmlFor="group-by-album" className="text-base cursor-pointer">
+            Group by Album
+          </Label>
+        </div>
       </div>
 
       {/* Products */}
@@ -256,19 +266,6 @@ export default function Prodss({ id }: { id: string }) {
                 <SearchIcon />
               </InputGroupAddon>
             </InputGroup>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="group-by-album"
-                checked={groupByAlbum}
-                onCheckedChange={(checked) => setGroupByAlbum(checked === true)}
-              />
-              <Label
-                htmlFor="group-by-album"
-                className="text-base cursor-pointer"
-              >
-                Group by Album
-              </Label>
-            </div>
           </div>
 
           <div className="flex items-center gap-3 md:gap-4 justify-center">

@@ -57,9 +57,9 @@ export default function Form() {
         onChange={(e) => setName(e.target.value)}
       />
 
-      <Label className="text-destructive">Store URL</Label>
+      <Label className="text-destructive">Storefront Handle</Label>
       <Input
-        placeholder="Enter your store URL"
+        placeholder="Enter your Storefront Handle"
         className="bg-white"
         value={url}
         onChange={handleUrlChange}
