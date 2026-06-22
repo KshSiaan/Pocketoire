@@ -200,7 +200,7 @@ export default async function Page({
       {/* Related Products */}
       <section className="mt-16 sm:mt-20 lg:mt-24">
         <h2 className="text-2xl sm:text-3xl lg:text-4xl italic text-center lg:text-left">
-          More from Tech & Lifestyle Essentials
+          More Travel Experiences
         </h2>
         <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {data?.data?.related_products?.map((prod, i) => (

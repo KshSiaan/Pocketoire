@@ -162,6 +162,7 @@ export function PayoutsDashboard({ data }: { data: EarningsData }) {
   };
 
   const currency = data.wallet?.currency || "USD";
+  const minimumWithdrawal = data.payout_threshold?.minimum_amount ?? 50;
 
   return (
     <Card className="w-full">
@@ -183,7 +184,9 @@ export function PayoutsDashboard({ data }: { data: EarningsData }) {
             </p>
             <p className="text-sm text-gray-600">
               Minimum withdrawal:{" "}
-              <span className="font-medium">{money(50, currency)}</span>
+              <span className="font-medium">
+                {money(minimumWithdrawal, currency)}
+              </span>
             </p>
           </CardContent>
         </Card>

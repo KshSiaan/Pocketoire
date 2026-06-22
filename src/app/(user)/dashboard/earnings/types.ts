@@ -31,6 +31,10 @@ export interface EarningsData {
   total_paid_this_month: number;
   total_paid_previous_months: number;
   monthly_payout_percentage_change: number;
+  payout_threshold?: {
+    minimum_amount: string;
+    maximum_amount: string;
+  };
   products: EarningsProduct[];
   wallet: EarningsWallet;
   payouts: EarningsPayout[];
