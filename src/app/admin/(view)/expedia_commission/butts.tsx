@@ -8,11 +8,36 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
-import { EyeIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { Undo2Icon, PlusIcon, PencilIcon, DollarSignIcon, EyeIcon } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import type { ExpediaCommissionRow } from "./types";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { howl } from "@/lib/utils";
+import { toast } from "sonner";
+import { ApiResponse } from "@/types/base";
+import { useCookies } from "react-cookie";
+import { DialogClose } from "@/components/ui/dialog";
 
 const formatDateTime = (value: Date | string | null | undefined) => {
   if (!value) return "-";
@@ -30,13 +55,47 @@ const formatDateTime = (value: Date | string | null | undefined) => {
 };
 
 export default function Butts({ data }: { data: ExpediaCommissionRow }) {
+  const [commission, setCommission] = useState(
+    String(data.platform_commission ?? "0"),
+  );
+  const [open, setOpen] = useState(false);
+  const [{ token }] = useCookies(["token"]);
+  const qcl = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["update_expedia_commission", data.id],
+    mutationFn: (overrideCommission?: string): Promise<ApiResponse<null>> => {
+      return howl(`/admin/creator/update-expedia-commission/${data.id}`, {
+        method: "PATCH",
+        body: {
+          platform_commission:
+            overrideCommission !== undefined ? overrideCommission : commission,
+        },
+        token,
+      });
+    },
+    onError: (err) => {
+      toast.error(err.message ?? "Failed to complete this request");
+      setOpen(false);
+    },
+    onSuccess: (res) => {
+      toast.success(res.message ?? "Success!");
+      qcl.invalidateQueries({ queryKey: ["expedia-commissions"] });
+      setOpen(false);
+    },
+  });
+
   const formatValue = (value: unknown) => {
     if (value === null || value === undefined || value === "") return "-";
     return String(value);
   };
 
+  const hasCommission =
+    data.platform_commission != null && Number(data.platform_commission) > 0;
+
   return (
-    <Dialog>
+    <>
+      <Dialog>
       <DialogTrigger asChild>
         <Button size={"icon"} variant={"outline"}>
           <EyeIcon />
@@ -110,7 +169,81 @@ export default function Butts({ data }: { data: ExpediaCommissionRow }) {
           </section>
         </div>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button variant={hasCommission ? "secondary" : "default"}>
+            {hasCommission ? (
+               <><PencilIcon className="mr-2 h-4 w-4" /> Modify</>
+            ) : (
+               <><PlusIcon className="mr-2 h-4 w-4" /> Commission</>
+            )}
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader className="border-b pb-4">
+            <DialogTitle>{hasCommission ? "Modify Commission" : "Add Commission"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Label>Platform Commission</Label>
+            <InputGroup>
+              <InputGroupInput
+                type="number"
+                value={commission}
+                onChange={(e) => setCommission(e.target.value)}
+                placeholder="Enter commission amount"
+              />
+              <InputGroupAddon>
+                <DollarSignIcon />
+              </InputGroupAddon>
+            </InputGroup>
+          </div>
+          <DialogFooter className="flex justify-between items-center w-full flex-row">
+            {hasCommission ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                        variant={"destructive"} 
+                        disabled={isPending}
+                        type="button"
+                    >
+                        <Undo2Icon className="mr-2 h-4 w-4" /> Revert
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will completely remove the commission. If the creator has already been paid, their wallet balance will be debited and could go negative. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => mutate("0")}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Yes, Revert
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+            ) : (
+                <div />
+            )}
+            <div className="flex gap-2 ml-auto">
+                <DialogClose asChild>
+                  <Button variant={"outline"} type="button">Cancel</Button>
+                </DialogClose>
+                <Button onClick={() => mutate(undefined)} disabled={isPending} type="button">
+                  Save
+                </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

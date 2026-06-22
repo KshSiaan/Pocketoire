@@ -92,63 +92,67 @@ export default function PayoutController({
 
   return (
     <>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-md border "
-          >
-            <CheckIcon className="h-4 w-4 text-gray-700" />
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Approve this payout?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will mark payout #{data.id} for {data.user.name} as approved.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => mutate("approve")}
-              disabled={isPending}
+      {data.status === "requested" && (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-md border "
             >
-              {isPending ? "Approving..." : "Approve"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <CheckIcon className="h-4 w-4 text-gray-700" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Approve this payout?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will mark payout #{data.id} for {data.user.name} as approved.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => mutate("approve")}
+                disabled={isPending}
+              >
+                {isPending ? "Approving..." : "Approve"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
 
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-md border "
-          >
-            <XIcon className="h-4 w-4 text-gray-700" />
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reject this payout?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will reject payout #{data.id} for {data.user.name}.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => mutate("reject")}
+      {data.status === "requested" && (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-md border "
             >
-              {isPending ? "Rejecting..." : "Reject"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <XIcon className="h-4 w-4 text-gray-700" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reject this payout?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will reject payout #{data.id} for {data.user.name}.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={() => mutate("reject")}
+              >
+                {isPending ? "Rejecting..." : "Reject"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </>
   );
 }

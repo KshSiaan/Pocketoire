@@ -86,6 +86,7 @@ export default function Page() {
             currency: string;
             method: string;
             status: string;
+            failure_reason: string | null;
             created_at: string;
             user: {
               id: number;
@@ -331,7 +332,14 @@ export default function Page() {
                     ) : payment.status === "processing" ? (
                       <Badge className="bg-amber-500">{payment?.status}</Badge>
                     ) : (
-                      <Badge variant={"destructive"}>{payment?.status}</Badge>
+                      <div className="flex flex-col items-start gap-1">
+                        <Badge variant={"destructive"}>{payment?.status}</Badge>
+                        {payment?.failure_reason && (
+                          <span className="text-xs text-destructive max-w-[200px] text-wrap">
+                            {payment.failure_reason}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </TableCell>
                   <TableCell className="space-x-2">

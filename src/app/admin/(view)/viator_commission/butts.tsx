@@ -11,8 +11,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
-import { DollarSignIcon, EyeIcon, PlusIcon } from "lucide-react";
+import { DollarSignIcon, EyeIcon, PlusIcon, PencilIcon, Undo2Icon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -65,12 +76,12 @@ export default function Butts({
   const qcl = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationKey: ["update_commission"],
-    mutationFn: (): Promise<ApiResponse<null>> => {
+    mutationFn: (overrideCommission?: string): Promise<ApiResponse<null>> => {
       return howl(`/admin/creator/add-commission`, {
         method: "POST",
         body: {
           id: data.id,
-          platform_commission: commission,
+          platform_commission: overrideCommission !== undefined ? overrideCommission : commission,
         },
         token,
       });
@@ -90,6 +101,8 @@ export default function Butts({
     if (value === null || value === undefined || value === "") return "-";
     return String(value);
   };
+
+  const hasCommission = data.platform_commission != null && Number(data.platform_commission) > 0;
 
   return (
     <>
@@ -173,18 +186,23 @@ export default function Butts({
       </Dialog>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button>
-            <PlusIcon /> Commission
+          <Button variant={hasCommission ? "secondary" : "default"}>
+            {hasCommission ? (
+               <><PencilIcon className="mr-2 h-4 w-4" /> Modify</>
+            ) : (
+               <><PlusIcon className="mr-2 h-4 w-4" /> Commission</>
+            )}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader className="border-b pb-4">
-            <DialogTitle>Add Commission</DialogTitle>
+            <DialogTitle>{hasCommission ? "Modify Commission" : "Add Commission"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <Label>Platform Commission</Label>
             <InputGroup>
               <InputGroupInput
+                type="number"
                 value={commission}
                 onChange={(e) => setCommission(e.target.value)}
                 placeholder="Enter commission amount"
@@ -194,13 +212,47 @@ export default function Butts({
               </InputGroupAddon>
             </InputGroup>
           </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant={"outline"}>Cancel</Button>
-            </DialogClose>
-            <Button onClick={() => mutate()} disabled={isPending}>
-              Save Commission
-            </Button>
+          <DialogFooter className="flex sm:justify-between items-center w-full">
+            {hasCommission ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                        variant={"destructive"} 
+                        disabled={isPending}
+                        type="button"
+                    >
+                        <Undo2Icon className="mr-2 h-4 w-4" /> Revert
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will completely remove the commission. If the creator has already been paid, their wallet balance will be debited and could go negative. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => mutate("0")}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Yes, Revert
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+            ) : (
+                <div />
+            )}
+            <div className="flex gap-2 ml-auto">
+                <DialogClose asChild>
+                  <Button variant={"outline"} type="button">Cancel</Button>
+                </DialogClose>
+                <Button onClick={() => mutate(undefined)} disabled={isPending} type="button">
+                  Save
+                </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
