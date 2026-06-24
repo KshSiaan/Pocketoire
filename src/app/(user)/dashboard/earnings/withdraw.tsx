@@ -103,15 +103,43 @@ export default function Withdraw() {
     },
   });
 
+  const { mutate: loginLink, isPending: linking } = useMutation({
+    mutationKey: ["login_stripe"],
+    mutationFn: (): Promise<ApiResponse<{ url: string }>> => {
+      return howl(`/stripe/connect/login-link`, {
+        method: "POST",
+        token,
+      });
+    },
+    onError: (err) => {
+      toast.error(err.message ?? "Failed to complete this request");
+    },
+    onSuccess: (res) => {
+      window.open(res.data.url, "_blank", "noopener,noreferrer");
+    },
+  });
+
   return (
-    <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
-      <DialogTrigger asChild>
-        <Button className="bg-[#a53b3b] hover:bg-[#8e3333] text-white py-2 px-4 rounded shadow-md">
-          <CreditCardIcon className="w-4 h-4 mr-2" />
-          Withdraw Money
+    <div className="flex gap-2 items-center">
+      {data?.data?.data?.stripe_onboarded ? (
+        <Button 
+          variant="outline" 
+          className="border-[#a53b3b] text-[#a53b3b] hover:bg-[#a53b3b]/10 py-2 px-4 rounded shadow-sm"
+          onClick={() => loginLink()}
+          disabled={linking}
+        >
+          {linking ? "Loading..." : "Manage Payout Settings"}
         </Button>
-      </DialogTrigger>
-      <DialogContent>
+      ) : null}
+
+      <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
+        <DialogTrigger asChild>
+          <Button className="bg-[#a53b3b] hover:bg-[#8e3333] text-white py-2 px-4 rounded shadow-md">
+            <CreditCardIcon className="w-4 h-4 mr-2" />
+            Withdraw Money
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
         <DialogHeader className="border-b pb-4">
           <DialogTitle>
             {data?.data?.data?.stripe_onboarded
@@ -170,5 +198,6 @@ export default function Withdraw() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </div>
   );
 }
